@@ -1,0 +1,69 @@
+# GPS Spoofing Detection Pipeline Configuration
+
+data:
+  raw_dir: "gps_logs/raw"
+  processed_dir: "gps_logs/processed"
+  artifacts_dir: "ml/artifacts"
+  models_dir: "ml/models"
+
+# Logging
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+
+# Data cleaning settings
+cleaning:
+  min_fix_type: 3                    # Minimum GPS fix type (0-5)
+  max_dt_gap_s: 5.0                  # Max time gap before marking as gap
+  max_stale_repeats: 5               # Max stale repeats before dropping
+  drop_duplicates: true
+
+# Window creation settings
+windows:
+  length: 30                         # Samples per window (3 seconds @ 10Hz)
+  stride: 15                         # Step between windows (50% overlap)
+  min_window_label_ratio: 0.5        # Anomaly ratio threshold for labeling window
+
+# Train/test split
+split:
+  train_ratio: 0.7
+  val_ratio: 0.15
+  test_ratio: 0.15
+
+# Auto-labeling heuristics for spoofing detection
+auto_label:
+  enabled: true
+
+  # Position jump detection (meters per second)
+  max_normal_speed_ms: 30.0          # Max expected drone speed
+  max_normal_accel_ms2: 15.0        # Max expected acceleration
+
+  # GPS quality degradation
+  min_satellites: 6                  # Min satellites for good fix
+  max_eph_m: 5.0                    # Max horizontal position error (meters)
+  max_epv_m: 10.0                   # Max vertical position error (meters)
+
+  # Stale data detection
+  stale_threshold: 2                # Consecutive identical readings = stale
+  max_stale_ratio: 0.1             # Max stale ratio per window
+
+  # Mode anomalies
+  failsafe_is_anomaly: true
+  mode_hex_is_anomaly: true
+
+  # Speed anomalies
+  sudden_speed_change_ms: 10.0       # Speed change threshold
+  zero_speed_when_armed: false      # Check for inconsistencies
+
+# Model training
+training:
+  model_type: "rf"                  # "rf" or "cnn"
+  n_estimators: 100
+  test_size: 0.15
+  random_state: 42
+
+# Inference settings
+inference:
+  connection_url: "udp:127.0.0.1:14560"
+  anomaly_threshold: 0.5
+  alert_on_anomaly: true

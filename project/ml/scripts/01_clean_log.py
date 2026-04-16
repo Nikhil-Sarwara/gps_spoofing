@@ -1,14 +1,9 @@
+from __future__ import annotations
 from pathlib import Path
 import json
 import pandas as pd
 import numpy as np
-
-RAW_PATH = Path("gps_logs/raw/gps_log_20260402_184048.csv")
-OUT_DIR = Path("gps_logs/processed")
-OUT_DIR.mkdir(parents=True, exist_ok=True)
-
-CLEAN_PATH = OUT_DIR / "gps_log_20260402_184048_cleaned.csv"
-REPORT_PATH = OUT_DIR / "gps_log_20260402_184048_cleaning_report.json"
+from typing import Optional
 
 NUMERIC_COLS = [
     "time_s", "lat_deg", "lon_deg", "alt_m", "rel_alt_m", "vel_m_s", "hdg_deg",
@@ -29,8 +24,38 @@ def normalize_mode(x):
         return "MODE_HEX"
     return x.upper()
 
-def main():
-    df = pd.read_csv(RAW_PATH)
+def main(
+    raw_path: str | Path,
+    output_dir: str | Path,
+    cleaning_config: Optional[dict] = None,
+) -> Path:
+    """
+    Clean raw GPS telemetry data.
+
+    Args:
+        raw_path: Path to raw CSV file
+        output_dir: Directory for cleaned output
+        cleaning_config: Optional cleaning configuration
+
+    Returns:
+        Path to cleaned CSV file
+    """
+    raw_path = Path(raw_path)
+    output_dir = Path(output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    if cleaning_config is None:
+        cleaning_config = {}
+
+    min_fix_type = cleaning_config.get("min_fix_type", 3)
+    max_stale_repeats = cleaning_config.get("max_stale_repeats", 5)
+    max_dt_gap = cleaning_config.get("max_dt_gap_s", 5.0)
+
+    clean_name = raw_path.stem + "_cleaned.csv"
+    clean_path = output_dir / clean_name
+    report_path = output_dir / (raw_path.stem + "_cleaning_report.json")
+
+    df = pd.read_csv(raw_path)
 
     df.columns = [c.strip() for c in df.columns]
 
@@ -57,7 +82,7 @@ def main():
     df = df.dropna(subset=critical_cols)
 
     if "fix_type" in df.columns:
-        df = df[df["fix_type"] >= 3]
+        df = df[df["fix_type"] >= min_fix_type]
 
     if "connection_ok" in df.columns:
         df = df[df["connection_ok"] == 1]
@@ -69,16 +94,16 @@ def main():
     df["is_stale_repeat"] = stale_mask.fillna(False)
 
     stale_run = df["is_stale_repeat"].groupby((df["is_stale_repeat"] != df["is_stale_repeat"].shift()).cumsum()).transform("sum")
-    df = df[~((df["is_stale_repeat"]) & (stale_run >= 5))].copy()
+    df = df[~((df["is_stale_repeat"]) & (stale_run >= max_stale_repeats))].copy()
 
     df["dt"] = df["time_s"].diff()
-    df = df[(df["dt"].isna()) | ((df["dt"] > 0) & (df["dt"] < 5))].copy()
+    df = df[(df["dt"].isna()) | ((df["dt"] > 0) & (df["dt"] < max_dt_gap))].copy()
 
     df = df.reset_index(drop=True)
 
     report = {
-        "input_file": str(RAW_PATH),
-        "output_file": str(CLEAN_PATH),
+        "input_file": str(raw_path),
+        "output_file": str(clean_path),
         "initial_rows": int(initial_rows),
         "final_rows": int(len(df)),
         "rows_removed": int(initial_rows - len(df)),
@@ -91,12 +116,19 @@ def main():
         "armed_counts": df["armed"].value_counts(dropna=False).to_dict() if "armed" in df.columns else {}
     }
 
-    df.to_csv(CLEAN_PATH, index=False)
-    REPORT_PATH.write_text(json.dumps(report, indent=2))
+    df.to_csv(clean_path, index=False)
+    report_path.write_text(json.dumps(report, indent=2))
 
-    print(f"Saved cleaned CSV: {CLEAN_PATH}")
-    print(f"Saved report: {REPORT_PATH}")
+    print(f"Saved cleaned CSV: {clean_path}")
+    print(f"Saved report: {report_path}")
     print(f"Rows: {initial_rows} -> {len(df)}")
 
+    return clean_path
+
 if __name__ == "__main__":
-    main()
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("raw_path", help="Path to raw CSV")
+    parser.add_argument("--output-dir", default="gps_logs/processed", help="Output directory")
+    args = parser.parse_args()
+    main(args.raw_path, args.output_dir)

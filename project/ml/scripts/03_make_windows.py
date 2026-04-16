@@ -1,19 +1,31 @@
+from __future__ import annotations
 import json
 import pickle
 from pathlib import Path
+from typing import Optional, Union
 
 import numpy as np
 import pandas as pd
 from sklearn.preprocessing import StandardScaler
 
-CLEAN_PATH = Path("gps_logs/processed/gps_log_20260402_184048_cleaned.csv")
-LABELS_PATH = Path("gps_logs/processed/row_labels.csv")
-
-ARTIFACTS_DIR = Path("ml/artifacts")
-ARTIFACTS_DIR.mkdir(parents=True, exist_ok=True)
-
-WINDOW_LEN = 30
-STRIDE = 15
+BASE_FEATURE_COLS = [
+    "lat_deg",
+    "lon_deg",
+    "alt_m",
+    "rel_alt_m",
+    "vel_m_s",
+    "hdg_deg",
+    "fix_type",
+    "satellites_visible",
+    "eph_m",
+    "epv_m",
+    "battery_voltage",
+    "battery_remaining_pct",
+    "armed",
+    "failsafe",
+    "connection_ok",
+    "is_stale_repeat",
+]
 
 BASE_FEATURE_COLS = [
     "lat_deg",
@@ -88,11 +100,38 @@ def safe_label_dist(y):
     return {int(k): int(v) for k, v in zip(values, counts)}
 
 
-def main():
-    print("Loading data...")
+def main(
+    labels_path: Union[str, Path],
+    artifacts_dir: Union[str, Path],
+    windows_config: Optional[dict] = None,
+    split_config: Optional[dict] = None,
+) -> dict:
+    """
+    Create ML-ready sliding windows from labeled data.
 
-    df_clean = pd.read_csv(CLEAN_PATH)
-    labels_df = pd.read_csv(LABELS_PATH)
+    Args:
+        labels_path: Path to row_labels CSV
+        artifacts_dir: Directory for output artifacts
+        windows_config: Window configuration (length, stride)
+        split_config: Train/val/test split configuration
+
+    Returns:
+        Dict with paths to created artifacts
+    """
+    windows_config = windows_config or {}
+    split_config = split_config or {}
+
+    window_len = windows_config.get("length", 30)
+    stride = windows_config.get("stride", 15)
+    train_ratio = split_config.get("train_ratio", 0.7)
+    val_ratio = split_config.get("val_ratio", 0.15)
+
+    artifacts_dir = Path(artifacts_dir)
+    artifacts_dir.mkdir(parents=True, exist_ok=True)
+
+    print("Loading data...")
+    df_clean = pd.read_csv(labels_path)
+    labels_df = pd.read_csv(labels_path)
 
     df = pd.merge(
         df_clean,
@@ -135,8 +174,8 @@ def main():
     X, y, win_start, win_end = create_windows(
         df_labeled,
         feature_cols=feature_cols,
-        window_len=WINDOW_LEN,
-        stride=STRIDE,
+        window_len=window_len,
+        stride=stride,
     )
 
     print(f"Windows created: {X.shape}")
@@ -147,8 +186,8 @@ def main():
         return
 
     n_total = len(X)
-    n_train = int(0.7 * n_total)
-    n_val = int(0.15 * n_total)
+    n_train = int(train_ratio * n_total)
+    n_val = int(val_ratio * n_total)
     n_test = n_total - n_train - n_val
 
     train_end = n_train
@@ -176,7 +215,7 @@ def main():
     X_test_sc = scaler.transform(X_test.reshape(-1, X_test.shape[-1])).reshape(X_test.shape)
 
     np.savez_compressed(
-        ARTIFACTS_DIR / "dataset.npz",
+        artifacts_dir / "dataset.npz",
         X_train=X_train_sc,
         y_train=y_train,
         X_val=X_val_sc,
@@ -191,15 +230,15 @@ def main():
         win_end_test=win_end_test,
     )
 
-    with open(ARTIFACTS_DIR / "scaler.pkl", "wb") as f:
+    with open(artifacts_dir / "scaler.pkl", "wb") as f:
         pickle.dump(scaler, f)
 
-    with open(ARTIFACTS_DIR / "feature_names.json", "w") as f:
+    with open(artifacts_dir / "feature_names.json", "w") as f:
         json.dump(feature_cols, f, indent=2)
 
     info = {
-        "window_len": int(WINDOW_LEN),
-        "stride": int(STRIDE),
+        "window_len": int(window_len),
+        "stride": int(stride),
         "num_features": int(len(feature_cols)),
         "feature_names": feature_cols,
         "n_total_windows": int(n_total),
@@ -226,19 +265,28 @@ def main():
         },
     }
 
-    with open(ARTIFACTS_DIR / "dataset_info.json", "w") as f:
+    with open(artifacts_dir / "dataset_info.json", "w") as f:
         json.dump(info, f, indent=2)
 
-    print("\n✅ Dataset ready in ml/artifacts/")
+    print("\n✅ Dataset ready")
     print(f"Train: {X_train_sc.shape}, labels={safe_label_dist(y_train)}")
     print(f"Val:   {X_val_sc.shape}, labels={safe_label_dist(y_val)}")
     print(f"Test:  {X_test_sc.shape}, labels={safe_label_dist(y_test)}")
-    print("Saved:")
-    print("- ml/artifacts/dataset.npz")
-    print("- ml/artifacts/scaler.pkl")
-    print("- ml/artifacts/feature_names.json")
-    print("- ml/artifacts/dataset_info.json")
+
+    result = {
+        "dataset_npz": str(artifacts_dir / "dataset.npz"),
+        "scaler_pkl": str(artifacts_dir / "scaler.pkl"),
+        "feature_names_json": str(artifacts_dir / "feature_names.json"),
+        "dataset_info_json": str(artifacts_dir / "dataset_info.json"),
+        "info": info,
+    }
+    return result
 
 
 if __name__ == "__main__":
-    main()
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("labels_path", help="Path to row_labels CSV")
+    parser.add_argument("--artifacts-dir", default="ml/artifacts", help="Output directory")
+    args = parser.parse_args()
+    main(args.labels_path, args.artifacts_dir)

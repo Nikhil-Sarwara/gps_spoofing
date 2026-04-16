@@ -1,6 +1,8 @@
+from __future__ import annotations
 import json
 import pickle
 from pathlib import Path
+from typing import Optional, Union
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -10,11 +12,6 @@ import torch.optim as optim
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import classification_report, confusion_matrix
 from torch.utils.data import DataLoader, TensorDataset
-
-DATASET_PATH = Path("ml/artifacts/dataset.npz")
-FEATURES_PATH = Path("ml/artifacts/feature_names.json")
-MODELS_DIR = Path("ml/models")
-MODELS_DIR.mkdir(parents=True, exist_ok=True)
 
 BATCH_SIZE = 32
 EPOCHS = 50
@@ -42,15 +39,15 @@ class WindowCNN(nn.Module):
         return x
 
 
-def train_rf(X_train, y_train, X_val, y_val):
+def train_rf(X_train, y_train, X_val, y_val, models_dir, n_estimators=100, random_state=42):
     print("Training Random Forest...")
 
     X_train_flat = X_train.reshape(X_train.shape[0], -1)
     X_val_flat = X_val.reshape(X_val.shape[0], -1)
 
     rf = RandomForestClassifier(
-        n_estimators=100,
-        random_state=42,
+        n_estimators=n_estimators,
+        random_state=random_state,
         class_weight="balanced"
     )
     rf.fit(X_train_flat, y_train)
@@ -62,13 +59,13 @@ def train_rf(X_train, y_train, X_val, y_val):
     print("Train:", classification_report(y_train, train_pred, zero_division=0))
     print("Val:  ", classification_report(y_val, val_pred, zero_division=0))
 
-    with open(MODELS_DIR / "rf_model.pkl", "wb") as f:
+    with open(models_dir / "rf_model.pkl", "wb") as f:
         pickle.dump(rf, f)
 
     return rf, train_pred, val_pred
 
 
-def train_cnn(X_train, y_train, X_val, y_val, X_test, y_test, num_features):
+def train_cnn(X_train, y_train, X_val, y_val, X_test, y_test, num_features, models_dir):
     print("\nTraining 1D CNN...")
 
     device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
@@ -166,12 +163,12 @@ def train_cnn(X_train, y_train, X_val, y_val, X_test, y_test, num_features):
     print("Val: ", classification_report(val_true, val_pred, zero_division=0))
     print("Test:", classification_report(test_true, test_pred, zero_division=0))
 
-    torch.save(model.state_dict(), MODELS_DIR / "cnn_model.pth")
+    torch.save(model.state_dict(), models_dir / "cnn_model.pth")
 
     return model, np.array(val_pred), np.array(test_pred)
 
 
-def plot_confusion(y_true, y_pred, title, filename):
+def plot_confusion(y_true, y_pred, title, filename, models_dir):
     cm = confusion_matrix(y_true, y_pred)
 
     plt.figure(figsize=(4, 4))
@@ -186,16 +183,39 @@ def plot_confusion(y_true, y_pred, title, filename):
             plt.text(j, i, str(cm[i, j]), ha="center", va="center", color="black")
 
     plt.tight_layout()
-    plt.savefig(MODELS_DIR / filename)
+    plt.savefig(models_dir / filename)
     plt.close()
 
     print(f"\n{title} confusion matrix:")
     print(cm)
 
 
-def main():
-    data = np.load(DATASET_PATH)
+def main(
+    artifacts_dir: Union[str, Path],
+    models_dir: Union[str, Path],
+    training_config: Optional[dict] = None,
+) -> dict:
+    """
+    Train ML models for GPS spoofing detection.
 
+    Args:
+        artifacts_dir: Directory containing dataset.npz and feature_names.json
+        models_dir: Output directory for trained models
+        training_config: Optional training configuration
+
+    Returns:
+        Dict with paths to trained models
+    """
+    training_config = training_config or {}
+
+    artifacts_dir = Path(artifacts_dir)
+    models_dir = Path(models_dir)
+    models_dir.mkdir(parents=True, exist_ok=True)
+
+    dataset_path = artifacts_dir / "dataset.npz"
+    features_path = artifacts_dir / "feature_names.json"
+
+    data = np.load(dataset_path)
     X_train = data["X_train"]
     y_train = data["y_train"]
     X_val = data["X_val"]
@@ -203,7 +223,7 @@ def main():
     X_test = data["X_test"]
     y_test = data["y_test"]
 
-    with open(FEATURES_PATH) as f:
+    with open(features_path) as f:
         feature_names = json.load(f)
 
     num_features = X_train.shape[2]
@@ -214,26 +234,37 @@ def main():
     )
     print(f"Features ({num_features}): {feature_names[:5]}...")
 
-    rf, rf_train_pred, rf_val_pred = train_rf(X_train, y_train, X_val, y_val)
+    n_estimators = training_config.get("n_estimators", 100)
+    random_state = training_config.get("random_state", 42)
 
-    cnn_model, cnn_val_pred, cnn_test_pred = train_cnn(
-        X_train, y_train, X_val, y_val, X_test, y_test, num_features
+    rf, rf_train_pred, rf_val_pred = train_rf(
+        X_train, y_train, X_val, y_val, models_dir, n_estimators, random_state
     )
 
-    plot_confusion(y_train, rf_train_pred, "RF Train", "rf_train_cm.png")
-    plot_confusion(y_val, rf_val_pred, "RF Val", "rf_val_cm.png")
-    plot_confusion(y_val, cnn_val_pred, "CNN Val", "cnn_val_cm.png")
-    plot_confusion(y_test, cnn_test_pred, "CNN Test", "cnn_test_cm.png")
+    cnn_model, cnn_val_pred, cnn_test_pred = train_cnn(
+        X_train, y_train, X_val, y_val, X_test, y_test, num_features, models_dir
+    )
+
+    plot_confusion(y_train, rf_train_pred, "RF Train", "rf_train_cm.png", models_dir)
+    plot_confusion(y_val, rf_val_pred, "RF Val", "rf_val_cm.png", models_dir)
+    plot_confusion(y_val, cnn_val_pred, "CNN Val", "cnn_val_cm.png", models_dir)
+    plot_confusion(y_test, cnn_test_pred, "CNN Test", "cnn_test_cm.png", models_dir)
 
     print("\n✅ Training complete!")
     print("Models saved:")
-    print("- ml/models/rf_model.pkl")
-    print("- ml/models/cnn_model.pth")
-    print("- ml/models/rf_train_cm.png")
-    print("- ml/models/rf_val_cm.png")
-    print("- ml/models/cnn_val_cm.png")
-    print("- ml/models/cnn_test_cm.png")
+    print(f"- {models_dir / 'rf_model.pkl'}")
+    print(f"- {models_dir / 'cnn_model.pth'}")
+
+    return {
+        "rf_model": str(models_dir / "rf_model.pkl"),
+        "cnn_model": str(models_dir / "cnn_model.pth"),
+    }
 
 
 if __name__ == "__main__":
-    main()
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--artifacts-dir", default="ml/artifacts", help="Artifacts directory")
+    parser.add_argument("--models-dir", default="ml/models", help="Models output directory")
+    args = parser.parse_args()
+    main(args.artifacts_dir, args.models_dir)
