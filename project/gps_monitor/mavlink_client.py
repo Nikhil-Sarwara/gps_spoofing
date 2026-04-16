@@ -90,6 +90,7 @@ class MAVLinkClient:
             return TelemetryState(
                 gps=self.state.gps.__class__(**self.state.gps.__dict__),
                 imu=self.state.imu.__class__(**self.state.imu.__dict__),
+                estimator=self.state.estimator.__class__(**self.state.estimator.__dict__),
                 health=self.state.health.__class__(**self.state.health.__dict__),
                 start_time=self.state.start_time,
                 connection_ok=self.state.connection_ok,
@@ -154,29 +155,47 @@ class MAVLinkClient:
             self.state.gps.eph = self._gps_accuracy_to_m(getattr(msg, "eph", None))
             self.state.gps.epv = self._gps_accuracy_to_m(getattr(msg, "epv", None))
 
-        elif msg_type == "RAW_IMU":
-            self.state.imu.ax_mps2 = self._mg_to_mps2(getattr(msg, "xacc", None))
-            self.state.imu.ay_mps2 = self._mg_to_mps2(getattr(msg, "yacc", None))
-            self.state.imu.az_mps2 = self._mg_to_mps2(getattr(msg, "zacc", None))
+        elif msg_type == "ATTITUDE":
+            self.state.imu.roll_deg = math.degrees(self._safe_div(getattr(msg, "roll", None), 1.0))
+            self.state.imu.pitch_deg = math.degrees(self._safe_div(getattr(msg, "pitch", None), 1.0))
+            self.state.imu.yaw_deg = math.degrees(self._safe_div(getattr(msg, "yaw", None), 1.0))
+            self.state.imu.rollspeed_radps = getattr(msg, "rollspeed", None)
+            self.state.imu.pitchspeed_radps = getattr(msg, "pitchspeed", None)
+            self.state.imu.yawspeed_radps = getattr(msg, "yawspeed", None)
 
-            self.state.imu.gx_radps = self._mrad_to_rad(getattr(msg, "xgyro", None))
-            self.state.imu.gy_radps = self._mrad_to_rad(getattr(msg, "ygyro", None))
-            self.state.imu.gz_radps = self._mrad_to_rad(getattr(msg, "zgyro", None))
+        elif msg_type == "VIBRATION":
+            self.state.imu.vibration_x = getattr(msg, "vibration_x", None)
+            self.state.imu.vibration_y = getattr(msg, "vibration_y", None)
+            self.state.imu.vibration_z = getattr(msg, "vibration_z", None)
+            self.state.imu.clipping_0 = getattr(msg, "clipping_0", 0)
+            self.state.imu.clipping_1 = getattr(msg, "clipping_1", 0)
+            self.state.imu.clipping_2 = getattr(msg, "clipping_2", 0)
 
-        elif msg_type == "SCALED_IMU2":
-            if self.state.imu.ax_mps2 is None:
-                self.state.imu.ax_mps2 = self._mg_to_mps2(getattr(msg, "xacc", None))
-            if self.state.imu.ay_mps2 is None:
-                self.state.imu.ay_mps2 = self._mg_to_mps2(getattr(msg, "yacc", None))
-            if self.state.imu.az_mps2 is None:
-                self.state.imu.az_mps2 = self._mg_to_mps2(getattr(msg, "zacc", None))
-
-            if self.state.imu.gx_radps is None:
-                self.state.imu.gx_radps = self._mrad_to_rad(getattr(msg, "xgyro", None))
-            if self.state.imu.gy_radps is None:
-                self.state.imu.gy_radps = self._mrad_to_rad(getattr(msg, "ygyro", None))
-            if self.state.imu.gz_radps is None:
-                self.state.imu.gz_radps = self._mrad_to_rad(getattr(msg, "zgyro", None))
+        elif msg_type == "ESTIMATOR_STATUS":
+            self.state.estimator.vel_ratio = self._none_if_too_large(
+                getattr(msg, "vel_ratio", None)
+            )
+            self.state.estimator.pos_horiz_ratio = self._none_if_too_large(
+                getattr(msg, "pos_horiz_ratio", None)
+            )
+            self.state.estimator.pos_vert_ratio = self._none_if_too_large(
+                getattr(msg, "pos_vert_ratio", None)
+            )
+            self.state.estimator.mag_ratio = self._none_if_too_large(
+                getattr(msg, "mag_ratio", None)
+            )
+            self.state.estimator.hagl_ratio = self._none_if_too_large(
+                getattr(msg, "hagl_ratio", None)
+            )
+            self.state.estimator.vel_innov = self._none_if_too_large(
+                getattr(msg, "vel_innov", None)
+            )
+            self.state.estimator.pos_horiz_innov = self._none_if_too_large(
+                getattr(msg, "pos_horiz_innov", None)
+            )
+            self.state.estimator.pos_vert_innov = self._none_if_too_large(
+                getattr(msg, "pos_vert_innov", None)
+            )
 
         elif msg_type == "HEARTBEAT":
             base_mode = getattr(msg, "base_mode", 0)
@@ -262,12 +281,24 @@ class MAVLinkClient:
                 "satellites_visible",
                 "eph_m",
                 "epv_m",
-                "ax_mps2",
-                "ay_mps2",
-                "az_mps2",
-                "gx_radps",
-                "gy_radps",
-                "gz_radps",
+                "roll_deg",
+                "pitch_deg",
+                "yaw_deg",
+                "rollspeed_radps",
+                "pitchspeed_radps",
+                "yawspeed_radps",
+                "vibration_x",
+                "vibration_y",
+                "vibration_z",
+                "clipping_0",
+                "clipping_1",
+                "clipping_2",
+                "vel_ratio",
+                "pos_horiz_ratio",
+                "pos_vert_ratio",
+                "vel_innov",
+                "pos_horiz_innov",
+                "pos_vert_innov",
                 "battery_voltage",
                 "battery_remaining_pct",
                 "armed",
@@ -290,6 +321,7 @@ class MAVLinkClient:
     def _build_csv_row(self) -> list:
         gps = self.state.gps
         imu = self.state.imu
+        est = self.state.estimator
         health = self.state.health
 
         time_s = None
@@ -308,12 +340,24 @@ class MAVLinkClient:
             gps.satellites_visible,
             gps.eph,
             gps.epv,
-            imu.ax_mps2,
-            imu.ay_mps2,
-            imu.az_mps2,
-            imu.gx_radps,
-            imu.gy_radps,
-            imu.gz_radps,
+            imu.roll_deg,
+            imu.pitch_deg,
+            imu.yaw_deg,
+            imu.rollspeed_radps,
+            imu.pitchspeed_radps,
+            imu.yawspeed_radps,
+            imu.vibration_x,
+            imu.vibration_y,
+            imu.vibration_z,
+            imu.clipping_0,
+            imu.clipping_1,
+            imu.clipping_2,
+            est.vel_ratio,
+            est.pos_horiz_ratio,
+            est.pos_vert_ratio,
+            est.vel_innov,
+            est.pos_horiz_innov,
+            est.pos_vert_innov,
             health.battery_voltage,
             health.battery_remaining_pct,
             int(health.armed),
@@ -352,3 +396,9 @@ class MAVLinkClient:
         if value in (None, 255):
             return None
         return int(value)
+
+    @staticmethod
+    def _none_if_too_large(value, threshold: float = 1e6) -> Optional[float]:
+        if value is None or abs(value) > threshold:
+            return None
+        return float(value)

@@ -81,20 +81,31 @@ MAVLink protocol over UDP connection (`udp:127.0.0.1:14560`)
 |----------------|---------------|
 | `GLOBAL_POSITION_INT` | lat, lon, alt, velocity, heading |
 | `GPS_RAW_INT` | fix_type, satellites, eph, epv |
-| `RAW_IMU` / `SCALED_IMU2` | accelerometer, gyroscope |
+| `ATTITUDE` | roll, pitch, yaw angles + angular rates |
+| `VIBRATION` | vibration levels (GPS interference indicator) |
+| `ESTIMATOR_STATUS` | EKF innovation values (GPS consistency check) |
 | `HEARTBEAT` | armed state, flight mode |
 | `SYS_STATUS` | battery voltage, remaining % |
 | `VFR_HUD` | airspeed, groundspeed |
+
+### Why IMU Integration?
+GPS-only detection is vulnerable to attacks that slowly manipulate position. IMU data provides:
+- **Cross-validation**: Compare GPS velocity vs attitude-derived motion
+- **Physical consistency**: Angular rates should correlate with position changes
+- **Vibration analysis**: GPS interference/spoofing causes vibration anomalies
+- **Estimator innovation**: EKF residuals indicate GPS inconsistency
 
 ### Sampling Rate
 - **10 Hz** (100ms intervals) - ensures consistency with ML training
 - GPS logs saved as CSV to `gps_logs/raw/`
 
-### Raw Data Schema
+### Raw Data Schema (32 features)
 ```csv
 time_s,lat_deg,lon_deg,alt_m,rel_alt_m,vel_m_s,hdg_deg,
 fix_type,satellites_visible,eph_m,epv_m,
-ax_mps2,ay_mps2,az_mps2,gx_radps,gy_radps,gz_radps,
+roll_deg,pitch_deg,yaw_deg,rollspeed_radps,pitchspeed_radps,yawspeed_radps,
+vibration_x,vibration_y,vibration_z,clipping_0,clipping_1,clipping_2,
+vel_ratio,pos_horiz_ratio,pos_vert_ratio,vel_innov,pos_horiz_innov,pos_vert_innov,
 battery_voltage,battery_remaining_pct,armed,mode,failsafe,
 connection_ok,last_update_iso
 ```
@@ -186,7 +197,44 @@ if stale_run >= stale_threshold (2):
     label = ANOMALY
 ```
 
-### 5.5 Mode Anomaly Detection
+### 5.5 IMU Anomaly Detection
+```python
+# Excessive angular rates
+if abs(rollspeed) > max_rollspeed_radps (2.0):
+    label = ANOMALY
+if abs(pitchspeed) > max_pitchspeed_radps (2.0):
+    label = ANOMALY
+
+# Excessive vibration (GPS interference indicator)
+if vibration_x > max_vibration (1.0):
+    label = ANOMALY
+```
+
+### 5.6 Estimator Innovation Detection
+```python
+# EKF innovation (residual) indicates GPS inconsistency
+if abs(vel_innov) > max_innov (1.0):
+    label = ANOMALY
+if abs(pos_horiz_innov) > max_innov (1.0):
+    label = ANOMALY
+
+# EKF consistency ratios should be high
+if vel_ratio < 0.9:
+    label = ANOMALY
+if pos_horiz_ratio < 0.9:
+    label = ANOMALY
+```
+
+### 5.7 GPS-IMU Consistency Check
+```python
+# Compare GPS velocity with attitude-derived motion
+# Large GPS speed without corresponding attitude change = suspicious
+if abs(vel_m_s) > 5.0:
+    if abs(rollspeed) < 0.1 and abs(pitchspeed) < 0.1:
+        label = ANOMALY  # Position changing but body not rotating
+```
+
+### 5.8 Mode Anomaly Detection
 ```python
 if failsafe == 1:
     label = ANOMALY
@@ -204,8 +252,9 @@ Each anomaly row stores the reason:
 
 ## 6. Feature Engineering
 
-### Input Features (16 total)
+### Input Features (32 total)
 
+#### GPS Features (10)
 | Feature | Description | Units |
 |---------|-------------|-------|
 | `x_m` | East position (local frame) | meters |
@@ -218,12 +267,42 @@ Each anomaly row stores the reason:
 | `satellites_visible` | Number of satellites | count |
 | `eph_m` | Horizontal position error | meters |
 | `epv_m` | Vertical position error | meters |
+
+#### IMU Features (12)
+| Feature | Description | Units |
+|---------|-------------|-------|
+| `roll_deg` | Roll angle | degrees |
+| `pitch_deg` | Pitch angle | degrees |
+| `yaw_deg` | Yaw angle | degrees |
+| `rollspeed_radps` | Roll angular rate | rad/s |
+| `pitchspeed_radps` | Pitch angular rate | rad/s |
+| `yawspeed_radps` | Yaw angular rate | rad/s |
+| `vibration_x` | Vibration X | - |
+| `vibration_y` | Vibration Y | - |
+| `vibration_z` | Vibration Z | - |
+| `clipping_0` | ADC clipping count 0 | count |
+| `clipping_1` | ADC clipping count 1 | count |
+| `clipping_2` | ADC clipping count 2 | count |
+
+#### Estimator Features (6)
+| Feature | Description | Units |
+|---------|-------------|-------|
+| `vel_ratio` | EKF velocity consistency ratio | ratio |
+| `pos_horiz_ratio` | EKF horizontal position ratio | ratio |
+| `pos_vert_ratio` | EKF vertical position ratio | ratio |
+| `vel_innov` | Velocity innovation (residual) | m/s |
+| `pos_horiz_innov` | Horizontal position innovation | meters |
+| `pos_vert_innov` | Vertical position innovation | meters |
+
+#### Health Features (4)
+| Feature | Description | Units |
+|---------|-------------|-------|
 | `battery_voltage` | Battery voltage | volts |
 | `battery_remaining_pct` | Battery remaining | % |
 | `armed` | Armed state | bool |
 | `failsafe` | Failsafe active | bool |
 | `connection_ok` | MAVLink connection | bool |
-| `is_stale_repeat` | Stale data flag | bool |
+| `is_stale` | Stale data flag | bool |
 
 ### Feature Rationale
 
@@ -233,8 +312,23 @@ Each anomaly row stores the reason:
 | Gradual drift | `x_m`, `y_m` trend analysis |
 | Satellite blackout | `satellites_visible`, `fix_type` |
 | Accuracy degradation | `eph_m`, `epv_m` |
-| Signal stalling | `is_stale_repeat` |
+| GPS-IMU inconsistency | `rollspeed`, `pitchspeed` vs position delta |
+| Vibration anomaly | `vibration_x/y/z` (GPS interference) |
+| EKF innovation spike | `vel_innov`, `pos_horiz_innov` |
+| EKF ratio degradation | `vel_ratio < 0.9` |
+| Signal stalling | `is_stale` |
 | Failsafe trigger | `failsafe` flag |
+
+### Cross-Validation Rules
+```python
+# GPS velocity should correlate with attitude angular rates
+gps_speed = sqrt(vx^2 + vy^2)
+imu_speed_estimate = rollspeed * arm_length  # simplified
+
+# If GPS says 10 m/s but IMU says 0 rad/s → suspicious
+if abs(gps_speed) > 5 and abs(rollspeed) < 0.1:
+    label = ANOMALY  # GPS drift without body motion
+```
 
 ---
 
@@ -260,14 +354,14 @@ RandomForestClassifier(
 #### 7.2 1D CNN (Alternative)
 ```python
 WindowCNN:
-├── Conv1D(16, 32, kernel=3)
+├── Conv1D(32, 64, kernel=3)    # 32 features → 64 channels
 ├── ReLU
-├── Conv1D(32, 64, kernel=3)
+├── Conv1D(64, 128, kernel=3)  # 64 → 128 channels
 ├── ReLU
 ├── AdaptiveAvgPool1d(1)
-├── Linear(64, 32)
+├── Linear(128, 64)
 ├── Dropout(0.3)
-├── Linear(32, 1)
+├── Linear(64, 1)
 └── Sigmoid
 ```
 
@@ -278,7 +372,7 @@ WindowCNN:
 ### Window Processing for RF
 ```python
 # Flatten window for RF
-X_window: (30, 16) → X_flat: (1, 480)
+X_window: (30, 32) → X_flat: (1, 960)
 # Apply pre-fitted scaler
 X_scaled = scaler.transform(X_flat)
 # Predict
@@ -319,6 +413,7 @@ From `dataset_info.json`:
 - **Total windows**: 122
 - **Anomaly windows**: 5 (4.1%)
 - **Highly imbalanced** - needs more spoofing data
+- **Features**: 32 (GPS + IMU + Estimator + Health)
 
 ---
 
@@ -326,8 +421,18 @@ From `dataset_info.json`:
 
 ### Architecture
 ```
-MAVLink UDP ──▶ gps_monitor ──▶ live_inference ──▶ CSV Log
-                    │               │
+MAVLink UDP ──▶ gps_monitor ──▶ live_inference ──▶ CSV Log + Streamlit
+                        │               │
+                  GLOBAL_POSITION  ATTITUDE +
+                  GPS_RAW_INT     ESTIMATOR_STATUS
+                  HEARTBEAT       VIBRATION
+```
+
+### Message Flow
+1. `GLOBAL_POSITION_INT` → Triggers inference loop
+2. `ATTITUDE` → Stored for next feature extraction
+3. `ESTIMATOR_STATUS` → Stored for next feature extraction
+4. Features combined → Model prediction → Logging
                     │          Anomaly Alert
                     │               │
                     └───────────────▼────▶ Streamlit UI

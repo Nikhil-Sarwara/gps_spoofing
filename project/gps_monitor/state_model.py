@@ -22,12 +22,32 @@ class GPSState:
 
 @dataclass
 class IMUState:
-    ax_mps2: Optional[float] = None
-    ay_mps2: Optional[float] = None
-    az_mps2: Optional[float] = None
-    gx_radps: Optional[float] = None
-    gy_radps: Optional[float] = None
-    gz_radps: Optional[float] = None
+    roll_deg: Optional[float] = None
+    pitch_deg: Optional[float] = None
+    yaw_deg: Optional[float] = None
+    rollspeed_radps: Optional[float] = None
+    pitchspeed_radps: Optional[float] = None
+    yawspeed_radps: Optional[float] = None
+    vibration_x: Optional[float] = None
+    vibration_y: Optional[float] = None
+    vibration_z: Optional[float] = None
+    clipping_0: Optional[int] = None
+    clipping_1: Optional[int] = None
+    clipping_2: Optional[int] = None
+
+
+@dataclass
+class EstimatorState:
+    vel_ratio: Optional[float] = None
+    pos_horiz_ratio: Optional[float] = None
+    pos_vert_ratio: Optional[float] = None
+    mag_ratio: Optional[float] = None
+    hagl_ratio: Optional[float] = None
+    vel_innov: Optional[float] = None
+    pos_horiz_innov: Optional[float] = None
+    pos_vert_innov: Optional[float] = None
+    mag_innov: Optional[float] = None
+    hagl_innov: Optional[float] = None
 
 
 @dataclass
@@ -43,6 +63,7 @@ class VehicleHealth:
 class TelemetryState:
     gps: GPSState = field(default_factory=GPSState)
     imu: IMUState = field(default_factory=IMUState)
+    estimator: EstimatorState = field(default_factory=EstimatorState)
     health: VehicleHealth = field(default_factory=VehicleHealth)
     start_time: datetime = field(default_factory=datetime.now)
     connection_ok: bool = False

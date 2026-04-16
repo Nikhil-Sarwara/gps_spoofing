@@ -24,6 +24,47 @@ windows:
   stride: 15                         # Step between windows (50% overlap)
   min_window_label_ratio: 0.5        # Anomaly ratio threshold for labeling window
 
+# Feature set (32 features total)
+features:
+  gps:
+    - x_m                            # Local East position (meters)
+    - y_m                            # Local North position (meters)
+    - alt_m                          # Altitude MSL (meters)
+    - rel_alt_m                      # Relative altitude (meters)
+    - vel_m_s                        # Ground speed (m/s)
+    - hdg_deg                        # Heading (degrees)
+    - fix_type                       # GPS fix quality (0-5)
+    - satellites_visible             # Number of satellites
+    - eph_m                          # Horizontal position error (meters)
+    - epv_m                          # Vertical position error (meters)
+
+  imu:
+    - roll_deg                       # Roll angle (degrees)
+    - pitch_deg                      # Pitch angle (degrees)
+    - yaw_deg                        # Yaw angle (degrees)
+    - rollspeed_radps                # Roll angular rate (rad/s)
+    - pitchspeed_radps               # Pitch angular rate (rad/s)
+    - yawspeed_radps                 # Yaw angular rate (rad/s)
+    - vibration_x                    # Vibration X
+    - vibration_y                    # Vibration Y
+    - vibration_z                    # Vibration Z
+
+  estimator:
+    - vel_ratio                      # Velocity estimator ratio (0-1)
+    - pos_horiz_ratio               # Horizontal position ratio
+    - pos_vert_ratio                # Vertical position ratio
+    - vel_innov                      # Velocity innovation
+    - pos_horiz_innov               # Horizontal position innovation
+    - pos_vert_innov                # Vertical position innovation
+
+  health:
+    - battery_voltage               # Battery voltage (V)
+    - battery_remaining_pct         # Battery remaining (%)
+    - armed                         # Armed state (0/1)
+    - failsafe                      # Failsafe active (0/1)
+    - connection_ok                  # MAVLink connection (0/1)
+    - is_stale                      # Stale data flag (0/1)
+
 # Train/test split
 split:
   train_ratio: 0.7
@@ -42,6 +83,16 @@ auto_label:
   min_satellites: 6                  # Min satellites for good fix
   max_eph_m: 5.0                    # Max horizontal position error (meters)
   max_epv_m: 10.0                   # Max vertical position error (meters)
+
+  # IMU-based anomalies
+  max_rollspeed_radps: 2.0          # Max normal roll rate (rad/s)
+  max_pitchspeed_radps: 2.0         # Max normal pitch rate (rad/s)
+  max_vibration: 1.0                # Max vibration level
+
+  # Estimator anomalies
+  max_vel_ratio: 0.9                # Max normal velocity ratio
+  max_pos_horiz_ratio: 0.9          # Max normal horizontal position ratio
+  max_innov: 1.0                    # Innovation threshold
 
   # Stale data detection
   stale_threshold: 2                # Consecutive identical readings = stale

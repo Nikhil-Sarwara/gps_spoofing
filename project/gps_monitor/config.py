@@ -12,10 +12,10 @@ LOG_DIR = "gps_logs"
 MESSAGE_TYPES = [
     "GLOBAL_POSITION_INT",  # GPS position + velocity
     "GPS_RAW_INT",          # GPS quality + satellite count
-    "RAW_IMU",              # Accelerometer + gyro
-    "SCALED_IMU2",          # Backup IMU if RAW_IMU missing
     "HEARTBEAT",            # Armed + flight mode
     "SYS_STATUS",           # Battery + system health
-    "ATTITUDE",             # Roll/pitch/yaw rates
+    "ATTITUDE",             # Orientation angles + angular rates
+    "VIBRATION",            # Vibration levels (indicator of GPS issues)
+    "ESTIMATOR_STATUS",     # EKF state innovation (GPS consistency)
     "VFR_HUD",              # Airspeed + climb rate
 ]
