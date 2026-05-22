@@ -9,13 +9,14 @@
 \contentsline {table}{\numberline {4.4}{\ignorespaces 1D CNN architecture.}}{27}{table.caption.18}%
 \addvspace {10\p@ }
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {6.1}{\ignorespaces Dataset summary statistics.}}{44}{table.caption.27}%
-\contentsline {table}{\numberline {6.2}{\ignorespaces Per-flight experimental breakdown showing flight duration, spoofing parameters, window distribution, and assigned data split.}}{45}{table.caption.28}%
-\contentsline {table}{\numberline {6.3}{\ignorespaces Combined model performance on test set (12 windows).}}{46}{table.caption.30}%
-\contentsline {table}{\numberline {6.4}{\ignorespaces Confusion matrices. Normal = 0, Spoofed = 1.}}{46}{table.caption.31}%
-\contentsline {table}{\numberline {6.5}{\ignorespaces CNN ablation study results (test set, 12 windows).}}{50}{table.caption.35}%
-\contentsline {table}{\numberline {6.6}{\ignorespaces Live inference log summary.}}{52}{table.caption.37}%
+\contentsline {table}{\numberline {6.1}{\ignorespaces Dataset summary statistics after full pipeline processing.}}{44}{table.caption.27}%
+\contentsline {table}{\numberline {6.2}{\ignorespaces Per-flight experimental breakdown for the 8 simulated flights.}}{45}{table.caption.28}%
+\contentsline {table}{\numberline {6.3}{\ignorespaces Random Forest classification performance on the test set (1,734 windows).}}{46}{table.caption.29}%
+\contentsline {table}{\numberline {6.4}{\ignorespaces 1D CNN classification performance on the test set (1,734 windows).}}{47}{table.caption.31}%
+\contentsline {table}{\numberline {6.5}{\ignorespaces Model performance comparison on the combined test set.}}{48}{table.caption.33}%
+\contentsline {table}{\numberline {6.6}{\ignorespaces CNN ablation study results on the test set.}}{51}{table.caption.37}%
+\contentsline {table}{\numberline {6.7}{\ignorespaces Live inference log summary for a representative flight session.}}{52}{table.caption.38}%
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {7.1}{\ignorespaces Structured comparison of GPS spoofing detection approaches.}}{58}{table.caption.40}%
+\contentsline {table}{\numberline {7.1}{\ignorespaces Structured comparison of GPS spoofing detection approaches.}}{57}{table.caption.41}%
 \addvspace {10\p@ }
 \addvspace {10\p@ }

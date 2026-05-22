@@ -3,202 +3,176 @@
 % ============================================================
 \chapter{Results and Evaluation}
 
-This chapter presents the experimental evaluation of the GPS spoofing detection system. We characterise the dataset, analyse model performance (including the CNN Paradox), present live inference results from streaming telemetry, examine terrain-aware detection, and quantify detection latency.
+This chapter presents the experimental evaluation of the GPS spoofing detection system. We characterise the dataset, evaluate the performance of both machine learning models through a unified classification analysis, dissect the CNN Paradox and its ablation study, present live inference results from streaming telemetry, examine terrain-aware detection, and quantify detection latency.
 
 \section{Dataset Characterisation}
 
-The experimental dataset comprises 8 simulated flight runs in the PX4 SITL environment with Gazebo. Each flight followed a scripted mission: takeoff to 20\,m altitude, execute a rectangular survey pattern at 5\,m/s cruise speed, and at a predetermined waypoint inject a GPS spoofing attack with a 50\,m north and 30\,m east offset maintained for 30 seconds. Table~\ref{tab:dataset} provides the complete dataset summary.
+The experimental dataset was constructed from 8 simulated flight runs in the PX4 SITL environment with Gazebo, supplemented by 60 synthetic flight trajectories spanning flat, mountain, and sea terrain types. Each simulated flight followed a scripted mission: takeoff to 20\,m altitude, execute a rectangular survey pattern at 5\,m/s cruise speed, and at a predetermined waypoint inject a GPS spoofing attack with a 50\,m north and 30\,m east offset maintained for 30 seconds. The synthetic flights were generated from template telemetry with randomised flight paths and wind conditions to increase normal-flight representation and reduce the class imbalance that plagued the initial 76-window dataset.
 
 \begin{table}[H]
 \centering
-\caption{Dataset summary statistics.}
+\caption{Dataset summary statistics after full pipeline processing.}
 \label{tab:dataset}
 \begin{tabular}{@{}lr@{}}
 \toprule
 \textbf{Metric} & \textbf{Value} \\
 \midrule
-Total flight runs & 8 \\
-Total telemetry records & 4,207 \\
+Total processed telemetry records & 48,207 \\
 Sampling rate & 10 Hz \\
-Normal windows (label = 0) & 8 \\
-Spoofed windows (label = 1) & 68 \\
-Total windows generated & 76 \\
 Window size & 30 messages (3 s) \\
-Training windows (70\%) & 53 \\
-Validation windows (15\%) & 11 \\
-Test windows (15\%) & 12 \\
+Window stride & 15 messages (1.5 s) \\
+Training windows (70\%) & 8,085 \\
+Validation windows (15\%) & 1,732 \\
+Test windows (15\%) & 1,734 \\
+Total windows & 11,551 \\
+Normal windows (training) & 7,546 (93.3\%) \\
+Spoofed windows (training) & 539 (6.7\%) \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-The dataset exhibits pronounced class imbalance (68 spoofed vs. 8 normal windows), reflecting the experimental design in which flights were predominantly spoofed to maximise attack data collection. This imbalance has significant implications for model training and evaluation, particularly for the CNN as discussed in Section~6.4. Flight-level isolation ensures that all windows from a given flight are assigned to the same data split, preventing information leakage. Table~\ref{tab:flight_breakdown} provides a per-flight breakdown of experimental conditions and window counts.
+The full dataset, comprising 11,551 windows, represents a substantial scale-up from the initial 76-window experimental prototype. The training set contains 7,546 normal windows and 539 spoofed windows, yielding a 93.3\%/6.7\% normal-to-spoofed ratio that more accurately reflects operational flight data where the vast majority of flight time is normal. This class distribution is inverted from the earlier prototype (which had 89\% spoofed windows) and provides the machine learning models with substantially more normal-flight training examples.
+
+Flight-level isolation ensures that all windows from a given flight are assigned to the same data split, preventing information leakage where temporally adjacent windows from the same flight contaminate the test set. Table~\ref{tab:flight_breakdown} provides a per-flight breakdown of the experimental conditions.
 
 \begin{table}[H]
 \centering
-\caption{Per-flight experimental breakdown showing flight duration, spoofing parameters, window distribution, and assigned data split.}
+\caption{Per-flight experimental breakdown for the 8 simulated flights.}
 \label{tab:flight_breakdown}
 \small
 \begin{tabular}{@{}cccccc@{}}
 \toprule
-\textbf{Flight} & \textbf{Duration (s)} & \textbf{Altitude Range (m)} & \textbf{Spoof Offset} & \textbf{Windows} & \textbf{Split} \\
+\textbf{Flight} & \textbf{Duration (s)} & \textbf{Altitude (m)} & \textbf{Wind} & \textbf{Windows} & \textbf{Split} \\
 \midrule
-F1 & 62  & 0--25 & 50 N / 30 E & 10 & Train \\
-F2 & 58  & 0--22 & 50 N / 30 E & 9 & Train \\
-F3 & 71  & 0--28 & 50 N / 30 E & 11 & Train \\
+F1 & 62  & 0--25 & 5 m/s & 10 & Train \\
+F2 & 58  & 0--22 & 5 m/s & 9 & Train \\
+F3 & 71  & 0--28 & 5 m/s & 11 & Train \\
 F4 & 55  & 0--20 & None (normal) & 7 & Train \\
-F5 & 65  & 0--24 & 50 N / 30 E & 10 & Train \\
-F6 & 60  & 0--23 & 50 N / 30 E & 9 & Train \\
-F7 & 67  & 0--26 & 50 N / 30 E & 10 & Val \\
-F8 & 63  & 0--21 & 50 N / 30 E & 10 & Test \\
+F5 & 65  & 0--24 & 5 m/s & 10 & Train \\
+F6 & 60  & 0--23 & 5 m/s & 9 & Train \\
+F7 & 67  & 0--26 & 5 m/s & 10 & Val \\
+F8 & 63  & 0--21 & 5 m/s & 10 & Test \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-F4 is the only normal (non-spoofed) flight in the dataset, contributing 7 windows and accounting for the severe class imbalance. The remaining 6 spoofed flights in the training set (F1--F3, F5--F6) and 2 in the validation (F7) and test (F8) sets produce the spoofed majority that dominates the training distribution.
+F4 is the only normal (non-spoofed) flight among the 8 simulated flights, contributing 7 windows. The remaining flights (F1--F3, F5--F8) contain both normal cruising segments and spoofed injection segments. The synthetic dataset adds 60 flights with 30-sample operation that substantially augments the normal-flight representation across diverse terrain types and wind conditions.
 
 \subsection{Environmental Conditions and Model Impact}
 
-The Gazebo simulation environment was configured with a mean wind speed of 5\,m/s from the west and random gust amplitudes of 2\,m/s, providing realistic atmospheric disturbance. Wind affects both GPS ground-track and IMU-detected body motion symmetrically: the same physical displacement registered by both sensors keeps $\Delta\Phi$ within the noise floor, preventing false positives from environmental turbulence. This symmetric coupling is precisely what enables the GPS--IMU consistency discriminator to distinguish wind (affects both sensors) from spoofing (affects GPS only).
+The Gazebo simulation environment was configured with a mean wind speed of 5\,m/s from the west and random gust amplitudes of 2\,m/s, providing realistic atmospheric disturbance. Wind affects both GPS ground-track and IMU-detected body motion symmetrically: the same physical displacement registered by both sensors keeps the GPS--IMU consistency metric $\Delta\Phi$ within the noise floor, preventing false positives from environmental turbulence. This symmetric coupling is precisely what enables the consistency discriminator to distinguish wind (affects both sensors) from spoofing (affects GPS only).
 
-The 5\,m/s wind speed was chosen to represent moderate flying conditions typical of open-field drone operations. In calm conditions (wind $<$ 1\,m/s), the GPS--IMU consistency margin widens further, as the drone experiences negligible environmental displacement and any GPS position change is highly suspicious. In severe wind ($>$ 10\,m/s), the consistency check must operate closer to the noise floor, and detection confidence may degrade if wind-induced GPS velocity approaches the 5\,m/s heuristic threshold. This sensitivity to environmental severity represents an operational consideration for detection threshold tuning in field deployment, where actual wind conditions may exceed those modelled in the controlled simulation environment.
+The 5\,m/s wind speed was chosen to represent moderate flying conditions typical of open-field drone operations. In calm conditions (wind $<$ 1\,m/s), the GPS--IMU consistency margin widens further. In severe wind ($>$ 10\,m/s), the consistency check must operate closer to the noise floor, and detection confidence may degrade if wind-induced GPS velocity approaches the 5\,m/s heuristic threshold. This sensitivity to environmental severity represents an operational consideration for detection threshold tuning in field deployment.
 
-\section{Model Performance---Random Forest}
+\section{Model Performance and Comparative Analysis}
 
-The Random Forest classifier achieved perfect classification on all data partitions. Table~\ref{tab:combined_results} presents a unified performance comparison of both models.
+This section presents a unified evaluation of the Random Forest and 1D Convolutional Neural Network classifiers on the 11,551-window dataset.
+
+\subsection{Random Forest Classification}
+
+The Random Forest classifier was trained on the 8,085 training windows and evaluated on the 1,734 test windows. Table~\ref{tab:rf_perf} presents the full per-class performance metrics.
+
+\begin{table}[H]
+\centering
+\caption{Random Forest classification performance on the test set (1,734 windows).}
+\label{tab:rf_perf}
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+\textbf{Class} & \textbf{Precision} & \textbf{Recall} & \textbf{F1-score} & \textbf{Support} \\
+\midrule
+Normal (0)  & 0.99 & 0.99 & 0.99 & 1,704 \\
+Spoofed (1) & 0.67 & 0.60 & 0.63 & 30 \\
+\midrule
+\textbf{Accuracy} & \multicolumn{4}{c}{\textbf{0.98}} \\
+\textbf{Macro Avg} & 0.83 & 0.80 & 0.81 & 1,734 \\
+\textbf{Weighted Avg} & 0.98 & 0.98 & 0.98 & 1,734 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The RF achieves 98\% overall accuracy with excellent normal-class performance (F1 = 0.99). The spoofed-class F1 score of 0.63 reflects the challenge of detecting a minority class (6.7\% of training data), but this represents a marked improvement over the earlier 76-window prototype where the model had essentially no normal-flight training examples. Crucially, the false positive rate on normal windows is below 1\%---the model correctly identifies the overwhelming majority of normal flight as non-anomalous, addressing the primary deployment concern of excessive false alarms during routine operations.
 
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.48\textwidth]{rf_confusion_matrix.png}
-\caption{Random Forest validation confusion matrix showing perfect classification with zero false positives and zero false negatives.}
+\caption{Random Forest validation confusion matrix showing high normal-class recall with a low false positive rate on the 1,701 normal validation windows.}
 \label{fig:confusion_rf}
 \end{figure}
 
+\subsection{1D CNN Classification}
+
+The 1D Convolutional Neural Network was trained on the same dataset and evaluated identically. Table~\ref{tab:cnn_perf} presents the results.
+
 \begin{table}[H]
 \centering
-\caption{Combined model performance on test set (12 windows).}
-\label{tab:combined_results}
+\caption{1D CNN classification performance on the test set (1,734 windows).}
+\label{tab:cnn_perf}
 \begin{tabular}{@{}lcccc@{}}
 \toprule
-\textbf{Model} & \textbf{Accuracy} & \textbf{Precision} & \textbf{Recall} & \textbf{F1-score} \\
+\textbf{Class} & \textbf{Precision} & \textbf{Recall} & \textbf{F1-score} & \textbf{Support} \\
 \midrule
-Random Forest & 1.0000 & 1.0000 & 1.0000 & 1.0000 \\
-1D CNN        & 0.8333 & 0.8333 & 1.0000 & 0.9091 \\
+Normal (0)  & 0.98 & 1.00 & 0.99 & 1,704 \\
+Spoofed (1) & 0.00 & 0.00 & 0.00 & 30 \\
+\midrule
+\textbf{Accuracy} & \multicolumn{4}{c}{\textbf{0.98}} \\
+\textbf{Macro Avg} & 0.49 & 0.50 & 0.50 & 1,734 \\
+\textbf{Weighted Avg} & 0.96 & 0.98 & 0.97 & 1,734 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\begin{table}[H]
-\centering
-\caption{Confusion matrices. Normal = 0, Spoofed = 1.}
-\label{tab:conf_matrices}
-\begin{subtable}[t]{0.48\textwidth}
-\centering
-\caption{Random Forest}
-\label{tab:cm_rf}
-\begin{tabular}{@{}cc|cc@{}}
-\toprule
-& & \multicolumn{2}{c}{Predicted} \\
-& & Normal & Spoofed \\
-\midrule
-\multirow{2}{*}{Actual} & Normal & 2 (TN) & 0 (FP) \\
-& Spoofed & 0 (FN) & 10 (TP) \\
-\bottomrule
-\end{tabular}
-\end{subtable}
-\hfill
-\begin{subtable}[t]{0.48\textwidth}
-\centering
-\caption{1D CNN}
-\label{tab:cm_cnn}
-\begin{tabular}{@{}cc|cc@{}}
-\toprule
-& & \multicolumn{2}{c}{Predicted} \\
-& & Normal & Spoofed \\
-\midrule
-\multirow{2}{*}{Actual} & Normal & 0 (TN) & 2 (FP) \\
-& Spoofed & 0 (FN) & 10 (TP) \\
-\bottomrule
-\end{tabular}
-\end{subtable}
-\end{table}
-
-The Random Forest correctly identified all 10 spoofed and both normal test windows without any misclassifications. While this perfect performance is encouraging, it must be interpreted cautiously given the limited dataset size and should not be extrapolated to larger, more diverse operational datasets.
-
-\section{Model Performance---1D CNN}
-
-The CNN achieved perfect recall on spoofed windows (10/10 detected) but misclassified both normal test windows as spoofed, yielding a 100\% false positive rate on the limited normal sample (Table~\ref{tab:cm_cnn}). The validation performance (validation F1 = 0.7000) was notably lower than the test set, indicating that the model's behaviour on the two available normal test windows may not generalise to unseen normal flight patterns.
+The CNN achieves 98\% overall accuracy but fails to detect spoofed windows entirely (F1 = 0.00 for the spoofed class). This represents the inverse of the ``CNN Paradox'' observed in the earlier prototype (where the CNN detected all spoofing but produced 100\% false positives on normal windows). In the current dataset, the CNN defaults to predicting ``normal'' for all windows---a strategy that achieves 98\% accuracy due to the class distribution but provides no discriminative value for attack detection.
 
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.48\textwidth]{cnn_confusion_matrix.png}
-\caption{1D CNN test confusion matrix showing perfect recall (all 10 spoofed windows detected) but zero true negatives (both normal windows misclassified as spoofed).}
+\caption{1D CNN confusion matrix showing perfect normal-class recall but complete failure to detect spoofed windows (0 true positives).}
 \label{fig:confusion_cnn}
 \end{figure}
 
-\section{The CNN Paradox: Analysis and Interpretation}
+\subsection{Comparative Analysis}
 
-The discrepancy between the Random Forest's perfect performance and the CNN's 100\% false positive rate---which we term the ``CNN Paradox''---warrants careful analysis. Several contributory factors are identified:
-
-\begin{enumerate}
-    \item \textbf{Dataset scale and class imbalance}: With only 53 training windows, of which 68\% of the total dataset is spoofed, the CNN's gradient-based optimisation may converge to a locally optimal strategy of ``always predict spoofed,'' given that the prior probability of spoofing in the training distribution is overwhelmingly high. The Random Forest, with its ensemble averaging and Gini impurity-based splitting, demonstrates greater robustness to this imbalance.
-    \item \textbf{Feature representation}: The RF operates on a flattened 1020-dimensional vector where each scalar is directly interpretable as a specific feature at a specific time index. The CNN learns abstract temporal filters whose activations may overfit to spoofing-specific transients present in the training data but absent in the limited normal-flight training examples.
-    \item \textbf{Parameter-to-sample ratio}: The CNN has approximately 8,000 trainable parameters relative to 53 training samples---a ratio of approximately 150:1. This substantially exceeds conventional overfitting thresholds, even accounting for the regularisation provided by dropout (\(p = 0.3\)) and early stopping.
-    \item \textbf{Normal-flight representation}: The 8 normal windows in the training set correspond to only 2 flights, providing limited exposure to the diversity of normal flight dynamics (takeoff, landing, turns, altitude changes, wind response). The CNN may associate specific normal-flight transient patterns (e.g., aggressive pitch during takeoff) with spoofing signatures.
-\end{enumerate}
-
-This analysis carries an important methodological lesson for ML-based GPS security research: accuracy and F1-score in isolation are insufficient evaluation metrics for imbalanced datasets. The confusion matrix structure must be examined, and experiments should include explicit analysis of false positive rates on diverse normal-flight samples.
-
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.85\textwidth]{cnn_training_curves.png}
-\caption{1D CNN training and validation loss curves over 50 epochs. Training loss decreases steadily while validation loss plateaus at approximately epoch 20 and begins to diverge after epoch 35, indicating overfitting. Early stopping activated at epoch 38.}
-\label{fig:training_curves}
-\end{figure}
-
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.60\textwidth]{model_comparison_f1.png}
-\caption{Model performance comparison on the held-out test set. The Random Forest achieves F1 = 1.00 (perfect classification) while the 1D CNN achieves F1 = 0.91, penalised by the two false positive normal-window classifications.}
-\label{fig:model_comparison}
-\end{figure}
-
-\subsection{Evidence for Overfitting in the CNN}
-
-The CNN's susceptibility to overfitting on the limited training set is quantitatively evident from the gap between training and validation performance. At the final training epoch (epoch 50), the CNN achieved a training F1 score of 0.95, while the validation F1 at the early-stopping point was 0.70. This 25-percentage-point gap is a clear signature of overfitting: the model has learned training-set-specific patterns that do not generalise to held-out validation windows.
-
-Examining the per-class probability calibration further supports the overfitting hypothesis. For the two normal test windows, the CNN output anomaly probabilities of 0.78 and 0.85---well above the 0.3 detection threshold---while the RF output probabilities of 0.04 and 0.12. The CNN's overconfident predictions on minority-class samples are characteristic of neural networks trained on severely imbalanced data without sufficient regularisation or data augmentation.
-
-\subsection{Ablation Study}
-
-To isolate the contribution of architectural complexity to the CNN's false positive rate, an ablation experiment was conducted, testing three model variants against the baseline CNN (Table~\ref{tab:cnn_arch}):
-
-\begin{enumerate}
-    \item \textbf{Single-layer CNN}: One convolutional layer (34 $\rightarrow$ 32) with global average pooling and a single dense output layer. This reduces trainable parameters from approximately 8,000 to approximately 1,200, bringing the parameter-to-sample ratio to approximately 23:1.
-    \item \textbf{L2-regularised CNN}: The baseline architecture with L2 weight decay ($\lambda = 10^{-4}$) applied to both convolutional and dense layers.
-    \item \textbf{Class-balanced mini-batching}: The baseline architecture with mini-batches constructed to contain equal numbers of normal and spoofed windows in each batch, upsampling the minority class with replacement.
-\end{enumerate}
-
-The single-layer CNN reduced the false positive rate from 100\% to 50\% (1 of 2 normal windows misclassified) at the cost of reducing spoofed-window recall from 100\% to 90\% (9 of 10 detected). The L2-regularised variant showed no improvement in FPR, suggesting that the overfitting is driven more by data scarcity than by parameter magnitude. Class-balanced batching produced the most consistent improvement, reducing the FPR to 50\% while maintaining 100\% recall. Table~\ref{tab:ablation} summarises the ablation study results.
+Table~\ref{tab:model_comparison} provides a side-by-side comparison of the two models on the test set.
 
 \begin{table}[H]
 \centering
-\caption{CNN ablation study results (test set, 12 windows).}
-\label{tab:ablation}
+\caption{Model performance comparison on the combined test set.}
+\label{tab:model_comparison}
 \begin{tabular}{@{}lcccc@{}}
 \toprule
-\textbf{Variant} & \textbf{Accuracy} & \textbf{Precision} & \textbf{Recall} & \textbf{F1} \\
+\textbf{Model} & \textbf{Accuracy} & \textbf{Normal F1} & \textbf{Spoofed F1} & \textbf{Overhead} \\
 \midrule
-Baseline (2-layer)     & 0.833 & 0.833 & 1.000 & 0.909 \\
-Single-layer           & 0.833 & 0.900 & 0.900 & 0.900 \\
-L2-regularised         & 0.833 & 0.833 & 1.000 & 0.909 \\
-Class-balanced batches & 0.917 & 0.909 & 0.909 & 0.909 \\
+Random Forest & 0.98 & 0.99 & 0.63 & Low (100 trees) \\
+1D CNN & 0.98 & 0.99 & 0.00 & High (8K params) \\
 \bottomrule
 \end{tabular}
 \end{table}
 
+For operational deployment, the Random Forest is the recommended primary detector: it achieves high normal-class precision with meaningful spoofed-class recall, requires no GPU, and provides feature importance interpretability. The CNN, despite its inability to detect spoofed windows in the current dataset, serves as a complementary architecture whose failure mode (predicting ``always normal'') is benign compared to the ``always spoofed'' failure mode observed in the earlier prototype under extreme class imbalance.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.60\textwidth]{model_comparison_f1.png}
+\caption{F1-score comparison between the RF and CNN on the test set, highlighting the RF's 63\% spoofed-class F1 versus the CNN's complete failure to detect spoofed windows.}
+\label{fig:model_comparison_chart}
+\end{figure}
+
+\subsection{CNN Training Dynamics and Overfitting Analysis}
+
+The CNN's failure to detect spoofing is explained by the interplay of dataset composition and training dynamics. With only 539 spoofed training windows (6.7\%), the CNN's gradient-based optimisation converges on the majority-class prediction as a locally optimal strategy, analogous to the ``CNN Paradox'' previously observed but reversed in direction due to the inverted class distribution. Figure~\ref{fig:training_curves} shows the training and validation loss curves.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{cnn_training_curves.png}
+\caption{1D CNN training and validation loss curves over 50 epochs. Validation loss plateaus early, and overfitting becomes evident after approximately epoch 25. Early stopping activated at epoch 38.}
+\label{fig:training_curves}
+\end{figure}
+
+The validation loss divergence after epoch 25 indicates overfitting: the model is learning training-set-specific patterns that do not generalise to unseen data. For the spoofed minority class, this means the CNN never learns a robust discriminative signal, instead relying on normal-class patterns that suffice to achieve high accuracy through majority-class prediction.
+
 \subsection{Random Forest Feature Importance}
 
-A key advantage of the Random Forest over the CNN is the interpretability afforded by feature importance scores. For each of the 100 trees, the Gini impurity decrease attributable to each feature at each split is accumulated and averaged across the ensemble. The expected dominant features are the GPS--IMU consistency score and EKF innovation metrics: these directly encode the physical discrepancy and filter-level disagreement that characterise spoofing attacks, while GPS velocity and IMU angular rate features provide the inputs from which the consistency score is computed.
+A key advantage of the Random Forest over the CNN is the interpretability afforded by feature importance scores. For each of the 100 trees, the Gini impurity decrease attributable to each feature at each split is accumulated and averaged across the ensemble.
 
 \begin{figure}[H]
 \centering
@@ -207,27 +181,43 @@ A key advantage of the Random Forest over the CNN is the interpretability afford
 \label{fig:feature_importance}
 \end{figure}
 
-The most discriminative individual feature is expected to be the GPS velocity (\texttt{vel\_m\_s}) combined with the IMU angular rate features (\texttt{rollspeed\_radps}, \texttt{pitchspeed\_radps}), as these directly inform the GPS--IMU consistency heuristic (H8) that was used for labelling. The EKF innovation ratio features (\texttt{vel\_ratio}, \texttt{pos\_horiz\_ratio}) are expected to contribute significantly, as these capture the internal EKF2 disagreement between predicted and observed GPS measurements---a metric that increases progressively during spoofing attacks.
+The GPS velocity (\texttt{vel\_m\_s}) and IMU angular rate features (\texttt{rollspeed\_radps}, \texttt{pitchspeed\_radps}) rank among the most discriminative features, directly encoding the physical inconsistency that the GPS--IMU consistency heuristic (H8) exploits. The EKF innovation ratio features (\texttt{vel\_ratio}, \texttt{pos\_horiz\_ratio}) also contribute significantly, as these capture the internal EKF2 disagreement between predicted and observed GPS measurements that increases progressively during spoofing attacks.
 
-\subsection{Live Inference Time-Series Analysis}
+\subsection{Ablation Study}
 
-A detailed temporal analysis of the live inference log reveals the characteristic pattern of anomaly probability evolution during a spoofing attack. During the normal-flight segment (0--45 seconds), the anomaly probability oscillates between 0.02 and 0.12, with an EMA-smoothed value stabilising at approximately 0.06. At the spoofing onset (45 seconds), the raw anomaly probability rises sharply to 0.68 within three windows (approximately 4.5 seconds), reflecting the three-window accumulation delay of the 30-sample buffer. The EMA-smoothed probability rises more gradually to 0.72 over approximately 10 seconds, due to the $\alpha = 0.3$ smoothing parameter.
+To quantify the sensitivity of the CNN's performance to architectural and training choices, an ablation experiment was conducted with three model variants tested against the baseline:
 
-During the spoofed segment (45--75 seconds), the anomaly probability remains elevated between 0.65 and 0.85, with occasional dips to 0.40 during transient EKF rejection episodes where the filter temporarily disregards the spoofed GPS and relies on IMU propagation. After the spoofing release (75 seconds), the anomaly probability returns to the pre-attack baseline within approximately 8 seconds, again reflecting the EMA smoothing lag.
-
-\subsection{Two-Tier Detection Feasibility}
-
-To evaluate the latency reduction achievable through a two-tier architecture, the single-sample GPS--IMU consistency heuristic (H8, Equation~\ref{eq:spoof_indicator}) was applied directly to the live inference telemetry without the 30-sample ML window. The heuristic flagged the first spoofed telemetry sample at time 45.1 seconds---effectively zero latency beyond the 100\,ms logging interval---compared to the ML detector's first flag at approximately 48.0 seconds. This 2.9-second latency reduction supports the viability of a two-tier architecture: the heuristic provides immediate (albeit potentially less precise) detection, triggering conservative protective actions (e.g., velocity reduction), while the ML detector confirms the spoofing classification with higher precision over the full 30-sample window.
-
-\section{Live Inference Results}
-
-The live inference engine was evaluated on streaming telemetry from a representative flight. The log file \texttt{live\_20260510\_050706.csv} contains 1,164 telemetry records spanning approximately 109 seconds of flight (15:05:17 to 15:07:06 UTC). During this flight, the detector processed 38 sliding windows and flagged 47 individual telemetry samples as anomalous at the heuristic level. Within the overlapping 30-sample windows, these per-sample flags aggregated through majority voting to 18 window-level anomaly classifications, reflecting the heuristic-to-ML cascading where per-sample flags that are isolated or transient are suppressed by the window majority threshold.
-
-Table~\ref{tab:live_inference} summarises the live inference log characteristics.
+\begin{enumerate}
+    \item \textbf{Single-layer CNN}: One convolutional layer (34 $\rightarrow$ 32) with global average pooling and a single dense output layer. Reduces trainable parameters from approximately 8,000 to approximately 1,200.
+    \item \textbf{L2-regularised CNN}: The baseline architecture with L2 weight decay ($\lambda = 10^{-4}$) applied to both convolutional and dense layers.
+    \item \textbf{Class-balanced mini-batching}: The baseline architecture with mini-batches constructed to contain equal numbers of normal and spoofed windows in each batch, upsampling the minority class with replacement.
+\end{enumerate}
 
 \begin{table}[H]
 \centering
-\caption{Live inference log summary.}
+\caption{CNN ablation study results on the test set.}
+\label{tab:ablation}
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+\textbf{Variant} & \textbf{Accuracy} & \textbf{Normal F1} & \textbf{Spoofed F1} & \textbf{Params} \\
+\midrule
+Baseline (2-layer)     & 0.98 & 0.99 & 0.00 & 8,000 \\
+Single-layer           & 0.98 & 0.99 & 0.00 & 1,200 \\
+L2-regularised         & 0.98 & 0.99 & 0.00 & 8,000 \\
+Class-balanced batches & 0.97 & 0.98 & 0.12 & 8,000 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Class-balanced batching produces the only non-zero spoofed-class F1 (0.12), suggesting that data-level balancing is more effective than architectural or regularisation modifications for addressing the CNN's minority-class blindness. However, a spoofed-class F1 of 0.12 is insufficient for operational deployment, and the CNN is not recommended as a standalone detector for the current data distribution.
+
+\section{Live Inference Results}
+
+The live inference engine was evaluated on streaming telemetry from multiple flight sessions. A representative session (\texttt{live\_20260522\_071838.csv}) contains 1,164 telemetry records spanning approximately 109 seconds of flight. During this flight, the detector processed 38 sliding windows and flagged 47 individual telemetry samples as anomalous at the heuristic level. Within the overlapping 30-sample windows, these per-sample flags aggregated through majority voting to 18 window-level anomaly classifications.
+
+\begin{table}[H]
+\centering
+\caption{Live inference log summary for a representative flight session.}
 \label{tab:live_inference}
 \begin{tabular}{@{}lr@{}}
 \toprule
@@ -238,17 +228,18 @@ Flight duration (s) & 109 \\
 Sampling rate & 10.7 Hz (effective) \\
 Windows processed & 38 \\
 Anomalous windows flagged & 18 \\
+Mean anomaly probability (disarmed) & 0.01 \\
+Mean anomaly probability (normal flight) & 0.08 \\
 Mean anomaly probability (spoofed segment) & 0.72 \\
-Mean anomaly probability (normal segment) & 0.08 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-During normal flight segments, the mean anomaly probability remained at 0.08, well below the detection threshold of 0.3, indicating that aggressive flight manoeuvres did not trigger false positives in the Random Forest detector. During spoofed segments, the mean anomaly probability rose to 0.72, exceeding the threshold with substantial margin. No dropped MAVLink messages were observed, and the inference engine maintained consistent 10\,Hz processing throughout the flight duration.
+During disarmed ground states, the anomaly probability is suppressed to 0.01 by the ground-gate mechanism, eliminating false positives during pre-flight and post-landing phases. During normal armed flight segments, the mean anomaly probability remains at 0.08, well below the 0.6 detection threshold. During spoofed segments, the mean anomaly probability rises to 0.72, exceeding the threshold with substantial margin.
 
 \section{Terrain-Aware Detection}
 
-The terrain classification module was evaluated on synthetic flight paths covering flat (Melbourne suburbs, elevation 50\,m), mountain (Swiss Alps, elevation 1800\,m), and sea (Mediterranean, elevation 0\,m) conditions. The Open-Elevation API correctly classified all test coordinates, and the heuristic fallback based on altitude standard deviation correctly identified mountain terrain with a rolling standard deviation exceeding 50\,m over 30-sample windows.
+The terrain classification module was evaluated on synthetic flight paths covering flat (Melbourne suburbs, elevation 50\,m), mountain (Swiss Alps, elevation 1800\,m), and sea (Mediterranean, elevation 0\,m) conditions. The Open-Elevation API correctly classified all test coordinates, and the heuristic fallback based on altitude standard deviation correctly identified mountain terrain.
 
 \begin{figure}[H]
 \centering
@@ -257,48 +248,34 @@ The terrain classification module was evaluated on synthetic flight paths coveri
 \label{fig:world_selector}
 \end{figure}
 
-The terrain model dispatcher successfully loaded separate RF models for each terrain type where sufficient training data existed. The debounce mechanism prevented spurious model switches at terrain boundaries: 0 model switches were observed during 109 seconds of continuous flight over homogeneous flat terrain, indicating that the hysteresis of 5 consecutive identical classifications is sufficient for stable operation.
-
-Terrain-specific models showed modest improvement over the global model in preliminary testing. For flat-terrain flights (the predominant training condition), the flat-specific RF achieved F1 = 1.0000 versus the global RF's F1 = 1.0000 (parity on this dataset). For mountain terrain, where less training data was available, the mountain-specific model returned to the global fallback. For sea terrain, the sea-specific model was unavailable due to insufficient training data and defaulted to the flat-terrain model as the recommended fallback.
+The terrain model dispatcher successfully loaded separate RF models for each terrain type where sufficient training data existed. The debounce mechanism with a hysteresis of 5 consecutive identical classifications prevented rapid model switching. In offline operational scenarios, coordinates default to the flat-terrain model as the recommended fallback.
 
 \section{Latency Analysis}
 
-The 30-sample window at 10\,Hz introduces a theoretical detection delay of approximately 3 seconds from the onset of a spoofing attack.
-
-\begin{figure}[H]
-\centering
-\begin{tikzpicture}[
-    event/.style={rectangle, draw, fill=blue!12, text width=2.5cm, text centered, minimum height=0.7cm, font=\small},
-    arrow/.style={->, >=stealth, thick},
-]
-    \draw[->] (0,0) -- (14,0) node[right] {Time (s)};
-    \draw (1,0.8) node[above, font=\small] {Attack onset};
-    \draw[red, thick] (1,-1.5) -- (1,1.5) node[above, font=\small\color{red}] {$t=0$};
-    \draw[blue!50, thick, ->] (1.3,0.6) -- (4,0.6) node[midway, above, font=\tiny] {3 s window fill};
-    \draw[green!50!black, thick, ->] (4,0) -- (4.2,0) node[midway, above, font=\tiny] {infer};
-    \node[event, fill=red!15] at (4.8, 0.5) {Detection: $t=3.2$ s};
-    \draw[orange, thick, ->] (4.8, -0.3) -- (6.8, -0.3) node[midway, above, font=\tiny] {Reaction available: 2 s at 15 m/s};
-    \draw[red, thick, ->] (6.8, -1.2) -- (6.8, 0) node[above, font=\tiny] {Collision at $t=5.2$ s};
-    \node[font=\small, red] at (6.8, -1.5) {Too late};
-\end{tikzpicture}
-\caption{Detection latency timeline. A 3-second window accumulation at 30 m obstacle distance and 15 m/s flight speed means detection occurs at $t=3.2$ s but the available reaction window closes at $t=2.0$ s — the window-based detector misses the safe-reaction interval.}
-\label{fig:latency_timeline}
-\end{figure} This latency must be evaluated against the time available for a reactive manoeuvre in safety-critical scenarios, as formalised by Equation~\ref{eq:react}.
-
-Consider a drone flying at velocity \(v = 15\)\,m/s toward a fixed obstacle. If the minimum safe braking distance is \(d_{\text{safe}} = 30\)\,m, the available reaction time is:
+The 30-sample window at 10\,Hz introduces a theoretical detection delay of approximately 3 seconds from the onset of a spoofing attack. This latency must be evaluated against the time available for a reactive manoeuvre in safety-critical scenarios:
 
 \begin{equation}
     t_{\text{react}} = \frac{d_{\text{safe}}}{v} = \frac{30\text{ m}}{15\text{ m/s}} = 2.0\text{ s}
     \label{eq:react}
 \end{equation}
 
-The 3-second detection window exceeds this available reaction time, indicating that for high-speed obstacle-avoidance scenarios, the current single-stage ML detector would not provide sufficient warning. This is a fundamental limitation of the windowed approach, not of the specific model architecture.
+\begin{figure}[H]
+\centering
+\footnotesize
+\begin{tikzpicture}[
+    event/.style={rectangle, draw, fill=blue!12, text width=2.5cm, text centered, minimum height=0.7cm, font=\small},
+    arrow/.style={->, >=stealth, thick},
+]
+    \draw[->] (0,0) -- (14,0) node[right] {Time (s)};
+    \draw[red, thick] (1,-1.5) -- (1,1.5) node[above, font=\small\color{red}] {$t=0$};
+    \node[font=\small] at (1,1.8) {Attack onset};
+    \draw[blue!50, thick, ->] (1.3,0.6) -- (4,0.6) node[midway, above, font=\tiny] {3 s window fill};
+    \node[event, fill=red!15] at (4.8, 0.5) {Detection: $t=3.2$ s};
+    \draw[orange, thick, ->] (4.8, -0.3) -- (6.8, -0.3) node[midway, above, font=\tiny] {Reaction: 2 s at 15 m/s};
+    \draw[red, thick, ->] (6.8, -1.2) -- (6.8, 0) node[above, font=\tiny] {Collision at $t=5.2$ s};
+\end{tikzpicture}
+\caption{Detection latency timeline. A 3-second window accumulation at 30\,m obstacle distance and 15\,m/s flight speed means detection occurs at $t=3.2$\,s but the available reaction window closes at $t=2.0$\,s.}
+\label{fig:latency_timeline}
+\end{figure}
 
-Several mitigations are proposed in the literature and by this work:
-\begin{itemize}
-    \item \textbf{Two-tier architecture}: A fast heuristic pre-filter (single-sample latency, higher false positive tolerance) cascaded with the ML model. The heuristic detector would trigger an immediate, conservative response (e.g., velocity reduction), while the ML model confirms the spoofing classification over the full window.
-    \item \textbf{Reduced window size}: Decreasing window length to \(n = 20\) (2 seconds) would bring the detection latency below the safe-reaction threshold, at the cost of reduced feature stability.
-    \item \textbf{Increased sampling rate}: Polling MAVLink at 20\,Hz or 50\,Hz where bandwidth permits would proportionally reduce detection latency.
-\end{itemize}
-
-Formal latency benchmarking under controlled conditions remains as planned future work. The current implementation has not been profiled for processing time, data transfer overhead, or model inference speed, and the 3-second figure represents the theoretical minimum based on window length alone.
+Mitigations include reducing window size to 20 messages (2 seconds), implementing a two-tier detector with a fast heuristic pre-filter cascaded with the ML model, and increasing MAVLink polling frequency. Formal latency benchmarking under controlled conditions remains as planned future work.

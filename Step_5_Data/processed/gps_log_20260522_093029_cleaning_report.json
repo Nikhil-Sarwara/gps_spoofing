@@ -1,0 +1,60 @@
+{
+  "input_file": "Step_5_Data/raw/gps_log_20260522_093029.csv",
+  "output_file": "Step_5_Data/processed/gps_log_20260522_093029_cleaned.csv",
+  "initial_rows": 1384,
+  "final_rows": 1383,
+  "rows_removed": 1,
+  "time_start_s": 0.101,
+  "time_end_s": 141.658,
+  "duration_s": 141.557,
+  "missing_after_cleaning": {
+    "time_s": 0,
+    "lat_deg": 0,
+    "lon_deg": 0,
+    "alt_m": 0,
+    "rel_alt_m": 0,
+    "vel_m_s": 0,
+    "hdg_deg": 0,
+    "fix_type": 0,
+    "satellites_visible": 0,
+    "eph_m": 0,
+    "epv_m": 0,
+    "roll_deg": 0,
+    "pitch_deg": 0,
+    "yaw_deg": 0,
+    "rollspeed_radps": 0,
+    "pitchspeed_radps": 0,
+    "yawspeed_radps": 0,
+    "vibration_x": 9,
+    "vibration_y": 9,
+    "vibration_z": 9,
+    "clipping_0": 9,
+    "clipping_1": 9,
+    "clipping_2": 9,
+    "vel_ratio": 0,
+    "pos_horiz_ratio": 0,
+    "pos_vert_ratio": 0,
+    "vel_innov": 1383,
+    "pos_horiz_innov": 1383,
+    "pos_vert_innov": 1383,
+    "battery_voltage": 0,
+    "battery_remaining_pct": 0,
+    "armed": 0,
+    "mode": 0,
+    "failsafe": 0,
+    "connection_ok": 0,
+    "last_update_iso": 0,
+    "is_stale_repeat": 0,
+    "dt": 1
+  },
+  "mode_counts": {
+    "LOITER": 1374,
+    "UNKNOWN": 9
+  },
+  "failsafe_counts": {
+    "0": 1383
+  },
+  "armed_counts": {
+    "0": 1383
+  }
+}

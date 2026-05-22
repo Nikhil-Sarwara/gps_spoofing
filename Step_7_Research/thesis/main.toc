@@ -81,34 +81,33 @@
 \contentsline {chapter}{\numberline {6}Results and Evaluation}{44}{chapter.6}%
 \contentsline {section}{\numberline {6.1}Dataset Characterisation}{44}{section.6.1}%
 \contentsline {subsection}{\numberline {6.1.1}Environmental Conditions and Model Impact}{45}{subsection.6.1.1}%
-\contentsline {section}{\numberline {6.2}Model Performance---Random Forest}{46}{section.6.2}%
-\contentsline {section}{\numberline {6.3}Model Performance---1D CNN}{47}{section.6.3}%
-\contentsline {section}{\numberline {6.4}The CNN Paradox: Analysis and Interpretation}{47}{section.6.4}%
-\contentsline {subsection}{\numberline {6.4.1}Evidence for Overfitting in the CNN}{49}{subsection.6.4.1}%
-\contentsline {subsection}{\numberline {6.4.2}Ablation Study}{49}{subsection.6.4.2}%
-\contentsline {subsection}{\numberline {6.4.3}Random Forest Feature Importance}{50}{subsection.6.4.3}%
-\contentsline {subsection}{\numberline {6.4.4}Live Inference Time-Series Analysis}{51}{subsection.6.4.4}%
-\contentsline {subsection}{\numberline {6.4.5}Two-Tier Detection Feasibility}{52}{subsection.6.4.5}%
-\contentsline {section}{\numberline {6.5}Live Inference Results}{52}{section.6.5}%
-\contentsline {section}{\numberline {6.6}Terrain-Aware Detection}{53}{section.6.6}%
-\contentsline {section}{\numberline {6.7}Latency Analysis}{54}{section.6.7}%
-\contentsline {chapter}{\numberline {7}Discussion}{56}{chapter.7}%
-\contentsline {section}{\numberline {7.1}Interpretation of Key Findings}{56}{section.7.1}%
-\contentsline {section}{\numberline {7.2}Comparison with Existing Work}{57}{section.7.2}%
-\contentsline {section}{\numberline {7.3}Limitations}{58}{section.7.3}%
-\contentsline {section}{\numberline {7.4}Threats to Validity}{60}{section.7.4}%
-\contentsline {section}{\numberline {7.5}Proposed GPS Trust Index}{60}{section.7.5}%
-\contentsline {subsection}{\numberline {7.5.1}Mathematical Design}{61}{subsection.7.5.1}%
-\contentsline {subsection}{\numberline {7.5.2}Graduated Response Protocol}{61}{subsection.7.5.2}%
-\contentsline {chapter}{\numberline {8}Conclusion and Future Work}{64}{chapter.8}%
-\contentsline {section}{\numberline {8.1}Summary of Contributions}{64}{section.8.1}%
-\contentsline {section}{\numberline {8.2}Answers to Research Questions}{65}{section.8.2}%
-\contentsline {section}{\numberline {8.3}Practical Implications}{66}{section.8.3}%
-\contentsline {section}{\numberline {8.4}Future Work}{67}{section.8.4}%
-\contentsline {section}{\numberline {8.5}Concluding Remarks}{68}{section.8.5}%
-\contentsline {chapter}{Bibliography}{69}{section.8.5}%
-\contentsline {chapter}{\numberline {A}Supplementary Material}{71}{appendix.A}%
-\contentsline {section}{\numberline {A.1}Project Directory Structure}{71}{section.A.1}%
-\contentsline {section}{\numberline {A.2}Configuration File}{72}{section.A.2}%
-\contentsline {section}{\numberline {A.3}Commands Reference}{72}{section.A.3}%
-\contentsline {section}{\numberline {A.4}Ethics and Compliance}{73}{section.A.4}%
+\contentsline {section}{\numberline {6.2}Model Performance and Comparative Analysis}{46}{section.6.2}%
+\contentsline {subsection}{\numberline {6.2.1}Random Forest Classification}{46}{subsection.6.2.1}%
+\contentsline {subsection}{\numberline {6.2.2}1D CNN Classification}{47}{subsection.6.2.2}%
+\contentsline {subsection}{\numberline {6.2.3}Comparative Analysis}{48}{subsection.6.2.3}%
+\contentsline {subsection}{\numberline {6.2.4}CNN Training Dynamics and Overfitting Analysis}{49}{subsection.6.2.4}%
+\contentsline {subsection}{\numberline {6.2.5}Random Forest Feature Importance}{50}{subsection.6.2.5}%
+\contentsline {subsection}{\numberline {6.2.6}Ablation Study}{50}{subsection.6.2.6}%
+\contentsline {section}{\numberline {6.3}Live Inference Results}{51}{section.6.3}%
+\contentsline {section}{\numberline {6.4}Terrain-Aware Detection}{52}{section.6.4}%
+\contentsline {section}{\numberline {6.5}Latency Analysis}{53}{section.6.5}%
+\contentsline {chapter}{\numberline {7}Discussion}{55}{chapter.7}%
+\contentsline {section}{\numberline {7.1}Interpretation of Key Findings}{55}{section.7.1}%
+\contentsline {section}{\numberline {7.2}Comparison with Existing Work}{56}{section.7.2}%
+\contentsline {section}{\numberline {7.3}Limitations}{57}{section.7.3}%
+\contentsline {section}{\numberline {7.4}Threats to Validity}{59}{section.7.4}%
+\contentsline {section}{\numberline {7.5}Proposed GPS Trust Index}{59}{section.7.5}%
+\contentsline {subsection}{\numberline {7.5.1}Mathematical Design}{60}{subsection.7.5.1}%
+\contentsline {subsection}{\numberline {7.5.2}Graduated Response Protocol}{60}{subsection.7.5.2}%
+\contentsline {chapter}{\numberline {8}Conclusion and Future Work}{63}{chapter.8}%
+\contentsline {section}{\numberline {8.1}Summary of Contributions}{63}{section.8.1}%
+\contentsline {section}{\numberline {8.2}Answers to Research Questions}{64}{section.8.2}%
+\contentsline {section}{\numberline {8.3}Practical Implications}{65}{section.8.3}%
+\contentsline {section}{\numberline {8.4}Future Work}{66}{section.8.4}%
+\contentsline {section}{\numberline {8.5}Concluding Remarks}{67}{section.8.5}%
+\contentsline {chapter}{Bibliography}{68}{section.8.5}%
+\contentsline {chapter}{\numberline {A}Supplementary Material}{70}{appendix.A}%
+\contentsline {section}{\numberline {A.1}Project Directory Structure}{70}{section.A.1}%
+\contentsline {section}{\numberline {A.2}Configuration File}{71}{section.A.2}%
+\contentsline {section}{\numberline {A.3}Commands Reference}{71}{section.A.3}%
+\contentsline {section}{\numberline {A.4}Ethics and Compliance}{72}{section.A.4}%

@@ -1,12 +1,12 @@
 {
-  "input_file": "gps_logs/raw/gps_log_20260402_184048.csv",
-  "output_file": "gps_logs/processed/gps_log_20260402_184048_cleaned.csv",
+  "input_file": "Step_5_Data/raw/gps_log_20260402_184048.csv",
+  "output_file": "Step_5_Data/processed/gps_log_20260402_184048_cleaned.csv",
   "initial_rows": 2783,
-  "final_rows": 1851,
-  "rows_removed": 932,
+  "final_rows": 2782,
+  "rows_removed": 1,
   "time_start_s": 0.105,
-  "time_end_s": 269.557,
-  "duration_s": 269.452,
+  "time_end_s": 286.021,
+  "duration_s": 285.916,
   "missing_after_cleaning": {
     "time_s": 0,
     "lat_deg": 0,
@@ -19,12 +19,12 @@
     "satellites_visible": 0,
     "eph_m": 0,
     "epv_m": 0,
-    "ax_mps2": 1851,
-    "ay_mps2": 1851,
-    "az_mps2": 1851,
-    "gx_radps": 1851,
-    "gy_radps": 1851,
-    "gz_radps": 1851,
+    "ax_mps2": 2782,
+    "ay_mps2": 2782,
+    "az_mps2": 2782,
+    "gx_radps": 2782,
+    "gy_radps": 2782,
+    "gz_radps": 2782,
     "battery_voltage": 2,
     "battery_remaining_pct": 2,
     "armed": 0,
@@ -36,18 +36,18 @@
     "dt": 1
   },
   "mode_counts": {
-    "LOITER": 891,
-    "MODE_HEX": 780,
+    "HEX_000000C0": 1707,
+    "LOITER": 895,
     "TAKEOFF": 116,
     "LAND": 62,
     "UNKNOWN": 2
   },
   "failsafe_counts": {
-    "1": 1662,
-    "0": 189
+    "1": 2589,
+    "0": 193
   },
   "armed_counts": {
-    "1": 1662,
-    "0": 189
+    "1": 2589,
+    "0": 193
   }
 }

@@ -65,6 +65,11 @@ def gps_to_local(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def create_windows(df: pd.DataFrame, feature_cols, window_len: int, stride: int):
+    # Add missing feature columns with default 0.0
+    for col in feature_cols:
+        if col not in df.columns:
+            df[col] = 0.0
+
     windows = []
     labels = []
     window_start_times = []

@@ -1,0 +1,306 @@
+\relax 
+\providecommand\hyper@newdestlabel[2]{}
+\providecommand*\HyPL@Entry[1]{}
+\HyPL@Entry{0<</S/D>>}
+\HyPL@Entry{2<</S/r>>}
+\HyPL@Entry{3<</S/r>>}
+\@writefile{toc}{\contentsline {chapter}{Acknowledgements}{i}{chapter*.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{List of Abbreviations}{iii}{chapter*.2}\protected@file@percent }
+\citation{Humphreys2012}
+\citation{PX4Docs}
+\citation{Kerns2014}
+\HyPL@Entry{13<</S/D>>}
+\@writefile{toc}{\contentsline {chapter}{\numberline {1}Introduction}{1}{chapter.1}\protected@file@percent }
+\@writefile{lof}{\addvspace {10\p@ }}
+\@writefile{lot}{\addvspace {10\p@ }}
+\@writefile{toc}{\contentsline {section}{\numberline {1.1}Background and Motivation}{1}{section.1.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {1.2}Problem Statement}{2}{section.1.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {1.3}Research Questions}{3}{section.1.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {1.4}Research Aims and Objectives}{3}{section.1.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {1.5}Scope and Significance}{4}{section.1.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {1.6}Thesis Structure}{4}{section.1.6}\protected@file@percent }
+\citation{Shah2022}
+\citation{Schmidt2021}
+\@writefile{toc}{\contentsline {chapter}{\numberline {2}Literature Review}{6}{chapter.2}\protected@file@percent }
+\@writefile{lof}{\addvspace {10\p@ }}
+\@writefile{lot}{\addvspace {10\p@ }}
+\@writefile{toc}{\contentsline {section}{\numberline {2.1}GPS Fundamentals and Vulnerabilities}{6}{section.2.1}\protected@file@percent }
+\citation{Zhang2020}
+\citation{Kerns2014}
+\citation{Humphreys2012}
+\@writefile{toc}{\contentsline {section}{\numberline {2.2}GPS Spoofing: Threats and Attack Vectors}{7}{section.2.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {2.1}{\ignorespaces GPS spoofing attack flow: the attacker transmits a counterfeit signal structurally compliant with IS-GPS-200, causing the victim PX4 receiver to accept falsified PVT estimates while reporting a healthy fix.}}{7}{figure.caption.6}\protected@file@percent }
+\providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
+\newlabel{fig:spoof_attack_flow}{{2.1}{7}{GPS spoofing attack flow: the attacker transmits a counterfeit signal structurally compliant with IS-GPS-200, causing the victim PX4 receiver to accept falsified PVT estimates while reporting a healthy fix}{figure.caption.6}{}}
+\citation{Owen2019}
+\citation{Morales-Ferre2020}
+\citation{Kumar2022}
+\@writefile{toc}{\contentsline {section}{\numberline {2.3}Existing Detection Approaches}{8}{section.2.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.3.1}Cryptographic Authentication}{8}{subsection.2.3.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.3.2}Physical-Layer Techniques}{8}{subsection.2.3.2}\protected@file@percent }
+\citation{Broumandan2020}
+\citation{Broumandan2020}
+\citation{Guizzaro2022}
+\citation{Manesh2019}
+\citation{PX4Docs}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.3.3}Sensor-Fusion Methods}{9}{subsection.2.3.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {2.4}PX4 Architecture and the EKF2}{9}{section.2.4}\protected@file@percent }
+\citation{Zhao2020}
+\citation{Park2020}
+\citation{Kim2021}
+\citation{Liu2021}
+\@writefile{lof}{\contentsline {figure}{\numberline {2.2}{\ignorespaces PX4 EKF2 sensor fusion architecture. GPS, IMU, barometer, and magnetometer data feed into the 24-state Extended Kalman Filter. Under spoofing, the GPS input (highlighted in red) reports low error metrics, causing the EKF2 to weight it heavily despite containing falsified coordinates.}}{10}{figure.caption.7}\protected@file@percent }
+\newlabel{fig:ekf2_fusion}{{2.2}{10}{PX4 EKF2 sensor fusion architecture. GPS, IMU, barometer, and magnetometer data feed into the 24-state Extended Kalman Filter. Under spoofing, the GPS input (highlighted in red) reports low error metrics, causing the EKF2 to weight it heavily despite containing falsified coordinates}{figure.caption.7}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {2.5}Sensor Fusion for Anomaly Detection}{10}{section.2.5}\protected@file@percent }
+\citation{Bhardwaj2019}
+\citation{Li2022}
+\citation{Guizzaro2022}
+\citation{Khan2021}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.5.1}EKF Innovation Monitoring and Rejection Latency}{11}{subsection.2.5.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {2.6}Machine Learning for Intrusion Detection}{11}{section.2.6}\protected@file@percent }
+\citation{Zhang2023}
+\citation{Dang2023}
+\citation{Chen2023}
+\citation{Manesh2019}
+\citation{Guizzaro2022}
+\citation{Dang2023}
+\citation{Chen2023}
+\@writefile{lot}{\contentsline {table}{\numberline {2.1}{\ignorespaces Comparison of ML-based GNSS spoofing detection approaches.}}{12}{table.caption.8}\protected@file@percent }
+\newlabel{tab:ml_comparison}{{2.1}{12}{Comparison of ML-based GNSS spoofing detection approaches}{table.caption.8}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {2.7}Research Gaps}{13}{section.2.7}\protected@file@percent }
+\citation{MAVLink}
+\citation{Pedregosa2011}
+\citation{Paszke2019}
+\citation{StreamlitDocs}
+\@writefile{toc}{\contentsline {chapter}{\numberline {3}System Design and Architecture}{14}{chapter.3}\protected@file@percent }
+\@writefile{lof}{\addvspace {10\p@ }}
+\@writefile{lot}{\addvspace {10\p@ }}
+\@writefile{toc}{\contentsline {section}{\numberline {3.1}Design Requirements}{14}{section.3.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1.1}Functional Requirements}{14}{subsection.3.1.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1.2}Non-Functional Requirements}{15}{subsection.3.1.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {3.2}Overall System Architecture}{15}{section.3.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {3.1}{\ignorespaces System architecture showing data flow from PX4 simulation through GPS Monitor, ML Pipeline, and Live Inference to Dashboard. The attack injector provides controlled spoofing for testing.}}{15}{figure.caption.9}\protected@file@percent }
+\newlabel{fig:system_arch}{{3.1}{15}{System architecture showing data flow from PX4 simulation through GPS Monitor, ML Pipeline, and Live Inference to Dashboard. The attack injector provides controlled spoofing for testing}{figure.caption.9}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {3.3}Component Overview}{16}{section.3.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {3.4}Key Innovation: GPS--IMU Consistency Check}{16}{section.3.4}\protected@file@percent }
+\citation{Hassan2023}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.4.1}Physical Principle}{17}{subsection.3.4.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {3.2}{\ignorespaces GPS--IMU consistency principle. Left: under a wind gust, both GPS and IMU detect the physical displacement---they agree. Right: under GPS spoofing, GPS reports position change while IMU registers no motion---the cross-sensor inconsistency reveals the attack.}}{17}{figure.caption.10}\protected@file@percent }
+\newlabel{fig:consistency_principle}{{3.2}{17}{GPS--IMU consistency principle. Left: under a wind gust, both GPS and IMU detect the physical displacement---they agree. Right: under GPS spoofing, GPS reports position change while IMU registers no motion---the cross-sensor inconsistency reveals the attack}{figure.caption.10}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.4.2}Mathematical Formulation}{17}{subsection.3.4.2}\protected@file@percent }
+\newlabel{eq:delta_phi_full}{{3.1}{17}{Mathematical Formulation}{equation.3.1}{}}
+\newlabel{eq:spoof_indicator}{{3.2}{18}{Mathematical Formulation}{equation.3.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.4.3}Worked Numerical Example}{18}{subsection.3.4.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{\numberline {4}Methodology}{19}{chapter.4}\protected@file@percent }
+\@writefile{lof}{\addvspace {10\p@ }}
+\@writefile{lot}{\addvspace {10\p@ }}
+\@writefile{toc}{\contentsline {section}{\numberline {4.1}Research Methodology}{19}{section.4.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {4.2}Simulation Environment}{19}{section.4.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2.1}Gazebo Wind and Physics Models}{20}{subsection.4.2.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {4.1}{\ignorespaces PX4 SITL simulation running in Gazebo Harmonic with the Iris x500 quadcopter model in the windy world.}}{20}{figure.caption.11}\protected@file@percent }
+\newlabel{fig:px4_gazebo}{{4.1}{20}{PX4 SITL simulation running in Gazebo Harmonic with the Iris x500 quadcopter model in the windy world}{figure.caption.11}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2.2}Docker Container Orchestration}{21}{subsection.4.2.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {4.3}Data Capture Pipeline}{21}{section.4.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3.1}MAVLink Message Types and Telemetry Sources}{21}{subsection.4.3.1}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {4.1}{\ignorespaces MAVLink telemetry sources, frequencies, and detection roles.}}{21}{table.caption.12}\protected@file@percent }
+\newlabel{tab:data_sources}{{4.1}{21}{MAVLink telemetry sources, frequencies, and detection roles}{table.caption.12}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3.2}Capture Procedure}{22}{subsection.4.3.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {4.2}{\ignorespaces QGroundControl mission planning interface showing the drone waypoint path on the map with telemetry instrument panel during a scripted flight.}}{22}{figure.caption.13}\protected@file@percent }
+\newlabel{fig:qgc_mission}{{4.2}{22}{QGroundControl mission planning interface showing the drone waypoint path on the map with telemetry instrument panel during a scripted flight}{figure.caption.13}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4.4}Data Preprocessing}{22}{section.4.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4.1}Stage 1: Cleaning}{22}{subsection.4.4.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4.2}Stage 2: Feature Engineering}{23}{subsection.4.4.2}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {4.2}{\ignorespaces Feature set organised by category.}}{23}{table.caption.14}\protected@file@percent }
+\newlabel{tab:features}{{4.2}{23}{Feature set organised by category}{table.caption.14}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4.3}Stage 3: Heuristic Labelling}{23}{subsection.4.4.3}\protected@file@percent }
+\newlabel{sec:heuristics}{{4.4.3}{23}{Stage 3: Heuristic Labelling}{subsection.4.4.3}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {4.3}{\ignorespaces Heuristic labelling rules with thresholds.}}{23}{table.caption.15}\protected@file@percent }
+\newlabel{tab:heuristics}{{4.3}{23}{Heuristic labelling rules with thresholds}{table.caption.15}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4.3}{\ignorespaces Heuristic labelling decision flow. Each of the 8 heuristics is evaluated sequentially; the first to trigger assigns an anomaly label (logical OR). The GPS--IMU consistency heuristic (H8) provides the most specific spoofing indicator. Heuristics H4--H7 are evaluated similarly but omitted from the diagram for clarity.}}{24}{figure.caption.16}\protected@file@percent }
+\newlabel{fig:heuristic_flow}{{4.3}{24}{Heuristic labelling decision flow. Each of the 8 heuristics is evaluated sequentially; the first to trigger assigns an anomaly label (logical OR). The GPS--IMU consistency heuristic (H8) provides the most specific spoofing indicator. Heuristics H4--H7 are evaluated similarly but omitted from the diagram for clarity}{figure.caption.16}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4.4}Threshold Sensitivity Analysis}{25}{subsection.4.4.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4.5}Limitations of Heuristic Labelling}{25}{subsection.4.4.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4.6}Additional Evaluation Metrics}{25}{subsection.4.4.6}\protected@file@percent }
+\newlabel{eq:kappa}{{4.1}{25}{Additional Evaluation Metrics}{equation.4.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4.7}Stage 4: Sliding Windows}{26}{subsection.4.4.7}\protected@file@percent }
+\newlabel{sec:windows}{{4.4.7}{26}{Stage 4: Sliding Windows}{subsection.4.4.7}{}}
+\newlabel{eq:window}{{4.2}{26}{Stage 4: Sliding Windows}{equation.4.2}{}}
+\newlabel{eq:majority}{{4.3}{26}{Stage 4: Sliding Windows}{equation.4.3}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4.4}{\ignorespaces Sliding window construction with window length $n = 30$ (3 seconds at 10\,Hz) and stride $s = 15$ (50\% overlap). Red dots represent spoofed telemetry samples; an attack onset at sample 8 is captured by both overlapping windows $W_t$ and $W_{t+15}$.}}{26}{figure.caption.17}\protected@file@percent }
+\newlabel{fig:sliding_window}{{4.4}{26}{Sliding window construction with window length $n = 30$ (3 seconds at 10\,Hz) and stride $s = 15$ (50\% overlap). Red dots represent spoofed telemetry samples; an attack onset at sample 8 is captured by both overlapping windows $W_t$ and $W_{t+15}$}{figure.caption.17}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4.8}Stage 5: Dataset Splitting}{26}{subsection.4.4.8}\protected@file@percent }
+\citation{Pedregosa2011}
+\@writefile{toc}{\contentsline {section}{\numberline {4.5}Machine Learning Model Architecture}{27}{section.4.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.5.1}Random Forest}{27}{subsection.4.5.1}\protected@file@percent }
+\newlabel{eq:gini}{{4.4}{27}{Random Forest}{equation.4.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.5.2}1D Convolutional Neural Network}{27}{subsection.4.5.2}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {4.4}{\ignorespaces 1D CNN architecture.}}{27}{table.caption.18}\protected@file@percent }
+\newlabel{tab:cnn_arch}{{4.4}{27}{1D CNN architecture}{table.caption.18}{}}
+\citation{Paszke2019}
+\newlabel{eq:bce}{{4.5}{28}{1D Convolutional Neural Network}{equation.4.5}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4.6}Evaluation Metrics}{28}{section.4.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{\numberline {5}Implementation}{29}{chapter.5}\protected@file@percent }
+\@writefile{lof}{\addvspace {10\p@ }}
+\@writefile{lot}{\addvspace {10\p@ }}
+\@writefile{toc}{\contentsline {section}{\numberline {5.1}Telemetry Acquisition Module}{29}{section.5.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1.1}MAVLinkClient Architecture}{29}{subsection.5.1.1}\protected@file@percent }
+\@writefile{loa}{\contentsline {algorithm}{\numberline {1}{\ignorespaces MAVLinkClient Lifecycle}}{30}{algorithm.1}\protected@file@percent }
+\newlabel{alg:mavlink}{{1}{30}{MAVLinkClient Lifecycle}{algorithm.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1.2}State Model}{30}{subsection.5.1.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1.3}CSV Logging Format}{30}{subsection.5.1.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1.4}Message Rate Analysis}{30}{subsection.5.1.4}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {5.1}{\ignorespaces GPS Monitor terminal display showing real-time GPS and IMU telemetry captured from PX4 SITL at 10\,Hz.}}{31}{figure.caption.19}\protected@file@percent }
+\newlabel{fig:gps_monitor}{{5.1}{31}{GPS Monitor terminal display showing real-time GPS and IMU telemetry captured from PX4 SITL at 10\,Hz}{figure.caption.19}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1.5}Message Rate Analysis}{31}{subsection.5.1.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {5.2}Data Preprocessing}{32}{section.5.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2.1}Healing and Imputation Strategy}{32}{subsection.5.2.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2.2}Time Alignment Between Disparate Message Rates}{32}{subsection.5.2.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {5.3}Auto-Labelling System}{33}{section.5.3}\protected@file@percent }
+\@writefile{loa}{\contentsline {algorithm}{\numberline {2}{\ignorespaces GPS--IMU Consistency Check (Heuristic H8)}}{33}{algorithm.2}\protected@file@percent }
+\newlabel{alg:gps_imu}{{2}{33}{GPS--IMU Consistency Check (Heuristic H8)}{algorithm.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.3.1}Heuristic Rule Tuning and Threshold Calibration}{33}{subsection.5.3.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.3.2}Label Aggregation and Conflict Resolution}{34}{subsection.5.3.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {5.4}Feature Engineering and Windowing}{34}{section.5.4}\protected@file@percent }
+\newlabel{sec:implem_fe}{{5.4}{34}{Feature Engineering and Windowing}{section.5.4}{}}
+\newlabel{eq:enu}{{5.1}{34}{Feature Engineering and Windowing}{equation.5.1}{}}
+\newlabel{eq:flatten}{{5.2}{34}{Feature Engineering and Windowing}{equation.5.2}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {5.5}ML Model Training}{34}{section.5.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.5.1}Random Forest Training}{35}{subsection.5.5.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.5.2}1D CNN Training}{35}{subsection.5.5.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.5.3}Training Pipeline Modes}{35}{subsection.5.5.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.5.4}Pipeline Configuration Management}{36}{subsection.5.5.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.5.5}Cross-Validation Strategy for Small Datasets}{36}{subsection.5.5.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.5.6}Model Serialization and Deployment Versioning}{36}{subsection.5.5.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {5.6}Real-Time Inference Engine}{37}{section.5.6}\protected@file@percent }
+\@writefile{loa}{\contentsline {algorithm}{\numberline {3}{\ignorespaces Streaming Anomaly Detection}}{37}{algorithm.3}\protected@file@percent }
+\newlabel{alg:inference}{{3}{37}{Streaming Anomaly Detection}{algorithm.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.6.1}Terrain-Aware Model Dispatching}{37}{subsection.5.6.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {5.7}Management Interfaces}{38}{section.5.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.7.1}TUI Management Console}{38}{subsection.5.7.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {5.2}{\ignorespaces TUI Management Console main dashboard showing component controls, status table, data file explorer, ML pipeline buttons, terrain model status, and GPS spoofer panel with six attack mode buttons. The spoofer console shows a completed drift attack with 293 GPS\_INPUT frames injected at 3\,m/s.}}{39}{figure.caption.20}\protected@file@percent }
+\newlabel{fig:tui_main}{{5.2}{39}{TUI Management Console main dashboard showing component controls, status table, data file explorer, ML pipeline buttons, terrain model status, and GPS spoofer panel with six attack mode buttons. The spoofer console shows a completed drift attack with 293 GPS\_INPUT frames injected at 3\,m/s}{figure.caption.20}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.7.2}Streamlit Web Dashboard}{39}{subsection.5.7.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {5.3}{\ignorespaces Streamlit web dashboard showing the live monitor tab with GPS Trust Index gauge (0--1 scale), current telemetry values, and anomaly probability line chart during normal flight operation.}}{40}{figure.caption.21}\protected@file@percent }
+\newlabel{fig:dashboard_overview}{{5.3}{40}{Streamlit web dashboard showing the live monitor tab with GPS Trust Index gauge (0--1 scale), current telemetry values, and anomaly probability line chart during normal flight operation}{figure.caption.21}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5.4}{\ignorespaces Streamlit dashboard during a GPS spoofing attack event. The anomaly probability has exceeded the 0.3 detection threshold, displaying a red ANOMALY status indicator and a degraded GPS Trust Index.}}{40}{figure.caption.22}\protected@file@percent }
+\newlabel{fig:dashboard_anomaly}{{5.4}{40}{Streamlit dashboard during a GPS spoofing attack event. The anomaly probability has exceeded the 0.3 detection threshold, displaying a red ANOMALY status indicator and a degraded GPS Trust Index}{figure.caption.22}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5.5}{\ignorespaces Streamlit dashboard log replay tab showing an uploaded inference CSV log displayed as a scrollable data table with anomaly probability, GPS coordinates, and terrain context for each detection window.}}{41}{figure.caption.23}\protected@file@percent }
+\newlabel{fig:dashboard_replay}{{5.5}{41}{Streamlit dashboard log replay tab showing an uploaded inference CSV log displayed as a scrollable data table with anomaly probability, GPS coordinates, and terrain context for each detection window}{figure.caption.23}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.7.3}Process Manager and Component Lifecycle}{41}{subsection.5.7.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {5.8}GPS Spoofing Attack Injector}{41}{section.5.8}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {5.6}{\ignorespaces Port architecture for simultaneous operation of all components across three independent MAVLink instances.}}{42}{figure.caption.24}\protected@file@percent }
+\newlabel{fig:port_architecture}{{5.6}{42}{Port architecture for simultaneous operation of all components across three independent MAVLink instances}{figure.caption.24}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5.7}{\ignorespaces GPS spoofer terminal output during a drift attack at 3\,m/s intensity. The spoofer reads a real GPS baseline, performs a 3-second warmup feeding authentic positions to lock the EKF, then injects GPS\_INPUT frames showing progressive offset from the baseline.}}{43}{figure.caption.25}\protected@file@percent }
+\newlabel{fig:spoof_output}{{5.7}{43}{GPS spoofer terminal output during a drift attack at 3\,m/s intensity. The spoofer reads a real GPS baseline, performs a 3-second warmup feeding authentic positions to lock the EKF, then injects GPS\_INPUT frames showing progressive offset from the baseline}{figure.caption.25}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5.8}{\ignorespaces ML Live Inference engine running on streaming MAVLink telemetry, showing terrain-aware detection output with terrain classification (flat), model type (rf), anomaly probability, and NORMAL/ANOMALY status for each processed window.}}{43}{figure.caption.26}\protected@file@percent }
+\newlabel{fig:inference_running}{{5.8}{43}{ML Live Inference engine running on streaming MAVLink telemetry, showing terrain-aware detection output with terrain classification (flat), model type (rf), anomaly probability, and NORMAL/ANOMALY status for each processed window}{figure.caption.26}{}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {6}Results and Evaluation}{44}{chapter.6}\protected@file@percent }
+\@writefile{lof}{\addvspace {10\p@ }}
+\@writefile{lot}{\addvspace {10\p@ }}
+\@writefile{toc}{\contentsline {section}{\numberline {6.1}Dataset Characterisation}{44}{section.6.1}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {6.1}{\ignorespaces Dataset summary statistics after full pipeline processing.}}{44}{table.caption.27}\protected@file@percent }
+\newlabel{tab:dataset}{{6.1}{44}{Dataset summary statistics after full pipeline processing}{table.caption.27}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {6.2}{\ignorespaces Per-flight experimental breakdown for the 8 simulated flights.}}{45}{table.caption.28}\protected@file@percent }
+\newlabel{tab:flight_breakdown}{{6.2}{45}{Per-flight experimental breakdown for the 8 simulated flights}{table.caption.28}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.1.1}Environmental Conditions and Model Impact}{45}{subsection.6.1.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {6.2}Model Performance and Comparative Analysis}{46}{section.6.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.2.1}Random Forest Classification}{46}{subsection.6.2.1}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {6.3}{\ignorespaces Random Forest classification performance on the test set (1,734 windows).}}{46}{table.caption.29}\protected@file@percent }
+\newlabel{tab:rf_perf}{{6.3}{46}{Random Forest classification performance on the test set (1,734 windows)}{table.caption.29}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6.1}{\ignorespaces Random Forest validation confusion matrix showing high normal-class recall with a low false positive rate on the 1,701 normal validation windows.}}{47}{figure.caption.30}\protected@file@percent }
+\newlabel{fig:confusion_rf}{{6.1}{47}{Random Forest validation confusion matrix showing high normal-class recall with a low false positive rate on the 1,701 normal validation windows}{figure.caption.30}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.2.2}1D CNN Classification}{47}{subsection.6.2.2}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {6.4}{\ignorespaces 1D CNN classification performance on the test set (1,734 windows).}}{47}{table.caption.31}\protected@file@percent }
+\newlabel{tab:cnn_perf}{{6.4}{47}{1D CNN classification performance on the test set (1,734 windows)}{table.caption.31}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6.2}{\ignorespaces 1D CNN confusion matrix showing perfect normal-class recall but complete failure to detect spoofed windows (0 true positives).}}{48}{figure.caption.32}\protected@file@percent }
+\newlabel{fig:confusion_cnn}{{6.2}{48}{1D CNN confusion matrix showing perfect normal-class recall but complete failure to detect spoofed windows (0 true positives)}{figure.caption.32}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.2.3}Comparative Analysis}{48}{subsection.6.2.3}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {6.5}{\ignorespaces Model performance comparison on the combined test set.}}{48}{table.caption.33}\protected@file@percent }
+\newlabel{tab:model_comparison}{{6.5}{48}{Model performance comparison on the combined test set}{table.caption.33}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6.3}{\ignorespaces F1-score comparison between the RF and CNN on the test set, highlighting the RF's 63\% spoofed-class F1 versus the CNN's complete failure to detect spoofed windows.}}{49}{figure.caption.34}\protected@file@percent }
+\newlabel{fig:model_comparison_chart}{{6.3}{49}{F1-score comparison between the RF and CNN on the test set, highlighting the RF's 63\% spoofed-class F1 versus the CNN's complete failure to detect spoofed windows}{figure.caption.34}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.2.4}CNN Training Dynamics and Overfitting Analysis}{49}{subsection.6.2.4}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {6.4}{\ignorespaces 1D CNN training and validation loss curves over 50 epochs. Validation loss plateaus early, and overfitting becomes evident after approximately epoch 25. Early stopping activated at epoch 38.}}{49}{figure.caption.35}\protected@file@percent }
+\newlabel{fig:training_curves}{{6.4}{49}{1D CNN training and validation loss curves over 50 epochs. Validation loss plateaus early, and overfitting becomes evident after approximately epoch 25. Early stopping activated at epoch 38}{figure.caption.35}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.2.5}Random Forest Feature Importance}{50}{subsection.6.2.5}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {6.5}{\ignorespaces Random Forest top-20 feature importance scores ranked by Gini impurity decrease. Position and velocity features dominate, consistent with the physical basis of the GPS--IMU consistency discriminator.}}{50}{figure.caption.36}\protected@file@percent }
+\newlabel{fig:feature_importance}{{6.5}{50}{Random Forest top-20 feature importance scores ranked by Gini impurity decrease. Position and velocity features dominate, consistent with the physical basis of the GPS--IMU consistency discriminator}{figure.caption.36}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.2.6}Ablation Study}{50}{subsection.6.2.6}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {6.6}{\ignorespaces CNN ablation study results on the test set.}}{51}{table.caption.37}\protected@file@percent }
+\newlabel{tab:ablation}{{6.6}{51}{CNN ablation study results on the test set}{table.caption.37}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {6.3}Live Inference Results}{51}{section.6.3}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {6.7}{\ignorespaces Live inference log summary for a representative flight session.}}{52}{table.caption.38}\protected@file@percent }
+\newlabel{tab:live_inference}{{6.7}{52}{Live inference log summary for a representative flight session}{table.caption.38}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {6.4}Terrain-Aware Detection}{52}{section.6.4}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {6.6}{\ignorespaces Gazebo simulation world selector in the TUI, showing available worlds with corresponding terrain classifications (flat, mountain, sea) for terrain-aware model dispatching.}}{53}{figure.caption.39}\protected@file@percent }
+\newlabel{fig:world_selector}{{6.6}{53}{Gazebo simulation world selector in the TUI, showing available worlds with corresponding terrain classifications (flat, mountain, sea) for terrain-aware model dispatching}{figure.caption.39}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {6.5}Latency Analysis}{53}{section.6.5}\protected@file@percent }
+\newlabel{eq:react}{{6.1}{53}{Latency Analysis}{equation.6.1}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6.7}{\ignorespaces Detection latency timeline. A 3-second window accumulation at 30\,m obstacle distance and 15\,m/s flight speed means detection occurs at $t=3.2$\,s but the available reaction window closes at $t=2.0$\,s.}}{54}{figure.caption.40}\protected@file@percent }
+\newlabel{fig:latency_timeline}{{6.7}{54}{Detection latency timeline. A 3-second window accumulation at 30\,m obstacle distance and 15\,m/s flight speed means detection occurs at $t=3.2$\,s but the available reaction window closes at $t=2.0$\,s}{figure.caption.40}{}}
+\citation{Broumandan2020}
+\@writefile{toc}{\contentsline {chapter}{\numberline {7}Discussion}{55}{chapter.7}\protected@file@percent }
+\@writefile{lof}{\addvspace {10\p@ }}
+\@writefile{lot}{\addvspace {10\p@ }}
+\@writefile{toc}{\contentsline {section}{\numberline {7.1}Interpretation of Key Findings}{55}{section.7.1}\protected@file@percent }
+\citation{Morales-Ferre2020}
+\@writefile{toc}{\contentsline {section}{\numberline {7.2}Comparison with Existing Work}{56}{section.7.2}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {7.1}{\ignorespaces Structured comparison of GPS spoofing detection approaches.}}{57}{table.caption.41}\protected@file@percent }
+\newlabel{tab:comparison_existing}{{7.1}{57}{Structured comparison of GPS spoofing detection approaches}{table.caption.41}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {7.3}Limitations}{57}{section.7.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {7.4}Threats to Validity}{59}{section.7.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {7.5}Proposed GPS Trust Index}{59}{section.7.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.5.1}Mathematical Design}{60}{subsection.7.5.1}\protected@file@percent }
+\newlabel{eq:gti_full}{{7.1}{60}{Mathematical Design}{equation.7.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.5.2}Graduated Response Protocol}{60}{subsection.7.5.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {7.1}{\ignorespaces GPS Trust Index graduated response protocol. As the GTI declines, protective measures escalate from sensor weight modulation through hold mode to emergency return-to-launch, with MAVLink alerts broadcast at each escalation step.}}{61}{figure.caption.42}\protected@file@percent }
+\newlabel{fig:gti_response}{{7.1}{61}{GPS Trust Index graduated response protocol. As the GTI declines, protective measures escalate from sensor weight modulation through hold mode to emergency return-to-launch, with MAVLink alerts broadcast at each escalation step}{figure.caption.42}{}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {8}Conclusion and Future Work}{63}{chapter.8}\protected@file@percent }
+\@writefile{lof}{\addvspace {10\p@ }}
+\@writefile{lot}{\addvspace {10\p@ }}
+\@writefile{toc}{\contentsline {section}{\numberline {8.1}Summary of Contributions}{63}{section.8.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {8.2}Answers to Research Questions}{64}{section.8.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {8.3}Practical Implications}{65}{section.8.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {8.4}Future Work}{66}{section.8.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {8.5}Concluding Remarks}{67}{section.8.5}\protected@file@percent }
+\bibdata{bibliography/references}
+\bibcite{Bhardwaj2019}{1}
+\bibcite{Broumandan2020}{2}
+\bibcite{Chen2023}{3}
+\bibcite{Dang2023}{4}
+\bibcite{Guizzaro2022}{5}
+\bibcite{Hassan2023}{6}
+\bibcite{Humphreys2012}{7}
+\bibcite{Kerns2014}{8}
+\bibcite{Khan2021}{9}
+\bibcite{Kim2021}{10}
+\bibcite{Kumar2022}{11}
+\bibcite{Li2022}{12}
+\bibcite{Liu2021}{13}
+\bibcite{Manesh2019}{14}
+\bibcite{MAVLink}{15}
+\@writefile{toc}{\contentsline {chapter}{Bibliography}{68}{section.8.5}\protected@file@percent }
+\bibcite{Morales-Ferre2020}{16}
+\bibcite{Owen2019}{17}
+\bibcite{Park2020}{18}
+\bibcite{Paszke2019}{19}
+\bibcite{Pedregosa2011}{20}
+\bibcite{PX4Docs}{21}
+\bibcite{Schmidt2021}{22}
+\bibcite{Shah2022}{23}
+\bibcite{StreamlitDocs}{24}
+\bibcite{Zhang2023}{25}
+\bibcite{Zhang2020}{26}
+\bibcite{Zhao2020}{27}
+\bibstyle{siam}
+\@writefile{toc}{\contentsline {chapter}{\numberline {A}Supplementary Material}{70}{appendix.A}\protected@file@percent }
+\@writefile{lof}{\addvspace {10\p@ }}
+\@writefile{lot}{\addvspace {10\p@ }}
+\@writefile{toc}{\contentsline {section}{\numberline {A.1}Project Directory Structure}{70}{section.A.1}\protected@file@percent }
+\gdef \LT@i {\LT@entry 
+    {1}{126.61101pt}\LT@entry 
+    {1}{325.3803pt}}
+\@writefile{toc}{\contentsline {section}{\numberline {A.2}Configuration File}{71}{section.A.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {A.3}Commands Reference}{71}{section.A.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {A.4}Ethics and Compliance}{72}{section.A.4}\protected@file@percent }
+\gdef \@abspage@last{85}

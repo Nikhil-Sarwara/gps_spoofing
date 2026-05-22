@@ -128,7 +128,21 @@ class TerrainModelDispatcher:
         # Recommended default from training report
         self._recommended_default = "flat"
 
-        # ── State for extract_features() ─────────────────────────
+        # ── Area-specific model (Baylands square) ────────────────────
+        self._baylands_model = None
+        self._baylands_scaler = None
+        self._baylands_bbox = None
+        _baylands_dir = self.terrain_models_dir.parent / "area_specific"
+        if (_baylands_dir / "rf_model.pkl").exists():
+            try:
+                self._baylands_model = joblib.load(_baylands_dir / "rf_model.pkl")
+                self._baylands_scaler = joblib.load(_baylands_dir / "scaler.pkl")
+                with open(_baylands_dir / "model_info.json") as f:
+                    info = json.load(f)
+                self._baylands_bbox = info.get("bbox")
+                logger.info("Area-specific model loaded (Baylands: %s)", self._baylands_bbox)
+            except Exception as e:
+                logger.warning("Area-specific model load failed: %s", e)
         self.home_gps        = None   # (lat, lon) of first GPS fix
         self.last_msg        = None   # last GLOBAL_POSITION_INT
         self.last_attitude   = None   # last ATTITUDE msg
@@ -443,17 +457,15 @@ class TerrainModelDispatcher:
             is_armed    = last_sample[30] > 0.5
 
             if not is_armed:
-                # Drone is disarmed; force normal status
                 raw_proba = 0.01
             elif rel_alt < 5.0 and speed < 3.0:
-                # Drone is armed but hovering or slow-cruising near ground.
-                # The ML model was trained primarily on survey-pattern flights; 
-                # hovering data may not match the training distribution, so
-                # we suppress false positives for low-energy flight states.
                 raw_proba = 0.01
             else:
-                # Drone is armed and potentially flying; run the ML model
-                raw_proba = self._run_model(window)
+                # Check if we're in the Baylands area — use area-specific model
+                if self._baylands_model is not None and self._in_baylands():
+                    raw_proba = self._run_baylands_model(window)
+                else:
+                    raw_proba = self._run_model(window)
 
             if self._ema_proba is None:
                 self._ema_proba = raw_proba
@@ -617,6 +629,23 @@ class TerrainModelDispatcher:
         if self.active_model_type == "cnn" and self.active_cnn_model is not None:
             return self._predict_cnn(window)
         return self._predict_rf(window)
+
+    def _in_baylands(self) -> bool:
+        """Check if current GPS position is inside the Baylands training area."""
+        if self._baylands_bbox is None or self.home_gps is None:
+            return False
+        lat, lon = self.home_gps
+        bb = self._baylands_bbox
+        return (bb["lat_min"] <= lat <= bb["lat_max"] and 
+                bb["lon_min"] <= lon <= bb["lon_max"])
+
+    def _run_baylands_model(self, window) -> float:
+        """Use area-specific model for Baylands region."""
+        X_flat = window.reshape(1, -1)
+        X_scaled = self._baylands_scaler.transform(X_flat)
+        if hasattr(self._baylands_model, "predict_proba"):
+            return float(self._baylands_model.predict_proba(X_scaled)[0, 1])
+        return float(self._baylands_model.predict(X_scaled)[0])
 
     def _predict_rf(self, window):
         """window (30, 34) → RF predict_proba → float.

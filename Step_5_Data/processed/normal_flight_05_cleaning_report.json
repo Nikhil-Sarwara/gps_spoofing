@@ -1,0 +1,59 @@
+{
+  "input_file": "Step_5_Data/synthetic_area/normal_flight_05.csv",
+  "output_file": "Step_5_Data/processed/normal_flight_05_cleaned.csv",
+  "initial_rows": 957,
+  "final_rows": 957,
+  "rows_removed": 0,
+  "time_start_s": 0.0,
+  "time_end_s": 95.6,
+  "duration_s": 95.6,
+  "missing_after_cleaning": {
+    "time_s": 0,
+    "lat_deg": 0,
+    "lon_deg": 0,
+    "alt_m": 0,
+    "rel_alt_m": 0,
+    "vel_m_s": 0,
+    "hdg_deg": 0,
+    "fix_type": 0,
+    "satellites_visible": 0,
+    "eph_m": 0,
+    "epv_m": 0,
+    "rollspeed_radps": 0,
+    "pitchspeed_radps": 0,
+    "yawspeed_radps": 0,
+    "roll_deg": 0,
+    "pitch_deg": 0,
+    "yaw_deg": 0,
+    "vibration_x": 0,
+    "vibration_y": 0,
+    "vibration_z": 0,
+    "clipping_0": 0,
+    "clipping_1": 0,
+    "clipping_2": 0,
+    "vel_ratio": 0,
+    "pos_horiz_ratio": 0,
+    "pos_vert_ratio": 0,
+    "vel_innov": 0,
+    "pos_horiz_innov": 0,
+    "pos_vert_innov": 0,
+    "armed": 0,
+    "failsafe": 0,
+    "connection_ok": 0,
+    "is_stale_repeat": 0,
+    "battery_voltage": 0,
+    "battery_remaining_pct": 0,
+    "mode": 0,
+    "last_update_iso": 0,
+    "dt": 1
+  },
+  "mode_counts": {
+    "LOITER": 957
+  },
+  "failsafe_counts": {
+    "0": 957
+  },
+  "armed_counts": {
+    "1": 957
+  }
+}
