@@ -1,0 +1,110 @@
+% 04 Scope
+\section{4. Scope and Requirements}
+
+\subsection{4.1 System Scope}
+
+The implemented system addresses the following scope:
+
+\begin{table}[htbp]
+    \centering
+    \caption{System Scope}
+    \label{tab:scope}
+    \begin{tabular}{|p{3cm}|p{12cm}|}
+        \hline
+        \textbf{Scope Item} & \textbf{Description} \\
+        \hline
+        Data Collection & MAVLink telemetry from PX4 at 10Hz \\
+        \hline
+        Detection Methods & Heuristic rules + ML classification (RF, CNN) \\
+        \hline
+        Features & 34 features across GPS, IMU, Estimator, Health categories \\
+        \hline
+        Models & Random Forest (primary), 1D CNN (alternative) \\
+        \hline
+        Interface & TUI application with component management \\
+        \hline
+        Dashboard & Streamlit web application for monitoring \\
+        \hline
+        Simulation & PX4 SITL with Gazebo \\
+        \hline
+        Dataset & 327 labeled windows (37\% anomaly rate) \\
+        \hline
+    \end{tabular}
+\end{table}
+
+\subsection{4.2 Functional Requirements}
+
+\begin{table}[htbp]
+    \centering
+    \caption{Functional Requirements}
+    \label{tab:func_req}
+    \begin{tabular}{|p{3cm}|p{12cm}|}
+        \hline
+        \textbf{Requirement ID} & \textbf{Description} \\
+        \hline
+        F1 & System must collect GPS data at 10Hz from PX4 via MAVLink \\
+        \hline
+        F2 & Auto-labeling must identify anomalies using 8 heuristic methods \\
+        \hline
+        F3 & ML pipeline must process raw data through cleaning, labeling, windowing, training \\
+        \hline
+        F4 & Live inference must detect spoofing with <1 second latency \\
+        \hline
+        F5 & Dashboard must display real-time anomaly probability \\
+        \hline
+        F6 & TUI must allow start/stop of all system components \\
+        \hline
+        F7 & PX4 simulation must provide realistic telemetry data \\
+        \hline
+    \end{tabular}
+\end{table}
+
+\subsection{4.3 Non-Functional Requirements}
+
+\begin{table}[htbp]
+    \centering
+    \caption{Non-Functional Requirements}
+    \label{tab:nonfunc_req}
+    \begin{tabular}{|p{4cm}|p{5cm}|p{6cm}|}
+        \hline
+        \textbf{Requirement} & \textbf{Target} & \textbf{Status} \\
+        \hline
+        Latency & <100ms for inference & Target \\
+        \hline
+        Accuracy & >85\% detection rate & 100\% achieved \\
+        \hline
+        Availability & 99.9\% uptime during operation & Testing \\
+        \hline
+        Usability & Single command startup via TUI & Complete \\
+        \hline
+    \end{tabular}
+\end{table}
+
+\subsection{4.4 Limitations and Trade-offs}
+
+\begin{enumerate}
+    \item \textbf{Model dependence}: Detection accuracy depends on training data quality
+    \item \textbf{Simulation-only validation}: Not tested with real GPS spoofing hardware
+    \item \textbf{Single-drone focus}: Multi-drone scenarios not implemented
+    \item \textbf{Labeling limitations}: Auto-labeling may miss sophisticated attacks
+    \item \textbf{PX4-specific}: Currently works only with PX4 flight stack
+\end{enumerate}
+
+\begin{table}[htbp]
+    \centering
+    \caption{Current Limitations}
+    \label{tab:limitations}
+    \begin{tabular}{|p{4cm}|p{11cm}|}
+        \hline
+        \textbf{Limitation} & \textbf{Status/Notes} \\
+        \hline
+        IMU (IMAMUL) data integration & Not yet fully integrated - pipeline uses 16 GPS-based features only \\
+        \hline
+        Real-time lag quantification & Not yet formally quantified - target metric for breaking point analysis \\
+        \hline
+        Anomaly detection threshold (0.5) & Fixed, not formally tuned or justified yet \\
+        \hline
+        Cross-sensor validation algorithm & Not yet implemented - planned for next checkpoint \\
+        \hline
+    \end{tabular}
+\end{table}

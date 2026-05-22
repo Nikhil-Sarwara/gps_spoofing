@@ -1,0 +1,119 @@
+% ============================================================
+% APPENDIX A: SUPPLEMENTARY MATERIAL
+% ============================================================
+\chapter{Supplementary Material}
+
+\section{Project Directory Structure}
+
+\begin{verbatim}
+gps_spoofing/
+|-- gps_spoofer.py              # Attack injector
+|-- run_tui.py                  # TUI management console entry point
+|-- start_px4.sh                # PX4 SITL launcher
+|-- requirements.txt            # Python dependencies
+|-- Step_1_Simulation/          # PX4 SITL + Gazebo
+|   +-- PX4-Autopilot/          # Flight stack submodule
+|-- Step_2_Monitoring/          # MAVLink telemetry acquisition
+|   |-- mavlink_client.py       # Connection, threading, message handling
+|   |-- state_model.py          # Telemetry dataclasses
+|   |-- config.py               # Connection URL, log rate, message types
+|   +-- main.py                 # CLI entry point
+|-- Step_3_Attacks/             # Attack simulation
+|   |-- sniff_mavlink.py        # MAVLink traffic sniffer
+|   +-- raw_gps_test.py         # Raw GPS injection test
+|-- Step_4_Detection/           # ML pipeline
+|   |-- pipeline.py             # Pipeline orchestrator
+|   |-- live_inference.py       # Real-time detector
+|   |-- terrain_classifier.py   # Flat/mountain/sea classifier
+|   |-- terrain_dispatcher.py   # Terrain model router
+|   |-- demo_dataset.py         # Dataset viewer
+|   |-- config/pipeline.yaml    # Central configuration
+|   +-- scripts/
+|       |-- 01_clean_log.py     # Data cleaning
+|       |-- 02_auto_label.py    # Heuristic labelling
+|       |-- 03_make_windows.py  # Sliding window creation
+|       |-- 04_train_baseline.py # RF + CNN training
+|       +-- 05_train_terrain_models.py
+|-- Step_5_Data/                # Data storage
+|   |-- raw/                    # Raw CSV logs
+|   |-- processed/              # Cleaned + labelled data
+|   |-- models/                 # Trained models
+|   |-- artifacts/              # Dataset, scaler, metadata
+|   +-- synthetic/              # Synthetic training data
+|-- Step_6_UI/                  # User interfaces
+|   |-- tui_console/            # Textual-based TUI
+|   |   |-- app.py              # Main dashboard
+|   |   |-- config.py           # Component definitions
+|   |   |-- process_manager.py  # PID lifecycle
+|   |   +-- widgets.py          # Component control functions
+|   +-- web_ui/                 # Streamlit dashboard
+|       |-- app.py              # Web app
+|       +-- log_utils.py        # Log parsing
+|-- Step_7_Research/            # Academic output (this thesis)
++-- Step_8_Archive/             # Legacy logs
+\end{verbatim}
+
+\section{Configuration File}
+
+The central configuration file \texttt{Step\_4\_Detection/config/pipeline.yaml} defines all pipeline parameters:
+
+\begin{lstlisting}[language={}]
+data:
+  raw_dir: "Step_5_Data/raw"
+  processed_dir: "Step_5_Data/processed"
+  artifacts_dir: "Step_5_Data/artifacts"
+  models_dir: "Step_5_Data/models"
+
+cleaning:
+  min_fix_type: 3
+  max_dt_gap_s: 5.0
+  drop_duplicates: true
+
+windows:
+  length: 30
+  stride: 15
+
+auto_label:
+  max_normal_speed_ms: 30.0
+  min_satellites: 6
+  max_eph_m: 5.0
+
+training:
+  model_type: "rf"
+  n_estimators: 100
+
+inference:
+  anomaly_threshold: 0.3
+\end{lstlisting}
+
+\section{Commands Reference}
+
+\begin{longtable}{|p{4cm}|p{11cm}|}
+\hline
+\textbf{Command} & \textbf{Description} \\
+\hline
+\endfirsthead
+\hline
+\textbf{Command} & \textbf{Description} \\
+\hline
+\endhead
+\hline
+\texttt{python run\_tui.py} & Start the management console \\
+\hline
+\texttt{python -m Step\_2\_Monitoring.main} & Start GPS monitor \\
+\hline
+\texttt{python Step\_4\_Detection/live\_inference.py} & Start live anomaly detector \\
+\hline
+\texttt{streamlit run Step\_6\_UI/web\_ui/app.py} & Start web dashboard (port 8501) \\
+\hline
+\texttt{python Step\_4\_Detection/pipeline.py full} & Run complete ML pipeline \\
+\hline
+\texttt{python gps\_spoofer.py --mode drift --intensity 5.0} & Launch spoofing attack \\
+\hline
+\texttt{./start\_px4.sh windy} & Start PX4 SITL simulation \\
+\hline
+\end{longtable}
+
+\section{Ethics and Compliance}
+
+This research was conducted using simulated environments only. No physical UAV flights or real-world GPS spoofing experiments were performed. All experiments complied with Deakin University's research ethics guidelines. The GPS spoofing attack injector is designed exclusively for testing in controlled simulation environments and should not be used with operational UAV systems.

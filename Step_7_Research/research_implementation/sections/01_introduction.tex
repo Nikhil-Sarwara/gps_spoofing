@@ -1,0 +1,82 @@
+% 01 Introduction
+\section{1. Introduction and Background}
+
+\subsection{1.1 Research Context and Motivation}
+
+The proliferation of unmanned aerial vehicles (UAVs) in both civilian and military applications has raised significant concerns regarding their security and reliability. Global Positioning System (GPS) spoofing represents one of the most critical threats to UAV operations, where malicious actors transmit false GPS signals to manipulate a drone's perceived location. This research addresses the critical challenge of detecting GPS spoofing attacks on PX4-based drone systems.
+
+GPS spoofing attacks can result in:
+\begin{itemize}
+    \item Unauthorized drone hijacking and redirection
+    \item Denial of service by providing incorrect navigation data
+    \item Safety hazards to people and property
+    \item Data integrity compromise in autonomous operations
+\end{itemize}
+
+The motivation for this research stems from the inadequacy of existing GPS spoofing detection methods, which often rely on single-point detection mechanisms or require specialized hardware. This project proposes a software-based solution that leverages existing sensor data from standard PX4 flight controllers.
+
+\subsection{1.2 Research Objectives}
+
+The primary objectives of this research are:
+
+\begin{enumerate}
+    \item Develop a real-time GPS spoofing detection system for PX4 drones
+    \item Create an automated labeling mechanism using heuristic rules
+    \item Train machine learning models for accurate spoofing detection
+    \item Provide a comprehensive management interface for system operation
+    \item Validate the system through simulated attack scenarios
+\end{enumerate}
+
+\subsection{1.3 Project Overview}
+
+This research project implements a complete GPS spoofing detection system comprising five major components:
+
+\begin{enumerate}
+    \item \textbf{GPS Monitor}: MAVLink-based telemetry collector for real-time data acquisition
+    \item \textbf{Machine Learning Pipeline}: Automated data processing, labeling, and model training
+    \item \textbf{Live Inference Engine}: Real-time anomaly detection using trained models
+    \item \textbf{Streamlit Dashboard}: Web interface for monitoring and log analysis
+    \item \textbf{PX4 Simulation}: Software-in-the-loop (SITL) simulation environment
+\end{enumerate}
+
+\begin{figure}[htbp]
+    \centering
+    \simplebox{
+    \centering
+    \textbf{System Data Flow}\\[0.5em]
+    \begin{tabular}{cclc}
+        \cline{1-3}
+        \textbf{PX4 SITL} & $\rightarrow$ & \textbf{GPS Monitor} & $\rightarrow$ Raw CSV \\
+        & & $\downarrow$ & \\
+        \textbf{ML Pipeline} & $\rightarrow$ & \textbf{Live Inference} & $\rightarrow$ Dashboard \\
+        \cline{1-3}
+    \end{tabular}
+    \\[0.5em]
+    \textit{Telemetry: 10Hz} \hspace{1em} \textit{Training} \hspace{1em} \textit{Detection}
+    }
+    \caption{System architecture showing data flow from PX4 simulation through GPS Monitor, ML Pipeline, and Live Inference to Dashboard}
+    \label{fig:system_architecture}
+\end{figure}
+
+\begin{table}[htbp]
+    \centering
+    \caption{System Components and Technologies}
+    \label{tab:components}
+    \begin{tabular}{|l|l|l|}
+        \hline
+        \textbf{Component} & \textbf{Technology} & \textbf{Purpose} \\
+        \hline
+        Simulation & PX4 SITL, Gazebo, Docker & Flight stack simulator \\
+        \hline
+        Telemetry Collection & Python, pymavlink & MAVLink protocol handling \\
+        \hline
+        Data Processing & pandas, numpy & CSV processing, feature extraction \\
+        \hline
+        ML Training & scikit-learn, PyTorch & RF and CNN model training \\
+        \hline
+        Dashboard & Streamlit & Web UI development \\
+        \hline
+        TUI Interface & Rich library & Terminal management \\
+        \hline
+    \end{tabular}
+\end{table}

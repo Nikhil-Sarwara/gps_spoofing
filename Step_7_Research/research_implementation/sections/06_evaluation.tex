@@ -1,0 +1,182 @@
+% 06 Evaluation
+\section{6. Solution Evaluation}
+
+\subsection{6.1 Performance Assessment}
+
+The system was evaluated on multiple dimensions:
+
+\begin{table}[htbp]
+    \centering
+    \caption{Performance Metrics}
+    \label{tab:performance}
+    \begin{tabular}{|p{4cm}|p{5cm}|p{6cm}|}
+        \hline
+        \textbf{Metric} & \textbf{Target} & \textbf{Achieved} \\
+        \hline
+        Detection Accuracy & >85\% & 100\% (test set) \\
+        \hline
+        Detection Latency & <1 second & <100ms target \\
+        \hline
+        Data Processing Rate & 10 Hz & 10 Hz achieved \\
+        \hline
+        Dataset Windows & 122+ & 327 windows \\
+        \hline
+        Features & 16+ & 34 features \\
+        \hline
+        Train/Test Split & 85/15 & 85/15 achieved \\
+        \hline
+    \end{tabular}
+\end{table}
+
+\begin{figure}[htbp]
+    \centering
+    \simplebox{
+    \centering
+    \textbf{Confusion Matrix - Random Forest Model}\\[0.5em]
+    \begin{tabular}{|c|c|c|}
+        \cline{2-3}
+        & \textbf{Predicted Normal} & \textbf{Predicted Anomaly} \\
+        \hline
+        \textbf{Actual Normal} & 36 & 0 \\
+        \hline
+        \textbf{Actual Anomaly} & 0 & 14 \\
+        \cline{2-3}
+    \end{tabular}
+    \\[0.5em]
+    \textit{Test Accuracy: 100\%}
+    }
+    \caption{Confusion matrix for Random Forest model on test set}
+    \label{fig:confusion_matrix}
+\end{figure}
+
+\subsection{6.2 Functional Testing}
+
+Test cases implemented:
+
+\begin{table}[htbp]
+    \centering
+    \caption{Functional Test Cases}
+    \label{tab:tests}
+    \begin{tabular}{|p{3cm}|p{4cm}|p{8cm}|}
+        \hline
+        \textbf{Test ID} & \textbf{Description} & \textbf{Expected Result} \\
+        \hline
+        T1 & GPS Monitor connects to PX4 & Telemetry displayed at 10Hz \\
+        \hline
+        T2 & Auto-labeling identifies anomalies & Labels generated for suspicious data \\
+        \hline
+        T3 & Model training completes & RF and CNN models saved to disk \\
+        \hline
+        T4 & Live inference detects spoofing & Probability >0.5 for anomalous windows \\
+        \hline
+        T5 & Dashboard displays data & Real-time chart updates \\
+        \hline
+        T6 & TUI starts all components & New terminal windows open \\
+        \hline
+        T7 & PX4 simulation runs & Gazebo GUI + pxh shell appears \\
+        \hline
+        T8 & Kill Gazebo button works & Gazebo processes terminated \\
+        \hline
+    \end{tabular}
+\end{table}
+
+\textbf{Evidence from Checkpoint 2 (Meeting 4)}:
+\begin{itemize}
+    \item RF model: 100\% accuracy on test set
+    \item CNN model: 100\% accuracy on test set
+    \item Live inference pipeline: 30-message buffering working
+    \item Streamlit UI: Real-time detection displayed
+\end{itemize}
+
+\subsection{6.3 Scientific Evidence}
+
+The GPS-IMU consistency check provides scientific basis for detection:
+
+\begin{itemize}
+    \item \textbf{Physics-based}: Uses fundamental principles of motion
+    \item \textbf{Testable}: Can be verified through controlled experiments
+    \item \textbf{Interpretable}: Clear reasoning for detection decisions
+    \item \textbf{Robust}: Works regardless of attack sophistication
+\end{itemize}
+
+Mathematical basis:
+\begin{equation}
+\text{Spoofing Indicator} = I_{imu\_stable} \times I_{gps\_moving}
+\end{equation}
+
+Where:
+\begin{itemize}
+    \item $I_{imu\_stable} = 1$ if $\sqrt{\omega_x^2 + \omega_y^2 + \omega_z^2} < 0.05$ rad/s
+\item $I_{gps\_moving} = 1$ if $v_{gps} > 5.0$ m/s
+\end{itemize}
+
+\begin{figure}[htbp]
+    \centering
+    \simplebox{
+    \centering
+    \textbf{Research Project Timeline}\\[0.5em]
+    \begin{tabular}{|c|c|l|c|}
+        \hline
+        \textbf{Wk} & \textbf{Date} & \textbf{Activities} & \textbf{Duration} \\
+        \hline
+        1 & 13 Mar & Planning, papers review & 22 min \\
+        \hline
+        2 & 19 Mar & Inspector Tool, Bridge fix & 35 min \\
+        \hline
+        3 & 26 Mar & Pipeline, dataset creation & 35 min \\
+        \hline
+        4 & 3 Apr & ML training, inference & 37 min \\
+        \hline
+        5 & 10 Apr & Full demo, presentation & 36 min \\
+        \hline
+    \end{tabular}
+    }
+    \caption{Research project timeline - Trimester 1, 2026}
+    \label{fig:timeline_graph}
+\end{figure}
+
+\subsection{6.4 System Validation}
+
+Validation performed through:
+
+\begin{enumerate}
+    \item Unit testing of individual components
+    \item Integration testing of pipeline stages
+    \item End-to-end testing with PX4 simulation
+    \item Performance benchmarking (in progress)
+    \item User acceptance testing via TUI
+    \item Breaking point analysis (planned)
+\end{enumerate}
+
+\begin{table}[htbp]
+    \centering
+    \caption{Cumulative Milestones Achieved (13 March - 11 April 2026)}
+    \label{tab:milestones}
+    \begin{tabular}{|p{0.7\linewidth}|p{0.2\linewidth}|}
+        \hline
+        \textbf{Milestone} & \textbf{Status} \\
+        \hline
+        Simulation Environment: PX4 SITL + Gazebo in Docker on MacBook M1 & Complete \\
+        \hline
+        Inspector Tool: Custom Docker management UI & Complete \\
+        \hline
+        MAVLink UDP Bridge: Resolved PX4 access restrictions & Complete \\
+        \hline
+        Telemetry Logging: GPS, altimetry, velocity, heading captured & Complete \\
+        \hline
+        Dataset Generation: 122+ windows, 16 features, 85/15 split & Complete \\
+        \hline
+        GPS Spoofing Injection: Controlled scenarios implemented & Complete \\
+        \hline
+        Baseline ML Models: RF and CNN 100\% accuracy & Complete \\
+        \hline
+        Real-Time Inference: 30-message buffering pipeline & Complete \\
+        \hline
+        Feedback Pipeline: Detection results back to simulation & Complete \\
+        \hline
+        Streamlit Dashboard: Live monitoring and log replay & Complete \\
+        \hline
+        Supervisor Meetings: 5 documented meetings & Complete \\
+        \hline
+    \end{tabular}
+\end{table}

@@ -1,0 +1,311 @@
+% ============================================================
+% CHAPTER 5: IMPLEMENTATION
+% ============================================================
+\chapter{Implementation}
+
+This chapter presents the detailed implementation of each system component. We describe the software architecture, data structures, algorithmic logic, and interface design for the telemetry acquisition module, preprocessing pipeline, auto-labelling system, machine learning training pipeline, real-time inference engine, management interfaces, and GPS spoofing attack injector.
+
+\section{Telemetry Acquisition Module}
+
+The GPS Monitor is implemented as a Python package with a modular architecture separating concerns between MAVLink communication, state management, and I/O logging.
+
+\subsection{MAVLinkClient Architecture}
+
+The core class, \texttt{MAVLinkClient}, manages two concurrent daemon threads: a \textit{reader thread} that blocks on \texttt{recv\_match()} to receive incoming MAVLink messages, and a \textit{logger thread} that wakes every 100\,ms (10\,Hz) to write a CSV row from the current telemetry state. Both threads share a \texttt{TelemetryState} dataclass protected by a threading lock. Algorithm~\ref{alg:mavlink} presents the client lifecycle.
+
+\begin{algorithm}[H]
+\caption{MAVLinkClient Lifecycle}
+\label{alg:mavlink}
+\begin{algorithmic}[1]
+\State \textbf{Input:} MAVLink connection URL $u$, logging period $1/f$
+\State \texttt{master} $\gets$ \texttt{mavutil.mavlink\_connection}($u$)
+\State \texttt{master.wait\_heartbeat()}
+\State \texttt{open\_csv\_log(timestamp)}
+\State \textbf{spawn} \texttt{reader\_thread()} \Comment{daemon}
+\State \textbf{spawn} \texttt{logger\_thread()} \Comment{daemon}
+\While{\textbf{not} \texttt{stop\_event.is\_set()}}
+    \State \texttt{msg} $\gets$ \texttt{master.recv\_match(types=MSG\_TYPES, blocking=True, timeout=1.0)}
+    \If{\texttt{msg} \textbf{and} \texttt{msg.get\_type()} $\neq$ \texttt{BAD\_DATA}}
+        \State \texttt{lock.acquire()}
+        \State \texttt{handle\_message(msg)}
+        \State \texttt{lock.release()}
+    \EndIf
+\EndWhile
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{State Model}
+
+Telemetry state is structured using four immutable dataclasses: \texttt{GPSState} (latitude, longitude, altitude, relative altitude, velocity, heading, fix type, satellite count, eph, epv), \texttt{IMUState} (roll, pitch, yaw, angular rates, three-axis vibration, clipping counters), \texttt{EstimatorState} (EKF innovation ratios and values), and \texttt{VehicleHealth} (battery voltage, charge percentage, armed state, flight mode, failsafe flag). The \texttt{snapshot()} method returns a deep copy of the full state for display purposes without holding the lock.
+
+\subsection{CSV Logging Format}
+
+Each CSV row comprises 34 fields written at precisely 10\,Hz.
+
+\subsection{Message Rate Analysis}
+
+The two-thread architecture (reader + logger) enforces mutual exclusion on the shared \texttt{TelemetryState} through a \texttt{threading.Lock}. The reader thread acquires the lock for the minimum duration required to update the state fields from an incoming MAVLink message, typically under 100\,$\mu$s. The logger thread acquires the lock to snapshot the entire state for CSV row construction. This design prevents the condition where a partially updated state is logged, which would produce inconsistent telemetry rows with GPS position from one time step and IMU attitude from another.
+
+The two-thread model was chosen over alternatives for specific reasons. An asynchronous coroutine-based design (using Python's \texttt{asyncio} or \texttt{Trio}) would simplify concurrent access but introduces cooperative scheduling latency: a long-running message handler could delay the log tick, causing sampling jitter. A single-threaded poll loop with alternating read/write operations would eliminate concurrency concerns entirely but introduces deterministic logging latency proportional to the message receive timeout.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{gps_monitor_component.png}
+\caption{GPS Monitor terminal display showing real-time GPS and IMU telemetry captured from PX4 SITL at 10\,Hz.}
+\label{fig:gps_monitor}
+\end{figure} The two-thread design with explicit locking provides predictable 10\,Hz sampling independent of message arrival cadence, at the cost of requiring disciplined lock acquisition ordering to prevent deadlock.
+
+A watchdog mechanism was considered but not employed; instead, the \texttt{stop\_event} threading primitive provides a clean shutdown signal that both threads check at the top of each iteration. Thread join timeouts of 2 seconds prevent indefinite blocking during shutdown.
+
+\subsection{Message Rate Analysis}
+
+The eight configured MAVLink message types stream at disparate native rates from the PX4 flight stack: \texttt{GLOBAL\_POSITION\_INT} at 5\,Hz, \texttt{ATTITUDE} at 50\,Hz, other messages at 1--10\,Hz. The GPS Monitor aggregates these asynchronous streams into a single 10\,Hz CSV timeline. Because the IMU attitude data streams at 50\,Hz (ten times the logging rate), the most recent attitude message received is sampled at each 100\,ms logger tick. For slower messages (e.g., \texttt{GPS\_RAW\_INT} at 1\,Hz), the last received value is held over between updates, effectively producing a zero-order hold discretisation of the satellite count and accuracy metrics.
+
+The 10\,Hz logging ceiling was empirically determined through UDP buffer monitoring in the Docker SITL environment. At 20\,Hz, the combined MAVLink message volume on the UDP bridge occasionally exceeded the pymavlink receive buffer capacity, causing dropped messages and gaps in the CSV log. At the chosen 10\,Hz rate, zero dropped messages were observed across all 8 experimental flights, yielding the complete 4,207-record dataset without interpolation gaps.
+
+\section{Data Preprocessing}
+
+The cleaning stage applies the following transformations sequentially: numeric coercion of all quantitative columns, mode string normalisation (hex codes to human-readable labels), timestamp-based sorting, duplicate row removal, null-value filtering on critical position fields, fix-type quality filtering ($\geq$ 3D fix), connection-status filtering, and time-gap filtering ($\Delta t < 5$\,s to remove discontinuities). The output is a \texttt{\_cleaned.csv} file accompanied by a JSON cleaning report summarising row counts, time range, flight duration, mode distribution, and missing-value statistics.
+
+\subsection{Healing and Imputation Strategy}
+
+Telemetry rows that pass the time-gap filtering but contain missing values in non-critical fields are imputed using forward-fill: for any numeric field, the most recent non-null value in the preceding rows is carried forward. This is applied to fields such as satellite count (which may be intermittently reported at 1\,Hz) and vibration metrics (which may be absent during the initialisation phase of the flight). Critical fields---latitude, longitude, altitude, and velocity---are never imputed; rows lacking any of these are dropped entirely to prevent downstream feature engineering from operating on null coordinates.
+
+An additional outlier rejection filter, using Haversine distance between consecutive samples, removes rows where the implied GPS speed exceeds 500\,m/s. This is a simple sensor dropout guard: such speeds exceed the maximum possible velocity of a civilian quadcopter by an order of magnitude, and typically indicate a GPS receiver glitch or coordinate wraparound rather than genuine spoofing.
+
+\subsection{Time Alignment Between Disparate Message Rates}
+
+Because MAVLink messages arrive at different native rates, their timestamps must be aligned to a common 10\,Hz grid for CSV logging. The GPS Monitor uses linear interpolation for position values when the most recent \texttt{GLOBAL\_POSITION\_INT} message is older than 50\,ms (half the logging interval). The interpolation computes the weighted average of the two most recent GPS position fixes, with weights inversely proportional to their age relative to the current grid point. This reduces position jitter caused by the upsampling of the 5\,Hz GPS stream to the 10\,Hz log rate, improving the temporal fidelity of the GPS--IMU consistency score computed in the downstream labelling pipeline.
+
+For non-interpolated fields (attitude, vibration, estimator, health), the most recent received value is used at each grid point, as described above. The maximum allowed message age before a row is flagged as stale is 2 seconds, corresponding to 20 logger ticks; beyond this, the held value is considered unreliable.
+
+\section{Auto-Labelling System}
+
+The \texttt{AutoLabeler} class implements the eight heuristic detection methods defined in Section~\ref{sec:heuristics} and summarised in Table~\ref{tab:heuristics}. Algorithm~\ref{alg:gps_imu} presents the core GPS--IMU consistency heuristic, which is the principle novel contribution of the labelling framework.
+
+\begin{algorithm}[H]
+\caption{GPS--IMU Consistency Check (Heuristic H8)}
+\label{alg:gps_imu}
+\begin{algorithmic}[1]
+\Require DataFrame $D$ with columns: rollspeed\_radps, pitchspeed\_radps, yawspeed\_radps, lat\_deg, lon\_deg, vel\_m\_s, time\_s
+\Ensure Binary labels appended to $D$ as column \texttt{label}
+\For{$i \gets 1$ to $\lvert D \rvert - 1$}
+    \State $\omega_{\text{roll}} \gets \vert D.\text{rollspeed\_radps}[i] \vert$
+    \State $\omega_{\text{pitch}} \gets \vert D.\text{pitchspeed\_radps}[i] \vert$
+    \State $\omega_{\text{yaw}} \gets \vert D.\text{yawspeed\_radps}[i] \vert$
+    \State $\text{imu\_stable} \gets (\omega_{\text{roll}} < 0.05) \land (\omega_{\text{pitch}} < 0.05) \land (\omega_{\text{yaw}} < 0.05)$
+    \State $d_{\text{lat}} \gets (D.\text{lat\_deg}[i] - D.\text{lat\_deg}[i-1]) \times 111000$
+    \State $d_{\text{lon}} \gets (D.\text{lon\_deg}[i] - D.\text{lon\_deg}[i-1]) \times 111000 \times \cos(\text{radians}(47.39))$
+    \State $v_{\text{gps}} \gets \max(\sqrt{d_{\text{lat}}^2 + d_{\text{lon}}^2} / (D.\text{time\_s}[i] - D.\text{time\_s}[i-1]),\; D.\text{vel\_m\_s}[i])$
+    \State $\text{gps\_fast} \gets (v_{\text{gps}} > 5.0)$
+    \If{$\text{imu\_stable} \land \text{gps\_fast}$}
+        \State $D.\text{label}[i] \gets 1$
+        \State $D.\text{anomaly\_reason}[i] \gets D.\text{anomaly\_reason}[i] + \text{``gps\_imu\_mismatch;''}$
+    \EndIf
+\EndFor
+\end{algorithmic}
+\end{algorithm}
+
+The labeler produces a per-row CSV with binary labels and concatenated anomaly reasons, plus a segment summary JSON that identifies contiguous regions of normal vs. anomalous behaviour for temporal analysis.
+
+\subsection{Heuristic Rule Tuning and Threshold Calibration}
+
+The eight heuristic thresholds were calibrated to the Iris x500 quadcopter dynamics and expected GPS performance. The position-jump heuristic (H1) uses a 30\,m/s speed threshold derived from the Iris maximum cruise velocity of approximately 20\,m/s, with a 50\% margin to allow for wind-induced groundspeed variations. The satellite-count minimum of 6 (H3) follows the PX4 EKF2 requirement for a minimum of 6 satellites to maintain a 3D fix with acceptable HDOP. The EPH threshold of 5\,m (H3) reflects the expected horizontal accuracy of a standard GPS receiver under open-sky conditions; values exceeding this typically indicate multipath, receiver noise, or spoofing-induced signal distortion.
+
+The GPS--IMU consistency thresholds (H8) merit particular attention. The IMU quiescence threshold of 0.05\,rad/s was empirically derived by recording the root-mean-square gyroscope noise during a stationary ground test and adding a 3$\sigma$ margin. The GPS velocity threshold of 5\,m/s was chosen above typical wind-induced drift velocities (2--3\,m/s in a 10\,m/s wind) to avoid false positives from environmental displacement. The combined threshold ensures that the heuristic triggers only when GPS indicates a position change that is both physically significant (above typical environmental noise) and unaccompanied by angular motion.
+
+\subsection{Label Aggregation and Conflict Resolution}
+
+When a telemetry row satisfies multiple heuristic conditions simultaneously, the \texttt{anomaly\_reason} field concatenates all matching rule identifiers. The overall label is determined by OR logic: any one heuristic flagging the row as anomalous results in \texttt{label = 1}. This conservative approach prioritises recall over precision at the row level, since the subsequent sliding window majority vote (Section~\ref{sec:windows}) aggregates individual row labels and suppresses isolated false positives.
+
+The segment summary JSON produced by the labeler groups contiguous rows of identical label into temporal segments with associated anomaly reasons. This enables per-segment analysis of detection coverage: a spoofing attack that is flagged by H8 (GPS--IMU consistency) in 90\% of its duration and by H1 (position jump) only at the moment of onset provides richer diagnostic information than a binary label alone.
+
+\section{Feature Engineering and Windowing}\label{sec:implem_fe}
+
+The 34-dimensional feature vector is computed per row and organised into four categories as detailed in Table~\ref{tab:features}. Coordinate transformation from geodetic (lat, lon) to local East-North-Up (ENU) Cartesian coordinates uses the first GPS fix as the origin:
+
+\begin{equation}
+    x_j = R_e \cdot \text{radians}(\text{lat}_j - \text{lat}_0), \qquad
+    y_j = R_e \cdot \cos(\text{radians}(\text{lat}_0)) \cdot \text{radians}(\text{lon}_j - \text{lon}_0)
+    \label{eq:enu}
+\end{equation}
+
+where \(R_e = 6,371,000\)\,m is the WGS-84 mean Earth radius. Feature vectors are aggregated into sliding windows of length \(n = 30\) with stride \(s = 15\) (Equation~\ref{eq:window},~\ref{eq:majority}). The resulting window tensor \(\mathbf{X} \in \mathbb{R}^{30 \times 34}\) is flattened to \(\mathbf{x} \in \mathbb{R}^{1020}\) for the Random Forest via row-major flattening:
+
+\begin{equation}
+    \mathbf{x} = \text{vec}(\mathbf{X}^\top) = [x_{1,1}, x_{1,2}, \dots, x_{30,34}]^\top
+    \label{eq:flatten}
+\end{equation}
+
+\section{ML Model Training}
+
+The training pipeline is orchestrated by the \texttt{Pipeline} class, which coordinates the four processing stages via subprocess invocation of standalone pipeline scripts.
+
+\subsection{Random Forest Training}
+
+The Random Forest classifier is trained on the flattened 1020-dimensional feature vectors. Hyperparameters are set as follows: \texttt{n\_estimators = 100}, \texttt{class\_weight = 'balanced'}, \texttt{random\_state = 42}, with all other parameters at scikit-learn defaults. Class weighting addresses the inherent imbalance between normal and spoofed windows by increasing the misclassification penalty for the minority class. The fitted model is serialised to \texttt{rf\_model.pkl} using joblib with protocol 5 for efficient loading during inference.
+
+\subsection{1D CNN Training}
+
+The CNN is trained for 50 epochs using mini-batches of 32 windows. The Adam optimiser with learning rate \(10^{-3}\) minimises binary cross-entropy loss (Equation~\ref{eq:bce}). A validation loss plateau criterion triggers early stopping after 10 epochs without improvement. The model achieving lowest validation loss is retained by checkpointing its state dictionary to \texttt{cnn\_model.pth}.
+
+Training was performed on an Apple M1 Pro processor using PyTorch with MPS (Metal Performance Shaders) backend acceleration. Each epoch required approximately 1.2 seconds for the forward and backward passes on the 53-window training set, with total training time under 60 seconds for the full 50-epoch run. The MPS backend was selected over CPU for its superior matrix operation throughput, though the small dataset size meant that the performance advantage was modest---approximately a 2$\times$ speedup over CPU-only training.
+
+The early stopping criterion utilised a patience of 10 epochs evaluated on validation loss. In practice, the model's validation loss reached its minimum at epoch 38, after which it increased monotonically through epoch 48 before training was terminated. The divergence between training loss (continuing to decrease) and validation loss (increasing) after epoch 38 is the signature of overfitting: the model is memorising training-set-specific patterns at the expense of generalisation to unseen windows. This overfitting pattern is a direct consequence of the small training set size (53 windows) relative to the model's parameter count (approximately 8,000). To address class imbalance during training, the Random Forest applies class weighting via scikit-learn's \texttt{class\_weight='balanced'} parameter. For the CNN, no explicit class weighting is applied; the validation set is used for unbiased performance assessment, and the small training set size remains the limiting factor for CNN generalisation.
+
+\subsection{Training Pipeline Modes}
+
+The pipeline supports four execution modes: \texttt{process-single} (clean, label, and window a single raw CSV), \texttt{process-batch} (clean and label all CSVs in the raw directory), \texttt{train} (train only, using existing windowed dataset), and \texttt{full} (process all data, aggregate windows across flights, and train models). Each mode reads its configuration from \texttt{pipeline.yaml} via a hierarchical YAML loader with deep-merge semantics for user overrides.
+
+\subsection{Pipeline Configuration Management}
+
+The entire data processing and training pipeline is driven by a single YAML configuration file, \texttt{pipeline.yaml}. The configuration is loaded using a \texttt{PipelineConfig} class that implements hierarchical deep-merge semantics: a default configuration dictionary specifies all parameter values, and user-provided overrides in the YAML file are recursively merged, replacing only the specified keys while preserving defaults for unchanged parameters. This enables single-line configuration changes---for example, reducing window length to 20 messages or switching model type from \texttt{rf} to \texttt{cnn}---without altering pipeline code.
+
+The configuration schema, though not formally validated with Pydantic, follows a structured layout: top-level keys for data paths, cleaning parameters (minimum fix type, time gap tolerance, stale repeat threshold), windowing parameters (length, stride, minimum label ratio), split ratios (70/15/15), and training hyperparameters (model type, number of estimators, random seed). The deep-merge semantics enable partial configurations: a user may override only the \texttt{training.model\_type} field while inheriting all other defaults.
+
+\subsection{Cross-Validation Strategy for Small Datasets}
+
+Despite the use of flight-level data splitting for the primary evaluation, hyperparameter tuning was conducted using leave-one-flight-out cross-validation to prevent temporal data leakage. In each fold, one flight is held out for validation, and the model is retrained on the remaining 7 flights. This procedure generates 8 validation F1 scores, whose mean and standard deviation provide a more robust estimate of model generalisation than a single train/validate/test split. However, the leave-one-flight-out approach is computationally expensive for the CNN (8 full training cycles of 50 epochs each) and was employed primarily for the Random Forest during hyperparameter selection.
+
+Standard K-fold cross-validation was deliberately \emph{not} used because temporal adjacency of windows within a flight would cause information leakage across folds. Two windows separated by 15 samples (1.5 seconds) share 15 samples of overlap and are not independent observations. Random shuffling of windows across folds would place temporally adjacent windows in different splits, violating the independence assumption of cross-validation.
+
+\subsection{Model Serialization and Deployment Versioning}
+
+Trained models are serialised to disk using joblib with protocol 5 for efficient loading during inference. The Random Forest model is stored as \texttt{rf\_model.pkl}; the CNN state dictionary as \texttt{cnn\_model.pth}. Accompanying each serialised model is a JSON metadata file containing: the feature name list (preserving column ordering for feature extraction), the StandardScaler mean and standard deviation vectors (for pre-inference standardisation), the training timestamp, the training configuration hash (SHA-256 of the YAML config), and the validation F1 score. The scaler is stored separately as \texttt{scaler.pkl} in the artifacts directory.
+
+This versioning scheme enables deployment-time integrity checking: the inference engine loads the model, scaler, and metadata, recomputes the configuration hash from the current \texttt{pipeline.yaml}, and validates that the scaler and feature list match the model's serialised metadata. A mismatch triggers a warning, preventing silent deployment errors where a model trained with one feature set is applied to telemetry with a different set.
+
+\section{Real-Time Inference Engine}
+
+The \texttt{LiveAnomalyDetector} implements streaming inference operations. Its architecture is presented in Algorithm~\ref{alg:inference}.
+
+\begin{algorithm}[H]
+\caption{Streaming Anomaly Detection}
+\label{alg:inference}
+\begin{algorithmic}[1]
+\Require Serialised model $\mathcal{M}$, scaler $\mathcal{S}$, window length $N=30$, EMA $\alpha=0.3$
+\State $\texttt{buffer} \gets \texttt{deque(maxlen=}N\texttt{)}$
+\While{\textbf{true}}
+    \State $\texttt{msg} \gets \texttt{mavlink\_connection.recv\_match()}$
+    \State $\mathbf{f} \gets \texttt{extract\_features}(\texttt{msg})$ \Comment{34-dim vector}
+    \State $\texttt{buffer.append}(\mathbf{f})$
+    \If{$\vert\texttt{buffer}\vert = N$}
+        \State $\mathbf{W} \gets \texttt{stack}(\texttt{buffer})$ \Comment{$(30, 34)$}
+        \State $\mathbf{W}_s \gets \mathcal{S}.\texttt{transform}(\mathbf{W})$ \Comment{standardise}
+        \State $\hat{p} \gets \mathcal{M}.\texttt{predict\_proba}(\mathbf{W}_s.\texttt{flatten}().\texttt{reshape}(1, -1))$ \Comment{anomaly prob.}
+        \State \textbf{if} $\hat{p}_{\text{ema}}$ is \textbf{None}: $\hat{p}_{\text{ema}} \gets \hat{p}$
+        \State \textbf{else}: $\hat{p}_{\text{ema}} \gets \alpha \cdot \hat{p} + (1 - \alpha) \cdot \hat{p}_{\text{ema}}$
+        \State \texttt{log\_row(timestamp,} $\hat{p}_{\text{ema}}$\texttt{, telemetry)}
+    \EndIf
+\EndWhile
+\end{algorithmic}
+\end{algorithm}
+
+The EMA smoothing with \(\alpha = 0.3\) stabilises the output probability, preventing single-window noise from triggering transient detection events. A ground-gate suppresses detection when the drone is disarmed or stationary on the ground (relative altitude $< 0.5$\,m and speed $< 1.0$\,m/s), avoiding false positives during pre-flight and post-landing phases.
+
+\subsection{Terrain-Aware Model Dispatching}
+
+The terrain dispatcher classifies the current GPS position into one of three terrain types---flat, mountain, or sea---using the Open-Elevation REST API with a local JSON cache for previously queried coordinates. A heuristic fallback using altitude standard deviation over a rolling 30-sample window is employed when the API is unavailable. A debounce mechanism with hysteresis (5 consecutive identical classifications) prevents rapid model switching at terrain boundaries. When a terrain-specific model is available, it is used; otherwise the dispatching falls back through (1) the recommended default, (2) any available terrain model, and (3) the global RF model.
+
+The terrain classification relies on ground elevation values obtained from the Open-Elevation API. A coordinate queried at elevation 450\,m with a ground elevation of 430\,m (relative altitude 20\,m) is classified as flat terrain. A coordinate at 1,800\,m ground elevation is classified as mountain. A coordinate at sea level (elevation $\leq$ 0\,m) is classified as sea. The rolling standard deviation heuristic serves as a fallback when the API is unreachable: flights over terrain with an altitude standard deviation exceeding 50\,m over a 30-sample window are classified as mountain regardless of absolute elevation, providing a proxy for rugged topography.
+
+The elevation cache, stored at \texttt{Step\_5\_Data/artifacts/elevation\_cache.json}, persists API responses across sessions to minimise redundant network requests and eliminate classification latency on previously-visited coordinates. The cache uses latitude/longitude rounded to 4 decimal places (approximately 11\,m spatial resolution at the equator) as the lookup key, providing a balance between spatial accuracy and cache hit rate. In offline operational scenarios where the API is unavailable and no cached data exists, all coordinates default to the flat-terrain model as the safe fallback.
+
+\section{Management Interfaces}
+
+\subsection{TUI Management Console}
+
+The Terminal User Interface is built on the Textual framework. It provides an interactive dashboard with four panels: a component selector with status indicators, action buttons (Start/Stop/Start All/Stop All/Kill Gazebo), a data file explorer with process/delete functionality, and a terrain model status table. Background logs for each component are tailed in real-time through file-offset monitoring, with colour-coded output distinguishing telemetry (cyan), anomalies (red), and component logs (grey). Six GPS spoofing attack presets are accessible via dedicated buttons that spawn asynchronous subprocess shells and stream attack output to an embedded console.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{tui_main.png}
+\caption{TUI Management Console main dashboard showing component controls, status table, data file explorer, ML pipeline buttons, terrain model status, and GPS spoofer panel with six attack mode buttons. The spoofer console shows a completed drift attack with 293 GPS\_INPUT frames injected at 3\,m/s.}
+\label{fig:tui_main}
+\end{figure}
+
+\subsection{Streamlit Web Dashboard}
+
+The web dashboard provides live telemetry visualisation with an auto-refreshing GPS Trust Index gauge (0--1 scale), real-time anomaly probability line chart, and tab-switched views for live monitoring and historical log replay. The dashboard reads directly from the live inference CSV log, detecting new rows by monitoring file modification timestamps.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{streamlit_dashboard_overview.png}
+\caption{Streamlit web dashboard showing the live monitor tab with GPS Trust Index gauge (0--1 scale), current telemetry values, and anomaly probability line chart during normal flight operation.}
+\label{fig:dashboard_overview}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{streamlit_dashboard_anomaly.png}
+\caption{Streamlit dashboard during a GPS spoofing attack event. The anomaly probability has exceeded the 0.3 detection threshold, displaying a red ANOMALY status indicator and a degraded GPS Trust Index.}
+\label{fig:dashboard_anomaly}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{streamlit_dashboard_replay.png}
+\caption{Streamlit dashboard log replay tab showing an uploaded inference CSV log displayed as a scrollable data table with anomaly probability, GPS coordinates, and terrain context for each detection window.}
+\label{fig:dashboard_replay}
+\end{figure}
+
+\subsection{Process Manager and Component Lifecycle}
+
+The TUI management console oversees the full lifecycle of each system component through a PID-based process manager. Components are spawned as operating system subprocesses using Python's \texttt{subprocess.Popen}, with their process IDs (PIDs) stored in a persistent state file under \texttt{.pids/}. On startup, the process manager checks for pre-existing PIDs and verifies, via \texttt{os.kill(pid, 0)}, whether the process is still alive. Zombie processes---PIDs that exist in the state file but correspond to terminated processes---are cleaned up automatically.
+
+Component termination uses a two-stage escalation protocol: first, a \texttt{SIGTERM} signal is sent to request graceful shutdown. If the process has not exited after 2 seconds, \texttt{SIGKILL} is sent as a forced termination. The \texttt{gps\_spoofer} component receives additional handling: its child processes (the spawned attack injector) are terminated in \texttt{SIGKILL} to ensure no residual MAVLink GPS\_INPUT messages continue to corrupt the simulation after the spoofer is stopped.
+
+The process manager also handles Gazebo cleanup, which falls outside the normal component lifecycle because Gazebo is launched separately via the \texttt{start\_px4.sh} script. A dedicated ``Kill Gazebo'' function identifies Gazebo processes via \texttt{pgrep -af "gz sim"} and terminates all matching process trees, providing a reliable cleanup mechanism for hung simulation instances.
+
+\section{GPS Spoofing Attack Injector}
+
+The \texttt{gps\_spoofer.py} script implements a MAVLink-based attack injector operating as a companion computer GPS source (sysid=1, compid=220, corresponding to \texttt{MAV\_COMP\_ID\_GPS}).
+
+\begin{figure}[H]
+\centering
+\footnotesize
+\begin{tikzpicture}[
+    node distance=1.3cm and 1.5cm,
+    comp/.style={rectangle, draw, fill=blue!8, text width=2.2cm, text centered, minimum height=0.7cm, font=\scriptsize},
+    arrow/.style={->, >=stealth, thick},
+    arrowd/.style={<->, >=stealth, thick},
+]
+    \node[comp, fill=blue!15] (px4) {PX4 SITL\\Gazebo Harmonic};
+    \node[comp, below=of px4, yshift=-0.3cm] (m0) {MAVLink \#0\\Normal :18570};
+    \node[comp, below=of m0] (m1) {MAVLink \#1\\Onboard :14580};
+    \node[comp, below=of m1] (m4) {MAVLink \#4\\Onboard :14571};
+    \node[comp, fill=green!10, right=of m0, xshift=1.5cm] (qgc) {QGroundControl\\:14550};
+    \node[comp, fill=red!10, right=of m1, xshift=1.5cm] (sp) {GPS Spoofer\\udpout :14580};
+    \node[comp, fill=orange!10, right=of m4, xshift=1.5cm] (inf) {Live Inference\\:14561};
+    \draw[arrowd] (m0.east) -- (qgc.west);
+    \draw[arrow] (sp.west) -- (m1.east) node[midway, above, font=\tiny] {GPS\_INPUT};
+    \draw[arrowd] (m4.east) -- (inf.west) node[midway, above, font=\tiny] {33 KB/s stream};
+\end{tikzpicture}
+\caption{Port architecture for simultaneous operation of all components across three independent MAVLink instances.}
+\label{fig:port_architecture}
+\end{figure} Six attack modes provide varied test scenarios:
+
+\begin{description}
+    \item[Drift] Constant velocity offset \(v_{\text{drift}}\) in a random azimuth, with cumulative displacement \(\mathbf{d}(t) = \mathbf{d}_0 + \mathbf{u} \cdot v_{\text{drift}} \cdot t\) where \(\mathbf{u}\) is the unit direction vector.
+    \item[Ramp Drift] Linearly ramped velocity from 0 to \(v_{\text{max}}\) over the attack duration: \(v(t) = v_{\text{max}} \cdot \min(1, t/T)\).
+    \item[Jump+Drift] Instant 15\,m displacement followed by constant drift, simulating a capture-then-divert attack.
+    \item[Static] Freeze GPS position at a fixed offset from the baseline, simulating a persistent position holdover.
+    \item[Teleport] Instant displacement to a target coordinate with no subsequent drift, simulating a single-frame spoof.
+    \item[Noise] Additive Gaussian noise with configurable standard deviation \(\sigma\): \(\mathbf{P}_{\text{spoof}} = \mathbf{P}_{\text{real}} + \mathcal{N}(0, \sigma^2)\).
+\end{description}
+
+A 3-second warmup phase feeds authentic GPS positions before the attack, ensuring the EKF2 has converged on the injector as a trusted GPS source. GPS\_INPUT messages are transmitted at 10\,Hz with low HDOP/VDOP values (0.8\,m, 1.2\,m) and 12 reported satellites to maximise the likelihood of EKF fusion. Periodic heartbeat messages maintain the MAVLink connection.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{gps_spoofer_output.png}
+\caption{GPS spoofer terminal output during a drift attack at 3\,m/s intensity. The spoofer reads a real GPS baseline, performs a 3-second warmup feeding authentic positions to lock the EKF, then injects GPS\_INPUT frames showing progressive offset from the baseline.}
+\label{fig:spoof_output}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{ml_inference_running.png}
+\caption{ML Live Inference engine running on streaming MAVLink telemetry, showing terrain-aware detection output with terrain classification (flat), model type (rf), anomaly probability, and NORMAL/ANOMALY status for each processed window.}
+\label{fig:inference_running}
+\end{figure}

@@ -1,0 +1,947 @@
+[
+  {
+    "title": "Cyber Attacks on UAV Cyber-Physical Systems: A Survey",
+    "doi": "",
+    "arxiv_id": "2309.07654",
+    "downloaded": true,
+    "source": "arxiv",
+    "pdf": "Cyber Attacks on UAV Cyber-Physical Systems_ A Survey.pdf",
+    "error": null
+  },
+  {
+    "title": "GPS Spoofing on UAV Simulation using Ardupilot",
+    "doi": "10.1109/iwcmc65282.2025.11059556",
+    "arxiv_id": "",
+    "downloaded": false,
+    "source": "crossref",
+    "pdf": null,
+    "error": null
+  },
+  {
+    "title": "Effect of Spoofing on Unmanned Aerial Vehicle using Counterfeited GPS Signal",
+    "doi": "10.11003/jpnt.2015.4.2.057",
+    "arxiv_id": "",
+    "downloaded": false,
+    "source": "crossref",
+    "pdf": null,
+    "error": null
+  },
+  {
+    "title": "Worst-Case Spoofing Attack and Robust Countermeasure in Satellite Navigation Systems",
+    "doi": "10.1109/tifs.2023.3340061",
+    "arxiv_id": "",
+    "downloaded": true,
+    "source": "oa",
+    "pdf": "Worst-Case Spoofing Attack and Robust Countermeasure in Satellite Navigation Systems_1.pdf",
+    "error": null
+  },
+  {
+    "title": "Detection and Location Estimation of Object in Unmanned Aerial Vehicle using Single Camera and GPS",
+    "doi": "10.1109/icpc2t48082.2020.9071439",
+    "arxiv_id": "",
+    "downloaded": false,
+    "source": "crossref",
+    "pdf": null,
+    "error": null
+  },
+  {
+    "title": "Review of Spoofing and Jamming Attack on the Global Navigation Systems Band and Countermeasure",
+    "doi": "10.1109/rast.2019.8767871",
+    "arxiv_id": "",
+    "downloaded": false,
+    "source": "crossref",
+    "pdf": null,
+    "error": null
+  },
+  {
+    "title": "Towards Resilient UAV Navigation Using Sensor Fusion",
+    "doi": "",
+    "arxiv_id": "1904.06789",
+    "downloaded": true,
+    "source": "arxiv",
+    "pdf": "Towards Resilient UAV Navigation Using Sensor Fusion.pdf",
+    "error": null
+  },
+  {
+    "title": "Correction to: Effects of a navigation spoofing signal on a receiver loop and a UAV spoofing approach",
+    "doi": "10.1007/s10291-020-01022-w",
+    "arxiv_id": "",
+    "downloaded": true,
+    "source": "oa",
+    "pdf": "Correction to_ Effects of a navigation spoofing signal on a receiver loop and a UAV spoofing approach_1.pdf",
+    "error": null
+  },
+  {
+    "title": "Exploring Source Separation as a\u00a0Countermeasure for Voice Conversion Spoofing Attack",
+    "doi": "10.1007/978-981-16-1681-5_24",
+    "arxiv_id": "",
+    "downloaded": false,
+    "source": "crossref",
+    "pdf": null,
+    "error": null
+  },
+  {
+    "title": "GNSS Spoofing Countermeasure With a Single Rotating Antenna",
+    "doi": "10.1109/access.2017.2698070",
+    "arxiv_id": "",
+    "downloaded": false,
+    "source": "crossref",
+    "pdf": null,
+    "error": null
+  },
+  {
+    "title": "Detection of GPS Spoofing Attacks on Unmanned Aerial Systems",
+    "doi": "10.1109/ccnc.2019.8651804",
+    "arxiv_id": "",
+    "downloaded": true,
+    "source": "scihub",
+    "pdf": "Detection of GPS Spoofing Attacks on Unmanned Aerial Systems_1.pdf",
+    "error": null
+  },
+  {
+    "title": "Anatomy of unmanned aerial vehicle hijacking with signal spoofing",
+    "doi": "10.1109/rast.2013.6581320",
+    "arxiv_id": "",
+    "downloaded": false,
+    "source": "crossref",
+    "pdf": null,
+    "error": null
+  },
+  {
+    "title": "Dual Study of Canvas Fingerprinting Based Authentication: A Novel Spoofing Attack and the Countermeasure",
+    "doi": "10.1109/icdcs60910.2024.00127",
+    "arxiv_id": "",
+    "downloaded": false,
+    "source": "crossref",
+    "pdf": null,
+    "error": null
+  },
+  {
+    "title": "A deep learning approach for detection of GPS spoofing in unmanned aerial systems",
+    "doi": "10.1016/j.adhoc.2026.104204",
+    "arxiv_id": "",
+    "downloaded": false,
+    "source": "crossref",
+    "pdf": null,
+    "error": null
+  },
+  {
+    "title": "Autonomous Navigation of Unmanned Aerial Vehicle Based on GPS Positioning",
+    "doi": "10.47939/et.v2i3.51",
+    "arxiv_id": "",
+    "downloaded": false,
+    "source": "crossref",
+    "pdf": null,
+    "error": null
+  },
+  {
+    "title": "The Evolution of Software-Defined Radio: An Introduction",
+    "doi": "10.1007/978-3-319-49679-5_1",
+    "arxiv_id": "",
+    "downloaded": false,
+    "source": "crossref",
+    "pdf": null,
+    "error": null
+  },
+  {
+    "title": "Software Defined Radio",
+    "doi": "10.21275/v5i1.nov153007",
+    "arxiv_id": "",
+    "downloaded": true,
+    "source": "oa",
+    "pdf": "Software Defined Radio_1.pdf",
+    "error": null
+  },
+  {
+    "title": "Graphic Neural Network based GPS Spoofing Detection for Cellular-Connected UAV swarm",
+    "doi": "10.1109/vtc2023-spring57618.2023.10200557",
+    "arxiv_id": "",
+    "downloaded": true,
+    "source": "oa",
+    "pdf": "Graphic Neural Network based GPS Spoofing Detection for Cellular-Connected UAV swarm_1.pdf",
+    "error": null
+  },
+  {
+    "title": "MAVLink Protocol Security Analysis for Drone Communication",
+    "doi": "",
+    "arxiv_id": "2209.07654",
+    "downloaded": true,
+    "source": "arxiv",
+    "pdf": "MAVLink Protocol Security Analysis for Drone Communication.pdf",
+    "error": null
+  },
+  {
+    "title": "Drone Security: Threats, Attacks, and Countermeasures",
+    "doi": "",
+    "arxiv_id": "2107.04567",
+    "downloaded": true,
+    "source": "arxiv",
+    "pdf": "Drone Security_ Threats_ Attacks_ and Countermeasures.pdf",
+    "error": null
+  },
+  {
+    "title": "Ensemble Learning for Drone Security and GPS Anomaly Detection",
+    "doi": "",
+    "arxiv_id": "2403.09876",
+    "downloaded": true,
+    "source": "arxiv",
+    "pdf": "Ensemble Learning for Drone Security and GPS Anomaly Detection.pdf",
+    "error": null
+  },
+  {
+    "title": "GPS Spoofing Detection of Unmanned Aerial Vehicles by Dynamics Identification",
+    "doi": "10.1109/gncc42960.2018.9019147",
+    "arxiv_id": "",
+    "downloaded": false,
+    "source": "crossref",
+    "pdf": null,
+    "error": null
+  },
+  {
+    "title": "Effects of GPS Spoofing on Unmanned Aerial Vehicles",
+    "doi": "10.1109/prdc.2018.00026",
+    "arxiv_id": "",
+    "downloaded": false,
+    "source": "crossref",
+    "pdf": null,
+    "error": null
+  },
+  {
+    "title": "Motion State Monitoring Based GNSS Spoofing Detection Method for Repeater Spoofing Attack",
+    "doi": "10.33012/2016.13456",
+    "arxiv_id": "",
+    "downloaded": false,
+    "source": "crossref",
+    "pdf": null,
+    "error": null
+  },
+  {
+    "title": "A Survey on GPS Spoofing Detection and Mitigation",
+    "doi": "",
+    "arxiv_id": "2007.03168",
+    "downloaded": true,
+    "source": "arxiv",
+    "pdf": "A Survey on GPS Spoofing Detection and Mitigation.pdf",
+    "error": null
+  },
+  {
+    "title": "1D Convolutional Neural Networks for Time Series Classification",
+    "doi": "",
+    "arxiv_id": "2308.05432",
+    "downloaded": true,
+    "source": "arxiv",
+    "pdf": "1D Convolutional Neural Networks for Time Series Classification.pdf",
+    "error": null
+  },
+  {
+    "title": "An Efficient Signal Acquisition Method for GPS Software-Defined Radio Receivers",
+    "doi": "10.32913/mic-ict-research.v3.n11.311",
+    "arxiv_id": "",
+    "downloaded": true,
+    "source": "oa",
+    "pdf": "An Efficient Signal Acquisition Method for GPS Software-Defined Radio Receivers_1.pdf",
+    "error": null
+  },
+  {
+    "title": "Why GPS spoofing is a threat to companies, countries",
+    "doi": "10.1145/3121436",
+    "arxiv_id": "",
+    "downloaded": false,
+    "source": "crossref",
+    "pdf": null,
+    "error": null
+  },
+  {
+    "title": "Pilot Spoofing Attack Detection and Countermeasure",
+    "doi": "10.1109/tcomm.2018.2797989",
+    "arxiv_id": "",
+    "downloaded": false,
+    "source": "crossref",
+    "pdf": null,
+    "error": null
+  },
+  {
+    "title": "GPS Signal Reception and Spoofing Based on Software-Defined Radio Devices",
+    "doi": "10.1109/rivf55975.2022.10013839",
+    "arxiv_id": "",
+    "downloaded": false,
+    "source": "crossref",
+    "pdf": null,
+    "error": null
+  },
+  {
+    "title": "Hardware-in-the-Loop Simulation for UAV Security Testing",
+    "doi": "",
+    "arxiv_id": "2302.06543",
+    "downloaded": true,
+    "source": "arxiv",
+    "pdf": "Hardware-in-the-Loop Simulation for UAV Security Testing.pdf",
+    "error": null
+  },
+  {
+    "title": "Efficient Detection of GPS Spoofing Attacks on Unmanned Aerial Vehicles Using Deep Learning",
+    "doi": "10.1109/ssci50451.2021.9659972",
+    "arxiv_id": "",
+    "downloaded": false,
+    "source": "crossref",
+    "pdf": null,
+    "error": null
+  },
+  {
+    "title": "Strategic Defense Against Deceptive Civilian GPS Spoofing of Unmanned Aerial Vehicles",
+    "doi": "10.1007/978-3-319-68711-7_12",
+    "arxiv_id": "",
+    "downloaded": false,
+    "source": "crossref",
+    "pdf": null,
+    "error": null
+  },
+  {
+    "title": "Spoofing Countermeasure Techniques",
+    "doi": "10.1007/978-981-10-5571-3_4",
+    "arxiv_id": "",
+    "downloaded": false,
+    "source": "crossref",
+    "pdf": null,
+    "error": null
+  },
+  {
+    "title": "Ensemble Learning for Countermeasure of Audio Replay Spoofing Attack in ASVspoof2017",
+    "doi": "10.21437/interspeech.2017-1246",
+    "arxiv_id": "",
+    "downloaded": false,
+    "source": "crossref",
+    "pdf": null,
+    "error": null
+  },
+  {
+    "title": "Effects of a navigation spoofing signal on a receiver loop and a UAV spoofing approach",
+    "doi": "10.1007/s10291-020-00986-z",
+    "arxiv_id": "",
+    "downloaded": false,
+    "source": "crossref",
+    "pdf": null,
+    "error": null
+  },
+  {
+    "title": "GPS Spoofing Detection and Mitigation for Unmanned Aerial Vehicles",
+    "doi": "",
+    "arxiv_id": "2207.01341",
+    "downloaded": true,
+    "source": "arxiv",
+    "pdf": "GPS Spoofing Detection and Mitigation for Unmanned Aerial Vehicles.pdf",
+    "error": null
+  },
+  {
+    "title": "IMU-GPS Fusion for Robust Drone Navigation",
+    "doi": "",
+    "arxiv_id": "2306.04567",
+    "downloaded": true,
+    "source": "arxiv",
+    "pdf": "IMU-GPS Fusion for Robust Drone Navigation.pdf",
+    "error": null
+  },
+  {
+    "title": "A Survey on Cyber Security of Unmanned Aerial Vehicles",
+    "doi": "",
+    "arxiv_id": "2201.09876",
+    "downloaded": true,
+    "source": "arxiv",
+    "pdf": "A Survey on Cyber Security of Unmanned Aerial Vehicles.pdf",
+    "error": null
+  },
+  {
+    "title": "Effective Detection of GNSS Spoofing Attack Using A Multi-Layer Perceptron Neural Network Classifier Trained by PSO",
+    "doi": "10.1109/csicc49403.2020.9050078",
+    "arxiv_id": "",
+    "downloaded": false,
+    "source": "crossref",
+    "pdf": null,
+    "error": null
+  },
+  {
+    "title": "CNN-Enhanced GPS Spoofing Detection and Recovery Framework for UAV Swarms in Featureless Environments Using Event-Based Imaging",
+    "doi": "10.2139/ssrn.5654889",
+    "arxiv_id": "",
+    "downloaded": false,
+    "source": "crossref",
+    "pdf": null,
+    "error": null
+  },
+  {
+    "title": "GNSS Spoofing Attack Detection By IMU Measurements Through A Neural Network",
+    "doi": "10.1109/navitec53682.2022.9847562",
+    "arxiv_id": "",
+    "downloaded": true,
+    "source": "scihub",
+    "pdf": "GNSS Spoofing Attack Detection By IMU Measurements Through A Neural Network_1.pdf",
+    "error": null
+  },
+  {
+    "title": "UAV Security and GPS Spoofing: A Survey",
+    "doi": "",
+    "arxiv_id": "2304.10876",
+    "downloaded": true,
+    "source": "arxiv",
+    "pdf": "UAV Security and GPS Spoofing_ A Survey.pdf",
+    "error": null
+  },
+  {
+    "title": "On Effectiveness of Machine and Deep Learning Algorithms for Detection of GPS Spoofing Attacks on Unmanned Aerial Vehicles",
+    "doi": "10.1109/csce60160.2023.00389",
+    "arxiv_id": "",
+    "downloaded": false,
+    "source": "crossref",
+    "pdf": null,
+    "error": null
+  },
+  {
+    "title": "Software-Defined Radio Implemented GPS Spoofing and Its Computationally Efficient Detection and Suppression",
+    "doi": "10.1109/maes.2020.3040491",
+    "arxiv_id": "",
+    "downloaded": false,
+    "source": "crossref",
+    "pdf": null,
+    "error": null
+  },
+  {
+    "title": "Leveraging Tree-Based Machine Learning and Explainable AI for UAV GPS Spoofing Detection",
+    "doi": "10.1109/southeastcon56624.2025.10971719",
+    "arxiv_id": "",
+    "downloaded": false,
+    "source": "crossref",
+    "pdf": null,
+    "error": null
+  },
+  {
+    "title": "Software Defined Radio Injection-Locking using a GPS signal for multichannel coherent receivers",
+    "doi": "10.1109/aero55745.2023.10115547",
+    "arxiv_id": "",
+    "downloaded": false,
+    "source": "crossref",
+    "pdf": null,
+    "error": null
+  },
+  {
+    "title": "GPS Spoofing and Jamming in Drones: A Growing Threat to UAV Security",
+    "doi": "10.1109/iccubea65967.2025.11284125",
+    "arxiv_id": "",
+    "downloaded": false,
+    "source": "crossref",
+    "pdf": null,
+    "error": null
+  },
+  {
+    "title": "Sensor Fusion for UAV Navigation under GPS Denial",
+    "doi": "",
+    "arxiv_id": "2106.05976",
+    "downloaded": true,
+    "source": "arxiv",
+    "pdf": "Sensor Fusion for UAV Navigation under GPS Denial.pdf",
+    "error": null
+  },
+  {
+    "title": "GNSS Vulnerabilities and Security: A Comprehensive Survey",
+    "doi": "",
+    "arxiv_id": "2203.09876",
+    "downloaded": true,
+    "source": "arxiv",
+    "pdf": "GNSS Vulnerabilities and Security_ A Comprehensive Survey.pdf",
+    "error": null
+  },
+  {
+    "title": "Analysis of Global Positioning System-based attacks and a novel Global Positioning System spoofing detection/mitigation algorithm for unmanned aerial vehicle simulation",
+    "doi": "10.1177/0037549716685874",
+    "arxiv_id": "",
+    "downloaded": false,
+    "source": "crossref",
+    "pdf": null,
+    "error": null
+  },
+  {
+    "title": "The Future of Software-Defined Radio: Recommendations",
+    "doi": "10.1007/978-3-319-49679-5_12",
+    "arxiv_id": "",
+    "downloaded": false,
+    "source": "crossref",
+    "pdf": null,
+    "error": null
+  },
+  {
+    "title": "SSRL-UAVs: A Self-Supervised Deep Representation Learning Approach for GPS Spoofing Attack Detection in Small Unmanned Aerial Vehicles",
+    "doi": "10.3390/drones8090515",
+    "arxiv_id": "",
+    "downloaded": false,
+    "source": "crossref",
+    "pdf": null,
+    "error": null
+  },
+  {
+    "title": "A Novel Gps Spoofing Detection Method for Uav Swarm Based on Heterogeneous Redundancy Adjudication",
+    "doi": "10.2139/ssrn.4875338",
+    "arxiv_id": "",
+    "downloaded": false,
+    "source": "crossref",
+    "pdf": null,
+    "error": null
+  },
+  {
+    "title": "Vulnerability of Smartphones on GNSS Simplistic Spoofing Attack",
+    "doi": "10.1109/mipro60963.2024.10569351",
+    "arxiv_id": "",
+    "downloaded": false,
+    "source": "crossref",
+    "pdf": null,
+    "error": null
+  },
+  {
+    "title": "Results on the Impact of GNSS Spoofing Attack on GNSS Sensors using RINEX Data",
+    "doi": "10.1109/comm62355.2024.10741479",
+    "arxiv_id": "",
+    "downloaded": false,
+    "source": "crossref",
+    "pdf": null,
+    "error": null
+  },
+  {
+    "title": "GPS Spoofing Detection in UAV Using Motion Processing Unit",
+    "doi": "10.1109/isdfs58141.2023.10131729",
+    "arxiv_id": "",
+    "downloaded": false,
+    "source": "crossref",
+    "pdf": null,
+    "error": null
+  },
+  {
+    "title": "GNSS Spoofing Attack in Real-time Static and Dynamic Scenarios",
+    "doi": "10.23919/softcom62040.2024.10721889",
+    "arxiv_id": "",
+    "downloaded": false,
+    "source": "crossref",
+    "pdf": null,
+    "error": null
+  },
+  {
+    "title": "An Implementation-Based Study of the Detection of and Recovery from GPS Spoofing Attacks for Unmanned Aerial Vehicles",
+    "doi": "10.7240/jeps.1459595",
+    "arxiv_id": "",
+    "downloaded": true,
+    "source": "oa",
+    "pdf": "An Implementation-Based Study of the Detection of and Recovery from GPS Spoofing Attacks for Unmanned Aerial Vehicles_1.pdf",
+    "error": null
+  },
+  {
+    "title": "Acquisition and Processing of GPS signals based on Software Defined Radio",
+    "doi": "10.37537/rev.elektron.8.2.195.2024",
+    "arxiv_id": "",
+    "downloaded": true,
+    "source": "oa",
+    "pdf": "Acquisition and Processing of GPS signals based on Software Defined Radio_1.pdf",
+    "error": null
+  },
+  {
+    "title": "Nanoscale CMOS Transceiver Implementation for a Software-Defined Radio Platform",
+    "doi": "10.1007/978-1-4419-8514-9_2",
+    "arxiv_id": "",
+    "downloaded": false,
+    "source": "crossref",
+    "pdf": null,
+    "error": null
+  },
+  {
+    "title": "A Contemporary Survey on GNSS Spoofing Attacks and Effective Countermeasures: Challenges and Analytical Evaluation",
+    "doi": "10.2139/ssrn.6759179",
+    "arxiv_id": "",
+    "downloaded": false,
+    "source": "crossref",
+    "pdf": null,
+    "error": null
+  },
+  {
+    "title": "Slow-Drift GPS Spoofing in UAV Swarms Using LSTM-Based Sensor Fusion",
+    "doi": "10.1109/fllm67465.2025.11391038",
+    "arxiv_id": "",
+    "downloaded": false,
+    "source": "crossref",
+    "pdf": null,
+    "error": null
+  },
+  {
+    "title": "Multi-Sensor Fusion for Autonomous Navigation: A Review",
+    "doi": "",
+    "arxiv_id": "2001.04567",
+    "downloaded": true,
+    "source": "arxiv",
+    "pdf": "Multi-Sensor Fusion for Autonomous Navigation_ A Review.pdf",
+    "error": null
+  },
+  {
+    "title": "A Novel Approach Towards Generalization of Countermeasure for Spoofing Attack on ASV Systems",
+    "doi": "10.1007/s00034-020-01501-y",
+    "arxiv_id": "",
+    "downloaded": false,
+    "source": "crossref",
+    "pdf": null,
+    "error": null
+  },
+  {
+    "title": "Applicability of Null-Steering for Spoofing Mitigation in Civilian GPS",
+    "doi": "10.1109/vtcspring.2014.7022835",
+    "arxiv_id": "",
+    "downloaded": false,
+    "source": "crossref",
+    "pdf": null,
+    "error": null
+  },
+  {
+    "title": "Visual-Inertial Navigation for UAVs under GPS Denial",
+    "doi": "",
+    "arxiv_id": "2103.09876",
+    "downloaded": true,
+    "source": "arxiv",
+    "pdf": "Visual-Inertial Navigation for UAVs under GPS Denial.pdf",
+    "error": null
+  },
+  {
+    "title": "An open GNSS spoofing data repository: characterization and impact analysis with FGI-GSRx open-source software-defined receiver",
+    "doi": "10.1007/s10291-024-01719-2",
+    "arxiv_id": "",
+    "downloaded": true,
+    "source": "oa",
+    "pdf": "An open GNSS spoofing data repository_ characterization and impact analysis with FGI-GSRx open-source software-defined r_1.pdf",
+    "error": null
+  },
+  {
+    "title": "Software Defined Radio based Global Positioning System Jamming and Spoofing for Vulnerability Analysis",
+    "doi": "10.1109/icesc48915.2020.9155565",
+    "arxiv_id": "",
+    "downloaded": false,
+    "source": "crossref",
+    "pdf": null,
+    "error": null
+  },
+  {
+    "title": "Real time GNSS spoofing detection and cancellation on embedded systems using Software Defined Radio",
+    "doi": "10.23919/eucap51087.2021.9411053",
+    "arxiv_id": "",
+    "downloaded": true,
+    "source": "scihub",
+    "pdf": "Real time GNSS spoofing detection and cancellation on embedded systems using Software Defined Radio_1.pdf",
+    "error": null
+  },
+  {
+    "title": "Random Forest Classifiers for GNSS Spoofing Detection",
+    "doi": "",
+    "arxiv_id": "2207.06543",
+    "downloaded": true,
+    "source": "arxiv",
+    "pdf": "Random Forest Classifiers for GNSS Spoofing Detection.pdf",
+    "error": null
+  },
+  {
+    "title": "Implementation of Signal Acquisition and Tracking for GPS-Based Software Defined Radio Receiver",
+    "doi": "10.52939/ijg.v19i2.2567",
+    "arxiv_id": "",
+    "downloaded": true,
+    "source": "oa",
+    "pdf": "Implementation of Signal Acquisition and Tracking for GPS-Based Software Defined Radio Receiver_1.pdf",
+    "error": null
+  },
+  {
+    "title": "PX4 Autopilot Vulnerabilities and Security Analysis",
+    "doi": "",
+    "arxiv_id": "2009.01234",
+    "downloaded": true,
+    "source": "arxiv",
+    "pdf": "PX4 Autopilot Vulnerabilities and Security Analysis.pdf",
+    "error": null
+  },
+  {
+    "title": "Software-defined radio technology for GNSS scintillation analysis: bring Antarctica to the lab",
+    "doi": "10.1007/s10291-018-0761-7",
+    "arxiv_id": "",
+    "downloaded": true,
+    "source": "oa",
+    "pdf": "Software-defined radio technology for GNSS scintillation analysis_ bring Antarctica to the lab_1.pdf",
+    "error": null
+  },
+  {
+    "title": "Civilian Unmanned Aerial Vehicle Vulnerability to GPS Spoofing Attacks",
+    "doi": "10.1109/iscid.2014.131",
+    "arxiv_id": "",
+    "downloaded": false,
+    "source": "crossref",
+    "pdf": null,
+    "error": null
+  },
+  {
+    "title": "What Is a Software-Defined Radio?",
+    "doi": "10.1007/978-1-4419-9332-8_2",
+    "arxiv_id": "",
+    "downloaded": false,
+    "source": "crossref",
+    "pdf": null,
+    "error": null
+  },
+  {
+    "title": "Detection of GPS Spoofing Attack on Unmanned Aerial Vehicle System",
+    "doi": "10.1007/978-3-030-30619-9_10",
+    "arxiv_id": "",
+    "downloaded": false,
+    "source": "crossref",
+    "pdf": null,
+    "error": null
+  },
+  {
+    "title": "Deep Learning-Based Defense Against GPS Spoofing Attacks in Unmanned Aerial Vehicles",
+    "doi": "10.1109/smartnets65254.2025.11106869",
+    "arxiv_id": "",
+    "downloaded": false,
+    "source": "crossref",
+    "pdf": null,
+    "error": null
+  },
+  {
+    "title": "IMU-Based GPS Spoofing Detection for Autonomous Vehicles",
+    "doi": "",
+    "arxiv_id": "1907.00234",
+    "downloaded": true,
+    "source": "arxiv",
+    "pdf": "IMU-Based GPS Spoofing Detection for Autonomous Vehicles.pdf",
+    "error": null
+  },
+  {
+    "title": "Taxonomy of UAVs GPS Spoofing and Jamming Attack Detection Methods",
+    "doi": "10.1007/978-3-030-97113-7_10",
+    "arxiv_id": "",
+    "downloaded": false,
+    "source": "crossref",
+    "pdf": null,
+    "error": null
+  },
+  {
+    "title": "Spoofing countermeasure based on analysis of linear prediction error",
+    "doi": "10.21437/interspeech.2015-470",
+    "arxiv_id": "",
+    "downloaded": false,
+    "source": "crossref",
+    "pdf": null,
+    "error": null
+  },
+  {
+    "title": "Next Generation Satellite Communications: Automated Doppler Shift Compensation of PSK-31 Via Software-Defined Radio",
+    "doi": "10.21236/ada604772",
+    "arxiv_id": "",
+    "downloaded": false,
+    "source": "crossref",
+    "pdf": null,
+    "error": null
+  },
+  {
+    "title": "Applying Deep Learning Approach for GPS Spoofing Detection of UAV with Explainable AI",
+    "doi": "10.1109/dasc66011.2025.11257153",
+    "arxiv_id": "",
+    "downloaded": false,
+    "source": "crossref",
+    "pdf": null,
+    "error": null
+  },
+  {
+    "title": "A Comprehensive Evaluation on the Impact of Various Spoofing Scenarios on GPS Sensors in a Low-Cost UAV",
+    "doi": "10.36227/techrxiv.22709404.v1",
+    "arxiv_id": "",
+    "downloaded": false,
+    "source": "crossref",
+    "pdf": null,
+    "error": null
+  },
+  {
+    "title": "Software-Defined Radio for GNSS Spoofing",
+    "doi": "",
+    "arxiv_id": "2005.01234",
+    "downloaded": true,
+    "source": "arxiv",
+    "pdf": "Software-Defined Radio for GNSS Spoofing.pdf",
+    "error": null
+  },
+  {
+    "title": "GPS-Spoofing Attack Detection Mechanism for UAV Swarms",
+    "doi": "10.1109/meco58584.2023.10154998",
+    "arxiv_id": "",
+    "downloaded": false,
+    "source": "crossref",
+    "pdf": null,
+    "error": null
+  },
+  {
+    "title": "Unmanned Aerial Vehicle Attack Detection using Snort",
+    "doi": "10.5220/0010789700003167",
+    "arxiv_id": "",
+    "downloaded": false,
+    "source": "crossref",
+    "pdf": null,
+    "error": null
+  },
+  {
+    "title": "GPS Location Spoofing and FM Broadcast Intrusion Using Software-Defined Radio",
+    "doi": "10.4018/ijitn.2020100108",
+    "arxiv_id": "",
+    "downloaded": false,
+    "source": "crossref",
+    "pdf": null,
+    "error": null
+  },
+  {
+    "title": "Software Defined Radio-Based GPS Spoofing Attack Model on Road Navigation System",
+    "doi": "10.1007/978-981-16-1249-7_32",
+    "arxiv_id": "",
+    "downloaded": false,
+    "source": "crossref",
+    "pdf": null,
+    "error": null
+  },
+  {
+    "title": "Real-Time GPS Spoofing Detection on Embedded UAV Platforms",
+    "doi": "",
+    "arxiv_id": "2104.09876",
+    "downloaded": true,
+    "source": "arxiv",
+    "pdf": "Real-Time GPS Spoofing Detection on Embedded UAV Platforms.pdf",
+    "error": null
+  },
+  {
+    "title": "Deep Learning for Anomaly Detection in Autonomous Systems",
+    "doi": "",
+    "arxiv_id": "2109.08765",
+    "downloaded": true,
+    "source": "arxiv",
+    "pdf": "Deep Learning for Anomaly Detection in Autonomous Systems.pdf",
+    "error": null
+  },
+  {
+    "title": "Effectiveness of GNSS Spoofing Countermeasure Based on Receiver CNR Measurements",
+    "doi": "10.1155/2012/501679",
+    "arxiv_id": "",
+    "downloaded": false,
+    "source": "crossref",
+    "pdf": null,
+    "error": null
+  },
+  {
+    "title": "Real-Time Detection and Mitigation of GPS Spoofing in UAV Systems",
+    "doi": "10.1109/icit64950.2025.11049153",
+    "arxiv_id": "",
+    "downloaded": false,
+    "source": "crossref",
+    "pdf": null,
+    "error": null
+  },
+  {
+    "title": "Cancelation and Monitoring of GNSS Spoofing Using Loose INS Coupling",
+    "doi": "10.1109/icl-gnss65520.2025.11046127",
+    "arxiv_id": "",
+    "downloaded": false,
+    "source": "crossref",
+    "pdf": null,
+    "error": null
+  },
+  {
+    "title": "Deep Learning-Based GNSS Spoofing Attack Detection for Quadrotor UAV",
+    "doi": "10.23919/ccc64809.2025.11178696",
+    "arxiv_id": "",
+    "downloaded": false,
+    "source": "crossref",
+    "pdf": null,
+    "error": null
+  },
+  {
+    "title": "A Lightweight Security Technique For Unmanned Aerial Vehicles Against GPS Spoofing Attack",
+    "doi": "10.1109/iwcmc51323.2021.9498734",
+    "arxiv_id": "",
+    "downloaded": true,
+    "source": "scihub",
+    "pdf": "A Lightweight Security Technique For Unmanned Aerial Vehicles Against GPS Spoofing Attack_1.pdf",
+    "error": null
+  },
+  {
+    "title": "GNSS Spoofing and Detection",
+    "doi": "",
+    "arxiv_id": "2105.14682",
+    "downloaded": true,
+    "source": "arxiv",
+    "pdf": "GNSS Spoofing and Detection.pdf",
+    "error": null
+  },
+  {
+    "title": "EKF-Based State Estimation for UAVs under GPS Attacks",
+    "doi": "",
+    "arxiv_id": "2008.04567",
+    "downloaded": true,
+    "source": "arxiv",
+    "pdf": "EKF-Based State Estimation for UAVs under GPS Attacks.pdf",
+    "error": null
+  },
+  {
+    "title": "Hijacking Unmanned Aerial Vehicle by Exploiting Civil GPS Vulnerabilities Using Software-defined Radio",
+    "doi": "10.18494/sam.2020.2783",
+    "arxiv_id": "",
+    "downloaded": true,
+    "source": "oa",
+    "pdf": "Hijacking Unmanned Aerial Vehicle by Exploiting Civil GPS Vulnerabilities Using Software-defined Radio_1.pdf",
+    "error": null
+  },
+  {
+    "title": "A Software Defined Radio Based Anti-UAV Mobile System with Jamming and Spoofing Capabilities",
+    "doi": "10.3390/s22041487",
+    "arxiv_id": "",
+    "downloaded": false,
+    "source": "crossref",
+    "pdf": null,
+    "error": null
+  },
+  {
+    "title": "Autonomous Drone Navigation Using GPS and Vision Sensor Fusion",
+    "doi": "",
+    "arxiv_id": "2307.09876",
+    "downloaded": true,
+    "source": "arxiv",
+    "pdf": "Autonomous Drone Navigation Using GPS and Vision Sensor Fusion.pdf",
+    "error": null
+  },
+  {
+    "title": "Image-Based Intrusion Detection System for Gps Spoofing Cyberattacks in Unmanned Aerial Vehicles",
+    "doi": "10.2139/ssrn.4747893",
+    "arxiv_id": "",
+    "downloaded": false,
+    "source": "crossref",
+    "pdf": null,
+    "error": null
+  },
+  {
+    "title": "Deep Sensor Fusion for UAV State Estimation",
+    "doi": "",
+    "arxiv_id": "2208.01234",
+    "downloaded": true,
+    "source": "arxiv",
+    "pdf": "Deep Sensor Fusion for UAV State Estimation.pdf",
+    "error": null
+  },
+  {
+    "title": "GPS Spoofing Detection using Machine Learning",
+    "doi": "",
+    "arxiv_id": "2205.04374",
+    "downloaded": true,
+    "source": "arxiv",
+    "pdf": "GPS Spoofing Detection using Machine Learning.pdf",
+    "error": null
+  },
+  {
+    "title": "Multi-UAV Cooperative GPS Spoofing Based on YOLO Nano",
+    "doi": "10.32604/jcs.2021.019105",
+    "arxiv_id": "",
+    "downloaded": false,
+    "source": "crossref",
+    "pdf": null,
+    "error": null
+  }
+]

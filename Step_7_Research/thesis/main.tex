@@ -1,0 +1,159 @@
+% ============================================================
+% GPS Spoofing Detection for PX4-Based Unmanned Aerial Vehicles
+% SIT724 / SIT746 Research Project — Deakin University
+% Master file — compile with XeLaTeX
+% ============================================================
+
+\documentclass[12pt,a4paper]{report}
+
+%%%----- PACKAGES -------------------------------------------
+\usepackage{fontspec}
+\usepackage[utf8]{inputenc}
+\usepackage{geometry}
+\geometry{a4paper, left=22mm, top=22mm, bottom=22mm, right=22mm}
+\setlength{\headheight}{14.5pt}
+\setlength{\headsep}{20pt}
+\usepackage{setspace}
+\usepackage{graphicx}
+\graphicspath{{figures/}}
+\usepackage{hyperref}
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{multirow}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{enumitem}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{listings}
+\usepackage{tikz}
+\usetikzlibrary{shapes,arrows,positioning,fit,backgrounds,calc}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{float}
+
+%%%----- FORMATTING -----------------------------------------
+\renewcommand{\familydefault}{\sfdefault}
+\hyphenpenalty=10000
+\tolerance=10000
+\onehalfspacing
+
+%%%----- HYPERREF SETUP -------------------------------------
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    citecolor=blue,
+    urlcolor=blue,
+    pdftitle={GPS Spoofing Detection for PX4-Based Unmanned Aerial Vehicles},
+    pdfauthor={Nikhil Sarwara},
+}
+
+%%%----- CODE LISTINGS STYLE --------------------------------
+\lstset{
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    frame=single,
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    keywordstyle=\color{blue},
+    commentstyle=\color{green!50!black},
+    stringstyle=\color{orange},
+    showstringspaces=false,
+}
+
+%%%----- HEADERS / FOOTERS ----------------------------------
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\rightmark}
+\fancyhead[R]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+%------------- DOCUMENT BEGIN -------------------------------
+\begin{document}
+
+%========= TITLE PAGE =======================================
+\thispagestyle{empty}
+\begin{titlepage}
+    \begin{center}
+       \vspace*{1cm}
+       % Deakin University Logo
+       \includegraphics[width=4cm]{deakin_logo.png}\\[0.5cm]
+       {\large \textbf{DEAKIN UNIVERSITY}}\\[0.2cm]
+       {\small Faculty of Science, Engineering and Built Environment}\\[1.5cm]
+
+       {\LARGE \textbf{GPS Spoofing Detection for PX4-Based\\[0.3cm]
+        Unmanned Aerial Vehicles}}\\[1.5cm]
+       {\large A Software-Only Approach Using Sensor Fusion\\[0.2cm]
+        and Machine Learning}\\[2cm]
+
+        {\large Submitted as Research Report for\\[0.2cm]
+         SIT746 Research Project (Advanced)}\\[1cm]
+
+        {\large \textbf{Submission Date:} T1-2026}\\[0.5cm]
+        {\large \textbf{May 2026}}\\[2cm]
+
+        {\large \textbf{Nikhil Sarwara}}\\
+        {\large Student ID: 224234862}\\
+        {\large Master of Software Engineering (S464)}\\[1.5cm]
+
+        {\normalsize Supervised by: Dr. Ananda Maiti}\\[1cm]
+
+       \vfill
+       {\normalsize Faculty of Science, Engineering and Built Environment}\\
+       {\normalsize Deakin University}
+    \end{center}
+\end{titlepage}
+
+%========= FRONT MATTER =====================================
+\newpage
+\thispagestyle{plain}
+\pagenumbering{roman}
+\setcounter{page}{1}
+
+\input{sections/00_abstract}
+\newpage
+\input{sections/01_acknowledgements}
+\newpage
+\input{sections/02_list_of_abbreviations}
+
+%--------- TABLE OF CONTENTS --------------------------------
+\newpage
+\begin{singlespacing}
+\tableofcontents
+\end{singlespacing}
+
+\newpage
+\listoffigures
+\listoftables
+
+%========= MAIN BODY ========================================
+\newpage
+\pagenumbering{arabic}
+\setcounter{page}{1}
+\onehalfspacing
+
+\input{sections/03_chapter1_introduction}
+\input{sections/04_chapter2_literature_review}
+\input{sections/05_chapter3_design}
+\input{sections/06_chapter4_methodology}
+\input{sections/07_chapter5_implementation}
+\input{sections/08_chapter6_results}
+\input{sections/09_chapter7_discussion}
+\input{sections/10_chapter8_conclusion}
+
+%========= BIBLIOGRAPHY =====================================
+\newpage
+\singlespacing
+\addcontentsline{toc}{chapter}{Bibliography}
+\bibliography{bibliography/references}
+\bibliographystyle{siam}
+
+%========= APPENDICES =======================================
+\appendix
+\input{sections/11_appendix_a_supplementary}
+
+\end{document}
+%------------- DOCUMENT END ---------------------------------

@@ -1,0 +1,20 @@
+[
+  {
+    "start_s": 0.1,
+    "end_s": 47.4,
+    "label": 0,
+    "reason": "normal"
+  },
+  {
+    "start_s": 47.4,
+    "end_s": 76.5,
+    "label": 1,
+    "reason": "gps_spoof_synthetic"
+  },
+  {
+    "start_s": 76.5,
+    "end_s": 300.0,
+    "label": 0,
+    "reason": "normal"
+  }
+]

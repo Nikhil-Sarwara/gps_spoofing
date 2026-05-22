@@ -1,0 +1,26 @@
+{
+  "generated_at": "2026-05-14T08:36:19.037892+00:00",
+  "total_source_csvs": 14,
+  "terrain_summary": {
+    "flat": {
+      "n_windows": 419,
+      "rf_val_f1": 1.0,
+      "cnn_val_f1": 1.0,
+      "status": "trained"
+    },
+    "mountain": {
+      "n_windows": 297,
+      "rf_val_f1": 1.0,
+      "cnn_val_f1": 1.0,
+      "status": "trained"
+    },
+    "sea": {
+      "n_windows": 795,
+      "rf_val_f1": 0.8888888888888888,
+      "cnn_val_f1": 0.9,
+      "status": "trained"
+    }
+  },
+  "recommended_default_model": "sea",
+  "note": "Terrain with most training data recommended as fallback default"
+}

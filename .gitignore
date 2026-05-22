@@ -25,14 +25,14 @@ ENV/
 *.npz
 *.pkl
 *.pth
-!gps_logs/raw/.gitkeep
-!gps_logs/processed/.gitkeep
-!ml/artifacts/.gitkeep
-!ml/models/.gitkeep
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+!data/artifacts/.gitkeep
+!data/models/.gitkeep
 
 # Logs
 *.log
-ui/logs/*.csv
+logs/*.csv
 
 # OS
 .DS_Store

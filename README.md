@@ -1,132 +1,48 @@
 # GPS Spoofing Detection System
 
-A machine learning-based GPS anomaly/spoofing detection system for PX4 drones.
+A machine learning-based GPS anomaly/spoofing detection system for PX4 drones, organized following the principles of "divide and conquer" problem decomposition (Jones et al., CHI 2005).
 
-## Project Structure
+## Task-Oriented Project Structure
+
+The project is decomposed into 8 logical steps, each representing a critical component of the research and implementation workflow:
 
 ```
 gps_spoofing/
-├── project/
-│   ├── config/
-│   │   └── pipeline.yaml       # Centralized configuration
-│   ├── gps_monitor/            # MAVLink telemetry collector
-│   │   ├── config.py           # Connection settings
-│   │   ├── main.py             # Entry point
-│   │   ├── mavlink_client.py   # MAVLink communication
-│   │   ├── state_model.py      # Telemetry state
-│   │   └── console_ui.py      # Terminal UI
-│   ├── ml/                    # ML pipeline & anomaly detection
-│   │   ├── config/             # ML configs
-│   │   ├── scripts/            # Pipeline scripts
-│   │   │   ├── 01_clean_log.py       # Data cleaning
-│   │   │   ├── 02_auto_label.py      # Auto-labeling (heuristics)
-│   │   │   ├── 03_make_windows.py    # Create ML windows
-│   │   │   └── 04_train_baseline.py  # Train models
-│   │   ├── artifacts/          # Dataset & scaler
-│   │   ├── models/            # Trained models
-│   │   ├── pipeline.py        # Unified pipeline runner
-│   │   ├── live_inference.py  # Real-time inference
-│   │   └── demo_dataset.py    # Dataset visualization
-│   ├── ui/                     # Streamlit web dashboard
-│   └── tests/                  # Unit tests
-├── PX4-Autopilot/              # PX4 firmware submodule
-└── README.md
+├── Step_1_Simulation/   # Simulation Environment (PX4 SITL, Gazebo)
+├── Step_2_Monitoring/   # Telemetry Data Acquisition (MAVLink collector)
+├── Step_3_Attacks/      # Threat Simulation (Attack vectors & sniffer)
+├── Step_4_Detection/    # Detection Intelligence (ML Pipeline & Inference)
+├── Step_5_Data/         # Information Vault (Raw logs, Processed data, Models)
+├── Step_6_UI/           # Visualization & Control (Streamlit & TUI Console)
+├── Step_7_Research/     # Academic Output (Thesis, Papers, LaTeX)
+└── Step_8_Archive/      # Project History (Legacy logs, test outputs)
 ```
 
-## Quick Start
+## Quick Start (Project Cockpit)
 
-### 1. Collect GPS Data
+Launch the integrated management console to orchestrate all components:
 
 ```bash
-cd project
-python -m gps_monitor.main
+# Launch the main control interface
+python3 run_tui.py
 ```
 
-### 2. Automated Pipeline (Recommended)
+### Main Entry Points (Root)
 
-Run the entire pipeline with one command:
+- `run_tui.py`: The management console (Dashboards & ML Pipeline).
+- `start_px4.sh`: Direct launcher for the PX4 SITL simulation.
+- `gps_spoofer.py`: Manual attack injector for testing detection.
 
-```bash
-# Process all raw logs
-python -m ml.pipeline process-batch
+## Core Innovation: Physical Sanity Check
 
-# Train models
-python -m ml.pipeline train
+This system distinguishes between environmental noise (e.g., wind) and active spoofing attacks by correlating GPS motion with IMU-detected physical acceleration. In a spoofing attack, the GPS coordinates shift without corresponding physical motion detected by the accelerometers and gyroscopes.
 
-# Run full pipeline
-python -m ml.pipeline full
-```
+## ML Pipeline
 
-### 3. Or Run Steps Individually
+The automated pipeline in `Step_4_Detection` handles the entire data lifecycle:
+1. **Cleaning**: Filtering invalid data and handling EKF resets.
+2. **Labeling**: Applying 8 automated heuristics to identify anomalies.
+3. **Training**: Generating Random Forest and 1D CNN models optimized for different terrains (Flat, Mountain, Sea).
 
-```bash
-# Clean data
-python ml/scripts/01_clean_log.py gps_logs/raw/your_log.csv
-
-# Auto-label anomalies (heuristic-based)
-python ml/scripts/02_auto_label.py gps_logs/processed/your_log_cleaned.csv
-
-# Create ML windows
-python ml/scripts/03_make_windows.py gps_logs/processed/row_labels_auto.csv
-
-# Train model
-python ml/scripts/04_train_baseline.py
-```
-
-### 4. Run Inference
-
-```bash
-# Live inference
-python ml/live_inference.py
-
-# Dashboard
-cd ui && streamlit run app.py
-```
-
-## Automated Labeling
-
-The `02_auto_label.py` script uses heuristics to automatically detect spoofing/anomalies:
-
-| Detection Method | Description |
-|-----------------|-------------|
-| Position Jumps | Sudden unrealistic movement (>30 m/s) |
-| Speed Anomalies | Velocity inconsistencies |
-| GPS Quality | Low satellites, high eph/epv |
-| Stale Data | Repeated identical readings |
-| Mode Anomalies | Failsafe, hex mode codes |
-
-Configure thresholds in `config/pipeline.yaml`.
-
-## Configuration
-
-All settings are in `config/pipeline.yaml`:
-
-```yaml
-data:
-  raw_dir: "gps_logs/raw"
-  processed_dir: "gps_logs/processed"
-  artifacts_dir: "ml/artifacts"
-  models_dir: "ml/models"
-
-auto_label:
-  enabled: true
-  max_normal_speed_ms: 30.0
-  min_satellites: 6
-
-windows:
-  length: 30      # Samples (3s @ 10Hz)
-  stride: 15     # 50% overlap
-```
-
-## Architecture
-
-```
-┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
-│  gps_monitor    │────▶│  ml.pipeline    │────▶│     ui/         │
-│  (MAVLink UDP) │     │  (Auto-label)   │     │  (Streamlit)    │
-└─────────────────┘     └─────────────────┘     └─────────────────┘
-        │                       │                       │
-        ▼                       ▼                       ▼
-  Raw CSV logs          Labeled windows          Live dashboard
-                         Train RF/CNN            Anomaly alerts
-```
+---
+*Organized for digital findability and project decomposition.*

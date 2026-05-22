@@ -1,0 +1,87 @@
+% 07 Conclusion
+\section{7. Conclusion and Future Work}
+
+\subsection{7.1 Summary}
+
+This research project successfully developed a comprehensive GPS spoofing detection system for PX4 drones. The key contributions include:
+
+\begin{enumerate}
+    \item Novel GPS-IMU consistency checking algorithm
+    \item Complete ML pipeline with automated labeling (8 heuristics)
+    \item Random Forest and CNN models (100\% test accuracy)
+    \item Real-time inference engine (30-message buffer)
+    \item Integrated management interface (TUI)
+    \item Web-based monitoring dashboard (Streamlit)
+    \item Full PX4 simulation environment with feedback loop
+    \item Breaking point analysis framework (key research contribution)
+\end{enumerate}
+
+The system demonstrates that GPS spoofing detection is achievable using software-only approaches that leverage existing sensor data from standard flight controllers.
+
+Supervisor feedback (Meeting 5): "You are doing way better than anybody else I have seen" and "You are definitely on track for HD."
+
+\begin{table}[htbp]
+    \centering
+    \caption{Key Research Contributions}
+    \label{tab:contributions}
+    \begin{tabular}{|p{5cm}|p{10cm}|}
+        \hline
+        \textbf{Contribution} & \textbf{Description} \\
+        \hline
+        GPS-IMU Consistency Check & Physics-based discriminator distinguishing spoofing from wind disturbances \\
+        \hline
+        Multi-Model Approach & Random Forest (fast, interpretable) + 1D CNN (temporal patterns) \\
+        \hline
+        Real-Time Pipeline & 30-message sliding window, 10Hz processing, <100ms latency target \\
+        \hline
+        Breaking Point Analysis & Quantitative characterization of detection limits under increasing attack intensity \\
+        \hline
+    \end{tabular}
+\end{table}
+
+\begin{figure}[htbp]
+    \centering
+    \simplebox{
+    \centering
+    \textbf{Complete System Architecture}\\[0.5em]
+    \begin{tabular}{ccl}
+        \cline{1-3}
+        \textbf{Simulation Layer} & PX4 SITL + Gazebo + Docker & \\
+        \cline{1-3}
+        $\downarrow$ MAVLink & & \\
+        \textbf{Communication} & MAVLink UDP Bridge & \\
+        \cline{1-3}
+        $\downarrow$ Telemetry & & \\
+        \textbf{Processing} & GPS Monitor $\rightarrow$ ML Pipeline & \\
+        $\downarrow$ & Clean $\rightarrow$ Label $\rightarrow$ Windows $\rightarrow$ Train & \\
+        \cline{1-3}
+        \textbf{Intelligence} & Live Inference (RF/CNN) & \\
+        \cline{1-3}
+        $\downarrow$ Detection & & \\
+        \textbf{Presentation} & Streamlit Dashboard & \\
+        \cline{1-3}
+        $\uparrow$ Feedback & & \\
+        \textbf{Response} & Return to Home / Hold Position & \\
+        \cline{1-3}
+    \end{tabular}
+    }
+    \caption{Complete system architecture diagram}
+    \label{fig:full_architecture}
+\end{figure}
+
+\subsection{7.2 Future Enhancements}
+
+Remaining work (from Checkpoint 2):
+
+\begin{enumerate}
+    \item Integrate IMAMUL (IMU) data into ML pipeline for full cross-sensor validation
+    \item Implement cross-sensor validation algorithm
+    \item Generate more diverse flight datasets for model robustness
+    \item Measure and document the breaking point as core quantitative result
+    \item Formally quantify real-time pipeline lag
+    \item Tune and justify anomaly detection threshold
+    \item Literature Review and Methodology by end of April 2026
+    \item Thesis writing from approximately 20 April 2026
+\end{enumerate}
+
+\end{document}

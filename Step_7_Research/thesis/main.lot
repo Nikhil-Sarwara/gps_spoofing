@@ -1,0 +1,21 @@
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {2.1}{\ignorespaces Comparison of ML-based GNSS spoofing detection approaches.}}{12}{table.caption.8}%
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {4.1}{\ignorespaces MAVLink telemetry sources, frequencies, and detection roles.}}{21}{table.caption.12}%
+\contentsline {table}{\numberline {4.2}{\ignorespaces Feature set organised by category.}}{23}{table.caption.14}%
+\contentsline {table}{\numberline {4.3}{\ignorespaces Heuristic labelling rules with thresholds.}}{23}{table.caption.15}%
+\contentsline {table}{\numberline {4.4}{\ignorespaces 1D CNN architecture.}}{27}{table.caption.18}%
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {6.1}{\ignorespaces Dataset summary statistics.}}{44}{table.caption.27}%
+\contentsline {table}{\numberline {6.2}{\ignorespaces Per-flight experimental breakdown showing flight duration, spoofing parameters, window distribution, and assigned data split.}}{45}{table.caption.28}%
+\contentsline {table}{\numberline {6.3}{\ignorespaces Combined model performance on test set (12 windows).}}{46}{table.caption.30}%
+\contentsline {table}{\numberline {6.4}{\ignorespaces Confusion matrices. Normal = 0, Spoofed = 1.}}{46}{table.caption.31}%
+\contentsline {table}{\numberline {6.5}{\ignorespaces CNN ablation study results (test set, 12 windows).}}{50}{table.caption.35}%
+\contentsline {table}{\numberline {6.6}{\ignorespaces Live inference log summary.}}{52}{table.caption.37}%
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {7.1}{\ignorespaces Structured comparison of GPS spoofing detection approaches.}}{58}{table.caption.40}%
+\addvspace {10\p@ }
+\addvspace {10\p@ }

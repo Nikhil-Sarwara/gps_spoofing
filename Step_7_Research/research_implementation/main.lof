@@ -1,0 +1,15 @@
+\contentsline {figure}{\numberline {1}{\ignorespaces System architecture showing data flow from PX4 simulation through GPS Monitor, ML Pipeline, and Live Inference to Dashboard}}{5}{figure.caption.1}%
+\contentsline {figure}{\numberline {2}{\ignorespaces Terminal User Interface (Inspector Tool)}}{6}{figure.caption.3}%
+\contentsline {figure}{\numberline {3}{\ignorespaces PX4 SITL simulation in Gazebo}}{7}{figure.caption.4}%
+\contentsline {figure}{\numberline {4}{\ignorespaces GPS-IMU consistency check algorithm flow}}{11}{figure.caption.7}%
+\contentsline {figure}{\numberline {5}{\ignorespaces Research Timeline (5 meetings)}}{15}{figure.caption.14}%
+\contentsline {figure}{\numberline {6}{\ignorespaces Inspection of cleaned CSV telemetry dataset}}{15}{figure.caption.16}%
+\contentsline {figure}{\numberline {7}{\ignorespaces Label segment annotations applied to telemetry data}}{16}{figure.caption.17}%
+\contentsline {figure}{\numberline {8}{\ignorespaces Sliding window generation pipeline for train/val/test splits}}{16}{figure.caption.18}%
+\contentsline {figure}{\numberline {9}{\ignorespaces ML inference pipeline diagram}}{18}{figure.caption.19}%
+\contentsline {figure}{\numberline {10}{\ignorespaces Streamlit live detection dashboard}}{18}{figure.caption.20}%
+\contentsline {figure}{\numberline {11}{\ignorespaces Streamlit UI flow diagram}}{19}{figure.caption.21}%
+\contentsline {figure}{\numberline {12}{\ignorespaces System data flow diagram}}{20}{figure.caption.22}%
+\contentsline {figure}{\numberline {13}{\ignorespaces Confusion matrix for Random Forest model on test set}}{21}{figure.caption.24}%
+\contentsline {figure}{\numberline {14}{\ignorespaces Research project timeline - Trimester 1, 2026}}{22}{figure.caption.26}%
+\contentsline {figure}{\numberline {15}{\ignorespaces Complete system architecture diagram}}{24}{figure.caption.29}%

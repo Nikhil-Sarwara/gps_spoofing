@@ -1,0 +1,44 @@
+[
+  {
+    "start_s": 0.1,
+    "end_s": 47.3,
+    "label": 0,
+    "reason": "normal"
+  },
+  {
+    "start_s": 47.3,
+    "end_s": 67.8,
+    "label": 1,
+    "reason": "gps_spoof_synthetic"
+  },
+  {
+    "start_s": 67.8,
+    "end_s": 126.4,
+    "label": 0,
+    "reason": "normal"
+  },
+  {
+    "start_s": 126.4,
+    "end_s": 141.6,
+    "label": 1,
+    "reason": "gps_spoof_synthetic"
+  },
+  {
+    "start_s": 141.6,
+    "end_s": 192.0,
+    "label": 0,
+    "reason": "normal"
+  },
+  {
+    "start_s": 192.0,
+    "end_s": 216.6,
+    "label": 1,
+    "reason": "gps_spoof_synthetic"
+  },
+  {
+    "start_s": 216.6,
+    "end_s": 300.0,
+    "label": 0,
+    "reason": "normal"
+  }
+]

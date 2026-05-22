@@ -1,0 +1,182 @@
+% ============================================================
+% CHAPTER 2: LITERATURE REVIEW
+% ============================================================
+\chapter{Literature Review}
+
+This chapter surveys the existing scholarly work relevant to GPS spoofing detection in unmanned aerial vehicles. The review is organised around six thematic areas: GPS fundamentals and vulnerabilities, spoofing attack mechanisms, existing detection approaches, PX4 flight stack architecture, sensor fusion techniques, and machine learning for anomaly detection. The chapter concludes by identifying specific research gaps that this work addresses.
+
+\section{GPS Fundamentals and Vulnerabilities}
+
+The Global Positioning System, a satellite-based radio-navigation system owned by the United States government and operated by the United States Space Force, provides geolocation and time information to GPS receivers anywhere on or near Earth~\cite{Shah2022}. The system architecture comprises three segments: the space segment, consisting of a nominal constellation of 31 satellites broadcasting on the L1 frequency (1575.42\,MHz) using Coarse/Acquisition (C/A) code and on the L2 frequency (1227.60\,MHz); the control segment, comprising a global network of ground stations that monitor satellite health, ephemeris, and clock corrections; and the user segment, consisting of commercial GPS receivers that compute PVT solutions from time-of-flight measurements to at least four satellites.
+
+Civilian GPS employs the C/A code on L1, which is publicly documented in the GPS Interface Specification IS-GPS-200. While this openness has enabled widespread adoption across transportation, agriculture, telecommunications, and defence sectors, it creates inherent security vulnerabilities~\cite{Schmidt2021}. The signal structure is fully known, the navigation message is unauthenticated, and civilian receivers possess no mechanism to cryptographically verify the origin of received signals. This contrasts sharply with military GPS, which utilises encrypted Precision (P/Y) code and anti-spoofing modules that are inaccessible to civilian users.
+
+GPS signals at the Earth's surface are extremely weak---approximately $-$130\,dBm, or below the thermal noise floor---making them susceptible to both intentional and unintentional interference. The low signal power enables a fundamental vulnerability: an adversary can generate a stronger, structurally valid counterfeit signal that overpowers the genuine satellite transmission, causing the receiver to track the spurious signal instead.
+
+\section{GPS Spoofing: Threats and Attack Vectors}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    node distance=2.2cm and 1.8cm,
+    block/.style={rectangle, draw, fill=blue!8, text width=2.8cm, text centered, minimum height=0.7cm, font=\small},
+    bad/.style={rectangle, draw, fill=red!12, text width=2.8cm, text centered, minimum height=0.7cm, font=\small},
+    arrow/.style={->, >=stealth, thick},
+]
+    \node[block] (sats) {GPS Satellites\\L1, 1575.42 MHz};
+    \node[block, right=of sats] (rx) {Victim Receiver\\(PX4 + GPS)};
+    \node[block, name=norm, below=of rx, yshift=-0.5cm] {Authenticated\\by IS-GPS-200};
+    \node[block, below=of sats] (atk) {Attacker (SDR)\\Spoofing Signal};
+    \node[bad, right=of atk, xshift=1cm] (cap) {PX4 accepts\\spoofed PVT};
+    \node[bad, below=of cap] (drift) {Position drifts\\without IMU motion};
+
+    \draw[arrow] (sats) -- (rx) node[midway,above] {Authentic};
+    \draw[arrow] (atk.east) -- (cap.west) node[midway,above] {Counterfeit};
+    \draw[arrow] (cap) -- (drift);
+    \draw[arrow, dashed, gray] (rx.south) -- (norm.north);
+\end{tikzpicture}
+\caption{GPS spoofing attack flow: the attacker transmits a counterfeit signal structurally compliant with IS-GPS-200, causing the victim PX4 receiver to accept falsified PVT estimates while reporting a healthy fix.}
+\label{fig:spoof_attack_flow}
+\end{figure}
+
+The cybersecurity literature often conflates two distinct categories of GPS interference: jamming and spoofing. Understanding their operational differences is critical for designing effective countermeasures.
+
+\textbf{Jamming} broadcasts high-power noise in the GPS frequency band, elevating the noise floor until the receiver loses carrier-phase lock. Detection of jamming is straightforward: the receiver reports a precipitous drop in carrier-to-noise ratio (C/N$_0$) across all tracked satellites, followed by an explicit loss-of-fix status. Jamming is a denial-of-service attack; the receiver knows it has lost GPS.
+
+\textbf{Spoofing}, in contrast, transmits a carefully constructed replica of authentic GPS signals with manipulated navigation data. Because the counterfeit signals comply with the IS-GPS-200 signal-in-space specification, the victim receiver synchronises to the attacker-generated signals, computes an incorrect but internally consistent PVT solution, and reports a healthy fix with normal C/N$_0$ and accuracy metrics~\cite{Zhang2020}. Spoofing is a corruption-of-service attack; the receiver believes it has accurate GPS.
+
+Kerns et al.~\cite{Kerns2014} provided the first comprehensive open-source demonstration of civilian GPS spoofing using a low-cost software-defined radio platform, establishing that the threat is neither theoretical nor prohibitively expensive. Their work showed that a \$1,000 SDR could generate GPS signals that successfully captured a variety of commercial receivers. Humphreys~\cite{Humphreys2012} subsequently demonstrated full 3D control of a civilian unmanned aerial vehicle through GPS spoofing, raising significant policy and security concerns.
+
+More recent research has explored increasingly sophisticated attack variants~\cite{Owen2019}:
+\begin{itemize}
+    \item \textbf{Slow-drift spoofing}: Gradually introducing position error at rates below typical detection thresholds (less than 0.5\,m/s), causing the EKF to slowly converge to the falsified position without triggering innovation monitoring.
+    \item \textbf{Meaconing}: Recording and delayed rebroadcast of authentic GPS signals, which preserves the spatial consistency of the satellite geometry but introduces controlled temporal and positional offsets.
+    \item \textbf{Multi-vehicle coordinated spoofing}: Simultaneously attacking multiple UAVs in a swarm with coordinated false positions that maintain inter-vehicle geometric consistency.
+    \item \textbf{Carry-off attacks}: Starting with signals perfectly aligned to the authentic GPS and then smoothly increasing the divergence, making it difficult for the receiver to detect the transition.
+\end{itemize}
+
+\section{Existing Detection Approaches}
+
+GPS spoofing detection has been approached through three broad paradigms: cryptographic authentication, physical-layer signal analysis, and sensor-fusion cross-validation.
+
+\subsection{Cryptographic Authentication}
+
+Cryptographic methods embed digital signatures or encryption in the GPS navigation message, enabling receivers to verify signal authenticity~\cite{Morales-Ferre2020}. Notable implementations include Galileo's Open Service Navigation Message Authentication (OSNMA), GPS Chimera, and the military M-code with Selective Availability Anti-Spoofing Module (SAASM). While cryptographically robust, these approaches require modifications to the satellite constellation, ground infrastructure, and receiver firmware. They are unavailable to the vast installed base of civilian receivers and cannot be retrofitted to existing PX4 flight controllers. Furthermore, cryptographic authentication cannot detect meaconing attacks where the signal itself is authentic but its timing has been manipulated.
+
+\subsection{Physical-Layer Techniques}
+
+Physical-layer methods exploit signal characteristics to discriminate authentic from counterfeit transmissions without cryptographic verification~\cite{Kumar2022}:
+\begin{itemize}
+    \item \textbf{Angle-of-Arrival (AOA) discrimination}: Comparing signal direction estimates across multiple antennas to detect spatially inconsistent signals from a single spoofing source.
+    \item \textbf{Automatic Gain Control (AGC) monitoring}: Detecting the power increase associated with the introduction of a spoofing signal by monitoring receiver AGC levels.
+    \item \textbf{Correlator output analysis}: Examining the distortion of the correlator peak shape that occurs when counterfeit and authentic signals overlap.
+    \item \textbf{Vestigial signal detection}: Identifying residual authentic signals that remain visible below the stronger counterfeit signal.
+\end{itemize}
+These approaches require hardware augmentation---additional RF front-end components, multiple antennas, or modified receiver firmware---that is generally impractical for SWaP-constrained commercial UAV platforms.
+
+\subsection{Sensor-Fusion Methods}
+
+Sensor-fusion approaches leverage the physical inconsistency between GPS-reported motion and measurements from other onboard sensors~\cite{Broumandan2020}. The fundamental insight is that GPS spoofing affects only the position measurement domain, while inertial and environmental sensors remain faithful to true physical motion. This cross-sensor inconsistency is independent of the attacker's signal generation technique and cannot be concealed by improving the spoofing waveform fidelity.
+
+Broumandan et al.~\cite{Broumandan2020} demonstrated that IMU-GPS inconsistency provides a robust spoofing indicator, particularly when integrated with INS-grade accelerometers and gyroscopes. Guizzaro et al.~\cite{Guizzaro2022} extended this work by applying neural network classifiers to IMU measurements for real-time spoofing detection. Manesh et al.~\cite{Manesh2019} developed a detection system specifically for UAV platforms using a combination of GPS signal metrics and machine learning.
+
+The present work differs from these prior contributions in several important respects. First, we target standard low-cost PX4 hardware telemetry rather than navigation-grade IMUs. Second, we implement the cross-sensor check as both a standalone heuristic and an input feature to learned classifiers. Third, we integrate detection into a complete end-to-end pipeline with automated labelling, terrain-aware model selection, and graduated response protocols.
+
+\section{PX4 Architecture and the EKF2}
+
+The PX4 autopilot is an open-source flight control software stack widely adopted in both research and commercial UAV applications~\cite{PX4Docs}. Its state estimation system is built around EKF2, a 24-state Extended Kalman Filter that performs real-time sensor fusion with the following state vector components: position (3), velocity (3), attitude quaternion (4), delta-angle bias (3), delta-velocity bias (3), wind velocity (2), geomagnetic field (3), and magnetic field bias (3).
+
+Under normal operation, EKF2 fuses observations from multiple sensor sources: GPS for absolute position and velocity, barometer for altitude, magnetometer for heading, and IMU for high-rate inertial propagation. Each observation is weighted according to its reported accuracy metrics. GPS observations are weighted by eph (horizontal position error) and epv (vertical position error). The innovation---the difference between the predicted measurement and the actual observation---is compared against a configurable threshold gate; observations exceeding this gate are rejected as outliers.
+
+This architecture creates a specific vulnerability to GPS spoofing~\cite{Zhao2020}: because the spoofed signal artificially reports low eph/epv values, the EKF2 accepts the falsified position as a high-confidence observation. The filter state is progressively dragged toward the attacker-controlled coordinates, while IMU integration accumulates increasing innovation residuals. The natural EKF rejection mechanism triggers only when innovations have grown sufficiently large, which may require tens of seconds depending on the spoofing intensity and the specific gate configuration. During this period, the drone's control loops are acting on corrupted position estimates~\cite{Park2020}.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    node distance=1.5cm and 2cm,
+    sensor/.style={rectangle, draw, fill=green!10, text width=2cm, text centered, minimum height=0.7cm, font=\small},
+    ekf/.style={rectangle, draw, fill=blue!12, text width=2.5cm, text centered, minimum height=0.8cm, font=\small, rounded corners},
+    outstyle/.style={rectangle, draw, fill=orange!10, text width=2cm, text centered, minimum height=0.7cm, font=\small},
+    arrow/.style={->, >=stealth, thick},
+]
+    \node[sensor] (gps) {GPS\\Position, Vel};
+    \node[sensor, below=of gps] (imu) {IMU\\Accel, Gyro};
+    \node[sensor, below=of imu] (baro) {Barometer\\Altitude};
+    \node[sensor, below=of baro] (mag) {Magnetometer\\Heading};
+    \node[ekf, right=3cm of gps, yshift=-2.5cm] (ekf2) {EKF2\\24-State Filter\\Innovation Gating};
+    \node[outstyle, right=of ekf2, xshift=1cm, yshift=1cm] (pos) {Position\\Estimate};
+    \node[outstyle, right=of ekf2, xshift=1cm, yshift=-1cm] (vel) {Velocity\\Estimate};
+
+    \draw[arrow] (gps.east) -- ++(1.5,0) |- (ekf2.north);
+    \draw[arrow] (imu.east) -- ++(1.2,0) |- (ekf2.north west);
+    \draw[arrow] (baro.east) -- ++(1.0,0) |- (ekf2.south west);
+    \draw[arrow] (mag.east) -- ++(0.8,0) |- (ekf2.south);
+    \draw[arrow] (ekf2.north east) -- ++(0.8,0) |- (pos.west);
+    \draw[arrow] (ekf2.south east) -- ++(0.8,0) |- (vel.west);
+
+    \node[font=\footnotesize, red, right=of gps, xshift=1.8cm, yshift=-0.5cm] {Spoofed input};
+    \draw[->, red, thick] (gps.east) -- ++(0.5,0);
+\end{tikzpicture}
+\caption{PX4 EKF2 sensor fusion architecture. GPS, IMU, barometer, and magnetometer data feed into the 24-state Extended Kalman Filter. Under spoofing, the GPS input (highlighted in red) reports low error metrics, causing the EKF2 to weight it heavily despite containing falsified coordinates.}
+\label{fig:ekf2_fusion}
+\end{figure}
+
+\section{Sensor Fusion for Anomaly Detection}
+
+The theoretical foundation for the GPS--IMU consistency check is rooted in classical inertial navigation mechanics. An IMU contains three orthogonal accelerometers that measure specific force (acceleration plus gravitational component) and three orthogonal gyroscopes that measure angular rate~\cite{Kim2021}. The specific force vector, when resolved in the navigation frame, corrected for gravity, and double-integrated, yields position displacement. GPS provides absolute position measurements at lower update rates but with bounded long-term error.
+
+Under normal flight dynamics, the displacement estimated from IMU integration and the displacement computed from GPS positions should agree within bounds determined by IMU noise characteristics, gravity modelling errors, and integration drift~\cite{Liu2021}. Wind gusts affect both sensor domains: GPS position changes because the vehicle is physically displaced, and IMU registers the corresponding acceleration and angular rates. GPS spoofing, however, introduces an asymmetry: GPS position changes without corresponding IMU-detected physical motion. This creates a measurable discrepancy in the cross-sensor consistency that is independent of the attacker's signal generation method.
+
+The discriminative power of this inconsistency derives from fundamental physics rather than from assumptions about attack characteristics~\cite{Bhardwaj2019}. No spoofing technique---regardless of waveform fidelity, power level, or transition smoothness---can prevent the GPS-reported motion from diverging from the IMU-observed physical motion, because the attacker cannot physically manipulate the drone's inertia.
+
+\subsection{EKF Innovation Monitoring and Rejection Latency}
+
+The PX4 EKF2 includes built-in innovation monitoring that provides a natural, albeit slow, spoofing detection mechanism. Key diagnostic parameters streamed in the \texttt{ESTIMATOR\_STATUS} MAVLink message include: \texttt{vel\_innov} (velocity innovation), \texttt{pos\_horiz\_innov} (horizontal position innovation), and \texttt{pos\_vert\_innov} (vertical position innovation), each representing the Mahalanobis distance between the EKF-predicted measurement and the actual sensor observation. When an innovation value exceeds the configurable gate \texttt{EKF2\_GPS\_P\_GATE} (default: 5.0), the corresponding GPS observation is rejected, and the EKF propagates using IMU dead reckoning alone.
+
+Under a typical spoofing attack with 2\,m/s position drift, the horizontal position innovation builds up at approximately 2\,m per second. With a default gate of 5.0, the innovation will exceed the gate after approximately 2.5 seconds. During this period, the EKF state estimate has already been corrupted by 5\,m of position error. The \texttt{GPS\_1\_PROTOCOL = 1} (MAVLink) parameter, required for the attack injector to function, further bypasses the receiver-level signal quality checks that would normally provide early warning. This EKF-level vulnerability directly motivates the companion detection system developed in this research, which aims to detect spoofing before the EKF innovation has grown large enough to trigger natural rejection.
+
+\section{Machine Learning for Intrusion Detection}
+
+The application of machine learning to GPS anomaly detection has gained significant attention in recent years. Two complementary model families have proven particularly effective for this domain.
+
+\textbf{Random Forest classifiers} offer several advantages for GPS spoofing detection~\cite{Li2022}: they handle mixed feature types (continuous, categorical, binary) natively without extensive feature engineering; they are inherently robust to class imbalance through bootstrap aggregation and class weighting; they provide feature importance metrics that aid interpretability and model diagnostics; and they require minimal hyperparameter tuning compared to deep learning approaches. Random Forests have been successfully applied to GNSS spoofing detection by Guizzaro et al.~\cite{Guizzaro2022} and to broader UAV security tasks by Khan et al.~\cite{Khan2021}.
+
+\textbf{One-dimensional Convolutional Neural Networks (1D CNNs)} are well-suited to multivariate time-series classification tasks such as GPS telemetry analysis~\cite{Zhang2023}. By applying convolutional filters along the temporal dimension, 1D CNNs can learn discriminative temporal patterns---such as the characteristic onset transient of a spoofing attack---without requiring manual feature extraction. Deep learning approaches for GNSS anomaly detection have been explored by Dang et al.~\cite{Dang2023} for cellular-connected UAV swarms and by Chen et al.~\cite{Chen2023} for autonomous drone navigation.
+
+Key challenges confronting ML-based GPS spoofing detection include severe class imbalance (normal flight dominates operational data by orders of magnitude), temporal dependency (consecutive telemetry samples are not independent observations), concept drift (the characteristics of normal flight evolve with the operational environment), and the need for real-time inference on resource-constrained embedded platforms. The sliding window approach adopted in this thesis addresses temporal dependency; the automated heuristic labelling pipeline addresses the annotation bottleneck; and the terrain-aware model dispatching addresses environmental concept drift.
+
+Table~\ref{tab:ml_comparison} summarises prior machine learning approaches to GNSS spoofing detection, providing a structured comparison with the present work.
+
+\begin{table}[H]
+\centering
+\caption{Comparison of ML-based GNSS spoofing detection approaches.}
+\label{tab:ml_comparison}
+\small
+\begin{tabular}{@{}lp{2.5cm}p{1.8cm}p{1.3cm}p{1.5cm}@{}}
+\toprule
+\textbf{Study} & \textbf{Sensors} & \textbf{Model} & \textbf{Real-Time} & \textbf{PX4 Compat.} \\
+\midrule
+Manesh et al.~\cite{Manesh2019} & GPS metrics only & MLP & No (offline) & No \\
+Guizzaro et al.~\cite{Guizzaro2022} & IMU + GPS & Neural Net & Yes & No \\
+Dang et al.~\cite{Dang2023} & GPS, cellular & GNN & Yes & No \\
+Chen et al.~\cite{Chen2023} & GPS + vision & Deep NN & Yes & No \\
+\textbf{This work} & \textbf{IMU + GPS + EKF} & \textbf{RF + CNN} & \textbf{Yes} & \textbf{Yes} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The present work is distinguished from prior approaches by three characteristics: (a) explicit targeting of the PX4 ecosystem with compatibility verification, (b) use of EKF innovation metrics as features alongside raw sensor data, providing both physical and filter-level anomaly signals, and (c) a cascaded architecture where physics-based heuristics and learned classifiers complement each other, enabling detection before training data is available while improving discrimination as labelled data accumulates.
+
+\section{Research Gaps}
+
+A systematic survey of the literature reveals several specific gaps that this research addresses:
+
+\begin{enumerate}
+    \item \textbf{No existing software-only detector has been rigorously evaluated on PX4 platforms.} While prior work has demonstrated GPS spoofing detection using IMU cross-validation, these demonstrations either assumed navigation-grade sensors, required hardware modifications, or were evaluated in post-hoc offline analysis rather than real-time streaming inference.
+    \item \textbf{The GPS--IMU consistency check has not been developed as a standalone, physics-based discriminator in a cascaded detection architecture.} Most sensor-fusion approaches treat IMU data as an additional feature channel for a learned classifier rather than leveraging it as a principled, model-free anomaly indicator.
+    \item \textbf{The latency requirements for safety-critical UAV GPS spoofing detection have not been formally analysed.} While real-time detection is frequently cited as a requirement, no prior work has quantified the relationship between detection window length, inference latency, and available reaction time for obstacle avoidance.
+    \item \textbf{No prior work has proposed a continuous GPS trust metric for graduated response.} Existing approaches typically produce binary detection outputs (spoofed / not spoofed), which are inadequate for safety-critical systems where the appropriate response may depend on the confidence of detection and the operational context.
+    \item \textbf{Most detection systems require manually labelled training data, which is expensive and impractical to produce for the diverse range of attack types and environmental conditions.} An automated labelling pipeline using physics-based heuristics would significantly reduce the barrier to deployment.
+\end{enumerate}
+
+This research directly addresses these gaps by developing, implementing, and evaluating a complete GPS spoofing detection pipeline for PX4 UAVs that: (a) operates on standard telemetry without hardware augmentation; (b) employs a principled GPS--IMU consistency check as the core discriminator; (c) quantifies detection latency relative to safety constraints; (d) proposes a graduated GPS Trust Index for operational response; and (e) uses automated heuristic labelling to eliminate manual annotation requirements.

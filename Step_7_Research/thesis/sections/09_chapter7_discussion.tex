@@ -1,0 +1,125 @@
+% ============================================================
+% CHAPTER 7: DISCUSSION
+% ============================================================
+\chapter{Discussion}
+
+This chapter interprets the experimental findings, situates them within the broader literature, discusses the limitations and threats to validity of this study, and proposes a graduated mitigation framework based on a continuous GPS Trust Index.
+
+\section{Interpretation of Key Findings}
+
+The most notable experimental finding is the performance divergence between the Random Forest and the 1D CNN. While both models achieved perfect recall on spoofed windows (effectively zero false negatives), the RF maintained perfect precision whereas the CNN exhibited a 100\% false positive rate on the limited normal sample. This divergence is instructive for the design of ML-based GPS security systems.
+
+The RF's success can be attributed to three factors: (a) its ensemble architecture, which averages predictions across 100 independently trained trees, naturally dampening the variance that drives overfitting in small-sample regimes; (b) its Gini-based splitting criterion, which makes greedy local decisions that are inherently more robust to global class imbalance than gradient-based optimisation over the full loss landscape; and (c) the explicit class weighting in scikit-learn's implementation, which directly increases the misclassification cost for minority-class samples.
+
+The GPS--IMU consistency heuristic (H8) emerged as the most discriminative individual feature. This is both theoretically expected and empirically confirmed. The physical principle underlying the consistency check---that spoofing introduces an asymmetry between GPS and IMU measurements that cannot be concealed by any waveform-level manipulation---means that this feature should generalise to spoofing attacks of arbitrary sophistication. A spoofing waveform of perfect fidelity meets the same physical constraint: it cannot generate the inertial signature that would accompany genuine GPS motion.
+
+\section{Comparison with Existing Work}
+
+The results are broadly consistent with prior work by Broumandan et al.~\cite{Broumandan2020}, who demonstrated that IMU-GPS inconsistency is a robust spoofing indicator when integrated with navigation-grade IMUs. Our work extends this finding in three directions:
+
+First, we implement the cross-sensor check using standard commercial PX4 telemetry (consumer-grade MEMS IMUs with typical noise densities of 300\,$\mu$g/$\sqrt{\text{Hz}}$ for accelerometers and 0.02\,$^\circ$/s/$\sqrt{\text{Hz}}$ for gyroscopes), demonstrating that the approach degrades gracefully to lower sensor qualities and does not require navigation-grade hardware. This is a practically significant finding for the cost-sensitive commercial UAV market.
+
+Second, we integrate the heuristic check as both a standalone labelling mechanism and an input feature to learned classifiers in a cascaded architecture. This design enables the system to function as a rule-based detector before any training data is available, with the ML component progressively improving discrimination as labelled data accumulates.
+
+Third, we quantify the detection latency and frame it within the context of safety-critical reaction time requirements (Section~6.7). While the 3-second window exceeds the 2-second safe reaction time for high-speed obstacle avoidance, the identification of this gap is itself a contribution, as it establishes a concrete target for future latency-reduction efforts.
+
+Compared to cryptographic approaches such as OSNMA~\cite{Morales-Ferre2020}, our method sacrifices cryptographic certainty for deployability: it works on existing hardware, requires no firmware or satellite infrastructure changes, and can be deployed as a companion-computer application. This trade-off is appropriate for the commercial UAV domain, where hardware cost and retrofit complexity are primary barriers to adoption.
+
+Table~\ref{tab:comparison_existing} provides a structured comparison between this work and prominent existing approaches.
+
+\begin{table}[H]
+\centering
+\caption{Structured comparison of GPS spoofing detection approaches.}
+\label{tab:comparison_existing}
+\small
+\begin{tabular}{@{}p{2cm}p{2cm}p{2cm}p{2.5cm}p{2cm}p{1.8cm}@{}}
+\toprule
+\textbf{Approach} & \textbf{Detection Method} & \textbf{Additional HW} & \textbf{Real-Time} & \textbf{PX4} & \textbf{Limitation} \\
+\midrule
+Cryptographic (OSNMA) & Signature verification & Modified receiver & Yes & No & Not available on civil receivers \\
+AOA / Multi-antenna & Signal direction mismatch & Multiple antennas & Yes & No & Requires HW modification \\
+AGC monitoring & Power level change & RF power sensor & Yes & Yes & Cannot detect meaconing \\
+Broumandan2020 & GNSS/INS integration & Navigation-grade IMU & Post-hoc & No & High-grade IMU required \\
+\textbf{This work} & \textbf{GPS-IMU consistency + ML} & \textbf{None} & \textbf{Yes} & \textbf{Yes} & \textbf{Simulation-only; small dataset} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Limitations}
+
+This study has several limitations that affect the generalisability and completeness of its findings:
+
+\begin{enumerate}
+    \item \textbf{Simulation-only validation}. All experiments were conducted in the PX4 SITL environment with the Gazebo physics engine. Real-world RF environments introduce multipath effects, receiver front-end nonlinearities, oscillator phase noise, and antenna gain pattern variations that are not captured by the idealised SITL signal model. The sensor noise models in Gazebo are simplified approximations; physical MEMS IMUs exhibit temperature-dependent bias drift, scale factor errors, and vibration spectral content that may affect the consistency check's performance.
+    \item \textbf{Limited spoofing diversity}. The dataset employs a single spoofing modus operandi: abrupt position offset with constant drift. Gradual drift attacks (position error accumulating at $<$ 0.5\,m/s), intermittent spoofing (alternating between authentic and spoofed periods), coordinated multi-sensor attacks (simultaneously manipulating GPS and barometer), and meaconing attacks are not represented. The minimum spoofing intensity detectable by the system---the \textit{breaking point}---has not been characterised through a systematic parametric sweep over attack intensity, duration, and onset rate.
+    \item \textbf{Heuristic label bias}. The ground truth labels used for training are themselves generated by the same class of heuristics being validated. While this circularity is mitigated by the independence of individual heuristics (the GPS--IMU consistency check H8 does not depend on position jump H1, for example) and by the use of physically independent sensor modalities, it remains a methodological limitation. An external validation set labelled by human domain experts would provide an unbiased reference for calibration.
+    \item \textbf{Small dataset size and class imbalance}. The 76-window dataset is modest by machine learning standards, and the extreme class imbalance (89\% spoofed) creates conditions where models may learn to default to the majority prediction. The CNN Paradox (Section~6.4) is likely exacerbated by this imbalance. Larger datasets with balanced representation of normal and spoofed flight regimes, and inclusion of diverse normal flight dynamics (aggressive manoeuvres, wind gusts, sensor dropouts), would enable more robust evaluation.
+    \item \textbf{Incomplete IMU feature integration}. The current feature set captures only derived IMU metrics (angular rates, vibration magnitudes, clipping counters). Raw accelerometer data, gyroscope spectra, Allan variance parameters, and temperature-compensated bias estimates are not included. These features could improve the system's ability to distinguish GPS spoofing from extreme environmental disturbances such as rotor vibration at high thrust.
+    \item \textbf{Latency not formally benchmarked}. The 3-second window delay is a theoretical upper bound based on window length. Actual end-to-end latency---including MAVLink message queuing, feature extraction, scaler transformation, model inference, and EMA smoothing---has not been measured with instrumentation. In a hard-real-time deployment on embedded hardware (e.g., a Pixhawk companion computer running at 200\,MHz), processing overhead could contribute additional latency beyond the window accumulation delay.
+    \item \textbf{No multi-drone evaluation}. The current system operates on a single drone in isolation. In swarm operations, multiple drones could share trust information, cross-validate GPS solutions between vehicles, and collectively detect regional spoofing attacks. The single-drone evaluation does not assess the performance of such cooperative detection schemes.
+    \item \textbf{Breaking point uncharacterised}. The minimum spoofing intensity detectable by the system---the ``breaking point''---has not been determined through systematic parametric sweep experiments. While the heuristic H8 detects GPS speed exceeding 5\,m/s with IMU quiescence, the detection probability for slower drifts (0.5--5\,m/s) has not been quantified. Similarly, the maximum detection latency acceptable for safety-critical flight depends on drone speed and obstacle proximity, creating a multi-dimensional parameter space (spoofing drift rate, drone velocity, obstacle distance) that warrants full characterisation in dedicated future experiments.
+    \item \textbf{Terrain API dependency}. The terrain-aware detection component relies on the Open-Elevation external REST API for ground elevation lookup. During network outages, the heuristic fallback (rolling standard deviation of altitude) provides approximate terrain classification, but its accuracy has not been evaluated against ground-truth terrain labels. In offline operational scenarios (no internet connectivity), the terrain dispatch defaults to the flat-terrain model as the recommended fallback, losing the potential precision gains of terrain-specific inference. An onboard digital elevation model (DEM) cache would eliminate this external dependency.
+\end{enumerate}
+
+\section{Threats to Validity}
+
+\textbf{Internal validity} concerns the causal relationship between the GPS--IMU consistency check and the detection outcome. The primary internal threat is the heuristic labelling circularity discussed above: the features used for training are correlated with the labels they seek to predict. Flight-level data splitting mitigates temporal leakage but does not address label bias. A second internal threat is the potential for unmeasured environmental confounds in the simulation environment (e.g., Gazebo wind model limitations, vehicle dynamics model fidelity) to create spurious correlations exploited by the learned classifiers.
+
+\textbf{External validity} concerns the generalisability of findings to real-world operational contexts. Simulation-to-reality transfer is a well-known challenge in robotics and cyber-physical systems. Sensor noise characteristics, RF propagation effects, EKF2 parameter tuning differences between SITL and hardware, and GPS receiver front-end behaviour under genuine multipath conditions all differ between the simulation and deployment environments. The current findings should be interpreted as a proof-of-concept for the detection approach rather than as a guarantee of field performance.
+
+\textbf{Construct validity} concerns whether the measured metrics (accuracy, precision, recall, F1) adequately capture the construct of ``effective spoofing detection.'' In an operational context, the cost asymmetry between false positives (unnecessary pilot alerts, mission interruptions) and false negatives (undetected spoofing, potential loss of vehicle) must be calibrated to the specific risk tolerance of the mission. The equal weighting of false positives and false negatives in standard classification metrics may not reflect operational priorities.
+
+\section{Proposed GPS Trust Index}
+
+To address the limitations of binary detection for safety-critical applications, we propose a continuous GPS Trust Index (GTI), denoted \(G_t \in [0, 1]\), that quantifies the estimated reliability of the GPS position stream at time \(t\). The GTI is a direct response to Research Question 3.
+
+\subsection{Mathematical Design}
+
+The GTI is updated at each detection interval using an exponential moving average of the sigmoid-transformed GPS--IMU consistency score:
+
+\begin{equation}
+    G_t = \alpha \cdot G_{t-1} + (1 - \alpha) \cdot \bigl( 1 - \sigma(k \cdot \Delta \Phi_t - \theta) \bigr)
+    \label{eq:gti_full}
+\end{equation}
+
+where \(\alpha = 0.95\) provides temporal smoothing (responding to transient disturbances slowly while tracking persistent anomalies), \(k\) scales the consistency score, \(\theta\) is an offset determining the score at which trust begins to degrade, and \(\sigma(x) = 1 / (1 + e^{-x})\) is the logistic sigmoid. The sigmoid maps the unbounded physical inconsistency \(\Delta \Phi\) to the bounded interval \((0, 1)\), providing a probabilistic interpretation of GPS reliability.
+
+When a spoofing attack begins, \(\Delta \Phi_t\) increases. The sigmoid term approaches 1, driving the EMA update \((1 - \alpha) \cdot (1 - \sigma(\cdot))\) toward zero. The GTI consequently decays from its normal value of 1 toward 0. The rate of decay is determined by \(\alpha\); a higher \(\alpha\) provides slow decay (tolerating transient anomalies), while a lower \(\alpha\) provides fast decay (responding aggressively to suspected spoofing).
+
+\subsection{Graduated Response Protocol}
+
+The GTI enables a graduated response protocol that escalates protective measures as trust in GPS declines, rather than taking binary action (trust/distrust) at a single threshold:
+
+\begin{figure}[H]
+\centering
+\footnotesize
+\begin{tikzpicture}[
+    node distance=1.2cm,
+    level/.style={rectangle, draw, text width=5.5cm, text centered, minimum height=0.7cm, font=\small, rounded corners},
+    arrow/.style={->, >=stealth, thick},
+]
+    \node[level, fill=green!10] (g1) {G $\leq$ 0.7: Attenuate GPS weight in EKF2\\ (multiply innovation covariance by G)};
+    \node[level, fill=yellow!15, below=of g1] (g2) {G $\leq$ 0.3: Re-weight sensors\\ (boost barometer, magnetometer, optical flow)};
+    \node[level, fill=orange!20, below=of g2] (g3) {G $<$ 0.1 for 5 s: HOLD mode\\ (IMU dead reckoning, zero velocity)};
+    \node[level, fill=red!20, below=of g3] (g4) {G $<$ 0.05 for 10 s: Emergency RTL\\ (last trusted home, IMU-compassed heading)};
+    \node[level, fill=red!25, below=of g4] (g5) {Alert: MAVLink STATUSTEXT\\ to ground station with GTI + action};
+
+    \draw[arrow] (g1) -- (g2);
+    \draw[arrow] (g2) -- (g3);
+    \draw[arrow] (g3) -- (g4);
+    \draw[arrow] (g4) -- (g5);
+    \node[font=\small, right=of g1, xshift=2.8cm, yshift=-3cm] {$\longleftarrow$ Increasing Severity};
+\end{tikzpicture}
+\caption{GPS Trust Index graduated response protocol. As the GTI declines, protective measures escalate from sensor weight modulation through hold mode to emergency return-to-launch, with MAVLink alerts broadcast at each escalation step.}
+\label{fig:gti_response}
+\end{figure}
+
+\begin{enumerate}
+    \item \textbf{GTI Degradation} (\(G \leq 0.7\)): Attenuate GPS observation weight in the EKF2 by multiplying the innovation covariance matrix by \(\min(1, G_t)\). The EKF begins to rely more heavily on IMU propagation, barometer, and magnetometer observations.
+    \item \textbf{Sensor Re-weighting} (\(G \leq 0.3\)): Increase the relative weighting of barometric altitude, magnetometer heading, and optical flow (if available) in the sensor fusion algorithm, reducing dependence on GPS position fixes.
+    \item \textbf{Hold Mode Activation} (\(G < 0.1\) for more than 5 consecutive samples): The flight controller transitions to HOLD mode: maintain current position using IMU dead reckoning with zero-velocity update, notifying the operator of the GPS fault.
+    \item \textbf{Emergency RTL} (\(G < 0.05\) for more than 10 samples): If GPS remains distrusted and the vehicle retains sufficient battery margin, execute a return-to-launch manoeuvre using the last trusted home coordinates and IMU-compassed heading. Position drift due to IMU errors accumulates over the return flight, making this a last-resort action.
+    \item \textbf{Alert Broadcast}: At each escalation, transmit a MAVLink STATUSTEXT message to the ground control station with the current GTI value, anomaly classification, terrain context, and recommended operator action.
+\end{enumerate}
+
+This graduated approach balances operational safety with mission continuity. A transient detection (e.g., a single-window false positive from an aggressive manoeuvre) would cause a brief GTI dip that naturally recovers through the EMA smoothing before reaching the hold-mode threshold, avoiding unnecessary mission aborts. A sustained spoofing attack would cause a persistent GTI decline, triggering increasingly protective responses as confidence in GPS erodes.

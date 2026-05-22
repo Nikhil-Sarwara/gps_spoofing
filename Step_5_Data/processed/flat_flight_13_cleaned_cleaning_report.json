@@ -1,0 +1,60 @@
+{
+  "input_file": "gps_logs/synthetic/flat_flight_13_cleaned.csv",
+  "output_file": "gps_logs/processed/flat_flight_13_cleaned_cleaned.csv",
+  "initial_rows": 3000,
+  "final_rows": 2739,
+  "rows_removed": 261,
+  "time_start_s": 0.1,
+  "time_end_s": 300.0,
+  "duration_s": 299.9,
+  "missing_after_cleaning": {
+    "time_s": 0,
+    "lat_deg": 0,
+    "lon_deg": 0,
+    "alt_m": 0,
+    "rel_alt_m": 0,
+    "vel_m_s": 0,
+    "hdg_deg": 0,
+    "fix_type": 0,
+    "satellites_visible": 0,
+    "eph_m": 0,
+    "epv_m": 0,
+    "roll_deg": 0,
+    "pitch_deg": 0,
+    "yaw_deg": 0,
+    "rollspeed_radps": 0,
+    "pitchspeed_radps": 0,
+    "yawspeed_radps": 0,
+    "vibration_x": 0,
+    "vibration_y": 0,
+    "vibration_z": 0,
+    "clipping_0": 0,
+    "clipping_1": 0,
+    "clipping_2": 0,
+    "vel_ratio": 0,
+    "pos_horiz_ratio": 0,
+    "pos_vert_ratio": 0,
+    "vel_innov": 0,
+    "pos_horiz_innov": 0,
+    "pos_vert_innov": 0,
+    "battery_voltage": 0,
+    "battery_remaining_pct": 0,
+    "armed": 0,
+    "mode": 0,
+    "failsafe": 0,
+    "connection_ok": 0,
+    "last_update_iso": 0,
+    "is_stale_repeat": 0,
+    "dt": 1,
+    "label": 0
+  },
+  "mode_counts": {
+    "AUTO": 2739
+  },
+  "failsafe_counts": {
+    "0": 2739
+  },
+  "armed_counts": {
+    "1": 2739
+  }
+}

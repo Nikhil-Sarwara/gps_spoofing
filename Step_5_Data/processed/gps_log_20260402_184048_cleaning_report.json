@@ -1,0 +1,53 @@
+{
+  "input_file": "gps_logs/raw/gps_log_20260402_184048.csv",
+  "output_file": "gps_logs/processed/gps_log_20260402_184048_cleaned.csv",
+  "initial_rows": 2783,
+  "final_rows": 1851,
+  "rows_removed": 932,
+  "time_start_s": 0.105,
+  "time_end_s": 269.557,
+  "duration_s": 269.452,
+  "missing_after_cleaning": {
+    "time_s": 0,
+    "lat_deg": 0,
+    "lon_deg": 0,
+    "alt_m": 0,
+    "rel_alt_m": 0,
+    "vel_m_s": 0,
+    "hdg_deg": 0,
+    "fix_type": 0,
+    "satellites_visible": 0,
+    "eph_m": 0,
+    "epv_m": 0,
+    "ax_mps2": 1851,
+    "ay_mps2": 1851,
+    "az_mps2": 1851,
+    "gx_radps": 1851,
+    "gy_radps": 1851,
+    "gz_radps": 1851,
+    "battery_voltage": 2,
+    "battery_remaining_pct": 2,
+    "armed": 0,
+    "mode": 0,
+    "failsafe": 0,
+    "connection_ok": 0,
+    "last_update_iso": 0,
+    "is_stale_repeat": 0,
+    "dt": 1
+  },
+  "mode_counts": {
+    "LOITER": 891,
+    "MODE_HEX": 780,
+    "TAKEOFF": 116,
+    "LAND": 62,
+    "UNKNOWN": 2
+  },
+  "failsafe_counts": {
+    "1": 1662,
+    "0": 189
+  },
+  "armed_counts": {
+    "1": 1662,
+    "0": 189
+  }
+}

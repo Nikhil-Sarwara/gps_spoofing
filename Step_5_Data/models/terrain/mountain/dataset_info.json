@@ -1,0 +1,71 @@
+{
+  "terrain_type": "mountain",
+  "status": "trained",
+  "window_len": 30,
+  "stride": 15,
+  "num_features": 34,
+  "feature_names": [
+    "x_m",
+    "y_m",
+    "alt_m",
+    "rel_alt_m",
+    "vel_m_s",
+    "hdg_deg",
+    "fix_type",
+    "satellites_visible",
+    "eph_m",
+    "epv_m",
+    "roll_deg",
+    "pitch_deg",
+    "yaw_deg",
+    "rollspeed_radps",
+    "pitchspeed_radps",
+    "yawspeed_radps",
+    "vibration_x",
+    "vibration_y",
+    "vibration_z",
+    "clipping_0",
+    "clipping_1",
+    "clipping_2",
+    "vel_ratio",
+    "pos_horiz_ratio",
+    "pos_vert_ratio",
+    "vel_innov",
+    "pos_horiz_innov",
+    "pos_vert_innov",
+    "battery_voltage",
+    "battery_remaining_pct",
+    "armed",
+    "failsafe",
+    "connection_ok",
+    "is_stale_repeat"
+  ],
+  "n_total_windows": 297,
+  "n_train": 207,
+  "n_val": 44,
+  "n_test": 46,
+  "label_dist": {
+    "train": {
+      "0": 197,
+      "1": 10
+    },
+    "val": {
+      "0": 42,
+      "1": 2
+    },
+    "test": {
+      "0": 40,
+      "1": 6
+    }
+  },
+  "rf_val_accuracy": 1.0,
+  "rf_val_f1": 1.0,
+  "cnn_val_accuracy": 1.0,
+  "cnn_val_f1": 1.0,
+  "cnn_status": "trained",
+  "source_csv_files": [
+    "mountain_flight_01_cleaned.csv",
+    "mountain_flight_02_cleaned.csv",
+    "mountain_flight_03_cleaned.csv"
+  ]
+}

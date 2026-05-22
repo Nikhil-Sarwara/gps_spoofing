@@ -1,0 +1,68 @@
+% ============================================================
+% CHAPTER 1: INTRODUCTION
+% ============================================================
+\chapter{Introduction}
+
+\section{Background and Motivation}
+
+The proliferation of unmanned aerial vehicles (UAVs) across diverse operational domains---including civilian infrastructure inspection, precision agriculture, emergency response, environmental monitoring, and military reconnaissance---has elevated concerns regarding their vulnerability to Global Positioning System (GPS) spoofing attacks~\cite{Humphreys2012}. In such attacks, adversaries transmit counterfeit GPS signals synthesised with correct timing and structure but deliberately manipulated coordinates to usurp legitimate satellite navigation. The economic footprint of the commercial drone market is projected to reach \$54.6 billion by 2030, making the security of these platforms a matter of significant practical concern.
+
+Unlike jamming, which merely attenuates or disrupts the GPS signal causing loss of lock, spoofing deceives the receiver into accepting falsified position, velocity, and time (PVT) estimates without any observable degradation in signal quality. Jamming denies service; spoofing corrupts service. A jamming attack is readily detected through carrier-to-noise ratio degradation. A spoofing attack, by contrast, is silent: the receiver continues to report a healthy fix while computing an incorrect but internally consistent PVT solution. The PX4 flight stack---which powers a substantial fraction of commercial and research drones worldwide---relies heavily on GPS as a primary input to its Extended Kalman Filter (EKF2) for state estimation~\cite{PX4Docs}. A successful spoofing attack can therefore cascade through the entire control pipeline, producing catastrophic trajectory deviations without triggering conventional failure modes~\cite{Kerns2014}.
+
+The criticality of this threat was highlighted by a 2012 study in which researchers at the University of Texas successfully achieved full 3D control of a civilian UAV through GPS spoofing alone. In 2019, Iran claimed to have captured a US military drone by spoofing its GPS navigation. These incidents demonstrate that GPS spoofing is not a theoretical vulnerability but a practical, exploitable attack vector. Modern software-defined radios (SDRs) capable of generating counterfeit GPS signals are available for under \$300, dramatically lowering the barrier to entry for potential adversaries.
+
+Existing countermeasures frequently depend on specialised hardware---multi-antenna arrays for angle-of-arrival discrimination, high-grade inertial navigation systems (INS) with tightly coupled integration, or military-grade encrypted signals (M-code, SAASM)---that are incompatible with the SWaP-constrained (Size, Weight, and Power) platforms that dominate the commercial UAV market. Cryptographic authentication schemes such as Galileo's Open Service Navigation Message Authentication (OSNMA) are promising but remain unavailable on the vast installed base of civilian receivers. A software-only detection mechanism that leverages sensors already present on standard PX4 autopilots represents a compelling and cost-effective alternative, provided it can achieve sufficient discriminative power in real time.
+
+\section{Problem Statement}
+
+The PX4 autopilot employs EKF2, a 24-state Extended Kalman Filter that fuses GPS, barometer, magnetometer, and IMU data to estimate position, velocity, attitude, and sensor biases. Under normal operation, EKF2 weights GPS position updates according to their reported accuracy (horizontal position error eph, vertical position error epv). When spoofed GPS data is injected, the EKF2 accepts the falsified position as a high-confidence observation because the spoofed signal reports low horizontal dilution of precision (HDOP) and healthy accuracy metrics.
+
+The filter state is consequently dragged toward the attacker-controlled coordinates, while the IMU integration---which continues to reflect the drone's true physical motion---accumulates increasing innovation residuals relative to the corrupted GPS input. The EKF2's internal innovation monitoring will eventually reject GPS observations when the residual exceeds its configurable outlier gate. However, the latency of this natural rejection mechanism is unacceptably long for safety-critical flight operations. A dedicated anomaly detector that actively cross-validates GPS against IMU-derived motion estimates can flag spoofing before the EKF2 state is significantly corrupted.
+
+The core research challenge is therefore: can we construct a practical, real-time GPS spoofing detector for commercial PX4 drones using only the sensors and telemetry already available, without requiring hardware modifications or firmware changes?
+
+To make this vulnerability concrete, consider a simplified numerical scenario. A drone hovers at a true position of $(0, 0, 20)$\,m in the local ENU frame. At $t = 0$, a spoofing attack begins, injecting GPS positions that drift eastward at 2\,m/s. At $t = 1$\,s, the spoofed GPS reports $(0, 2, 20)$. The true drone position, as measured by the IMU, remains $(0, 0, 20)$---it has not physically moved. The EKF2 innovation (the difference between predicted position $(0, 0, 20)$ and observed position $(0, 2, 20)$) is 2\,m. With a typical PX4 innovation gate of 5--10\,m (configurable via the \texttt{EKF2\_GPS\_P\_GATE} parameter), the spoofed observation is accepted as valid. After 5 seconds, the drone's EKF2 state has been corrupted by 10\,m of eastward error, and the innovation has grown to 10\,m, potentially exceeding the gate. The drone has been flying on corrupted position estimates for 5 seconds---in that time, at 15\,m/s, it would have travelled 75\,m toward a potential obstacle. This numerical illustration demonstrates why a dedicated, rapid-responding spoofing detector is essential: the EKF2's natural protection mechanism is too slow for safety-critical flight.
+
+\section{Research Questions}
+
+This study is organised around three interdependent research questions:
+
+\begin{enumerate}[label=\textbf{RQ\arabic*:},leftmargin=3em]
+    \item \textbf{What are the primary vulnerabilities of GPS in autonomous mobile robots to spoofing attacks?} This question addresses the architectural and systemic weaknesses that enable spoofing to succeed, with specific focus on the PX4 flight stack.
+    \item \textbf{How can sensor fusion techniques effectively detect GPS spoofing in real time?} This question operationalises the core insight that spoofing introduces a cross-sensor inconsistency between GPS-reported position and IMU-detected physical motion.
+    \item \textbf{How can a dynamic GPS Trust Index be designed to quantify the reliability of GPS data?} This question extends detection from binary classification to continuous confidence metrics suitable for safety-critical operational decision-making.
+\end{enumerate}
+
+To evaluate RQ2 and RQ3, the following hypotheses guide the empirical analysis:
+
+\begin{enumerate}[label=H\arabic*:,leftmargin=2em]
+    \item GPS spoofing introduces measurable inconsistencies between GPS-reported position and inertial measurement unit (IMU) data that are distinguishable from normal flight disturbances.
+    \item Physics-based heuristic rules can generate sufficiently accurate training labels without requiring laborious manual annotation of flight data.
+    \item Machine learning classifiers---specifically Random Forest and one-dimensional Convolutional Neural Networks---can distinguish normal flight windows from spoofed segments using only standard PX4 telemetry.
+    \item A live inference pipeline can process streaming MAVLink telemetry with latency suitable for real-time onboard detection.
+\end{enumerate}
+
+\section{Research Aims and Objectives}
+
+The primary objectives of this research are:
+
+\begin{enumerate}
+    \item \textbf{Develop} a real-time GPS spoofing detection system for PX4-based drones using software-only techniques deployable on existing hardware without firmware modification.
+    \item \textbf{Create} an automated labelling mechanism using eight physics-based heuristic rules that eliminates the need for manually annotated training data.
+    \item \textbf{Train and evaluate} two complementary machine learning models---Random Forest and 1D Convolutional Neural Network---for accurate binary classification of GPS behaviour.
+    \item \textbf{Design and implement} a comprehensive management interface integrating terminal-based component control with web-based monitoring and log visualisation.
+    \item \textbf{Validate} the complete system through controlled simulated attack scenarios in a reproducible PX4 Software-In-The-Loop environment.
+    \item \textbf{Propose} a graduated GPS Trust Index and post-detection response protocol for operational use.
+\end{enumerate}
+
+\section{Scope and Significance}
+
+This research is scoped to PX4-based quadcopter platforms operating in the PX4 Software-In-The-Loop (SITL) simulation environment with Gazebo physics engine. The detection approach is exclusively software-based, leveraging standard telemetry data available on commercial PX4 autopilots without requiring hardware augmentation, firmware customisation, or access to encrypted GPS signals. The experimental scope covers 8 simulated flight runs with scripted rectangular survey patterns and controlled GPS spoofing injection via MAVLink GPS\_INPUT messages.
+
+The significance of this work lies in demonstrating that cost-effective, real-time GPS spoofing detection is achievable using commodity sensor hardware and open-source software. By bridging the gap between theoretical academic demonstrations of GPS vulnerability and practical deployable countermeasures, this research contributes to the growing body of work on UAV cyber-physical security. The modular, open-source nature of the implementation enables reproducibility, extension, and adaptation to other autonomous platforms beyond the specific PX4 ecosystem.
+
+To clarify the boundaries of this investigation, the following are explicitly out of scope: physical hardware flight tests (all validation is simulation-based), multi-drone swarm coordination scenarios, encrypted military GPS signal analysis, real-world radio-frequency spoofing from software-defined radio hardware, non-quadcopter platforms (fixed-wing, VTOL), and non-PX4 flight stacks (Ardupilot, BetaFlight). While these exclusions limit the immediate generalisability of findings, they define a focused, achievable scope appropriate for the resources and timeline of this research project.
+
+\section{Thesis Structure}
+
+The remainder of this thesis is organised as follows. \textbf{Chapter~2} reviews the relevant literature on GPS fundamentals, spoofing attack mechanisms, existing detection approaches from cryptographic, physical-layer, and sensor-fusion paradigms, PX4 architecture, and machine learning for anomaly detection. \textbf{Chapter~3} presents the high-level system design and architecture, including the key innovation of the GPS--IMU consistency discriminator. \textbf{Chapter~4} details the research methodology, simulation environment, data capture pipeline, preprocessing stages, heuristic labelling rules, model architectures, and evaluation metrics. \textbf{Chapter~5} describes the implementation of each system component with architectural detail and code-level documentation. \textbf{Chapter~6} presents the experimental results including dataset characterisation, model performance, the CNN Paradox analysis, live inference results, terrain-aware detection, and latency analysis. \textbf{Chapter~7} provides interpretation of findings, comparison with existing work, discussion of limitations and threats to validity, and the proposed GPS Trust Index with graduated response protocol. \textbf{Chapter~8} concludes the thesis with a summary of contributions, formal answers to each research question, practical implications, and directions for future work. Supplementary material is provided in the Appendix.

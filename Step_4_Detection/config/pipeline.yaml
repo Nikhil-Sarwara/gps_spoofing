@@ -1,0 +1,118 @@
+# GPS Spoofing Detection Pipeline Configuration
+
+data:
+  raw_dir: "Step_5_Data/raw"
+  processed_dir: "Step_5_Data/processed"
+  artifacts_dir: "Step_5_Data/artifacts"
+  models_dir: "Step_5_Data/models"
+
+# Logging
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+
+# Data cleaning settings
+cleaning:
+  min_fix_type: 3                    # Minimum GPS fix type (0-5)
+  max_dt_gap_s: 5.0                  # Max time gap before marking as gap
+  max_stale_repeats: 5               # Max stale repeats before dropping
+  drop_duplicates: true
+
+# Window creation settings
+windows:
+  length: 30                         # Samples per window (3 seconds @ 10Hz)
+  stride: 15                         # Step between windows (50% overlap)
+  min_window_label_ratio: 0.5        # Anomaly ratio threshold for labeling window
+
+# Feature set (32 features total)
+features:
+  gps:
+    - x_m                            # Local East position (meters)
+    - y_m                            # Local North position (meters)
+    - alt_m                          # Altitude MSL (meters)
+    - rel_alt_m                      # Relative altitude (meters)
+    - vel_m_s                        # Ground speed (m/s)
+    - hdg_deg                        # Heading (degrees)
+    - fix_type                       # GPS fix quality (0-5)
+    - satellites_visible             # Number of satellites
+    - eph_m                          # Horizontal position error (meters)
+    - epv_m                          # Vertical position error (meters)
+
+  imu:
+    - roll_deg                       # Roll angle (degrees)
+    - pitch_deg                      # Pitch angle (degrees)
+    - yaw_deg                        # Yaw angle (degrees)
+    - rollspeed_radps                # Roll angular rate (rad/s)
+    - pitchspeed_radps               # Pitch angular rate (rad/s)
+    - yawspeed_radps                 # Yaw angular rate (rad/s)
+    - vibration_x                    # Vibration X
+    - vibration_y                    # Vibration Y
+    - vibration_z                    # Vibration Z
+
+  estimator:
+    - vel_ratio                      # Velocity estimator ratio (0-1)
+    - pos_horiz_ratio               # Horizontal position ratio
+    - pos_vert_ratio                # Vertical position ratio
+    - vel_innov                      # Velocity innovation
+    - pos_horiz_innov               # Horizontal position innovation
+    - pos_vert_innov                # Vertical position innovation
+
+  health:
+    - battery_voltage               # Battery voltage (V)
+    - battery_remaining_pct         # Battery remaining (%)
+    - armed                         # Armed state (0/1)
+    - failsafe                      # Failsafe active (0/1)
+    - connection_ok                  # MAVLink connection (0/1)
+    - is_stale                      # Stale data flag (0/1)
+
+# Train/test split
+split:
+  train_ratio: 0.7
+  val_ratio: 0.15
+  test_ratio: 0.15
+
+# Auto-labeling heuristics for spoofing detection
+auto_label:
+  enabled: true
+
+  max_normal_speed_ms: 30.0
+  max_normal_accel_ms2: 15.0
+
+  min_satellites: 6
+  max_eph_m: 5.0
+  max_epv_m: 10.0
+
+  max_rollspeed_radps: 2.0
+  max_pitchspeed_radps: 2.0
+  max_vibration: 1.0
+
+  max_vel_ratio: 0.9
+  max_pos_horiz_ratio: 0.9
+  max_innov: 1.0
+
+  stale_threshold: 5
+  max_stale_ratio: 0.3
+
+  failsafe_is_anomaly: false
+  mode_hex_is_anomaly: false
+
+  sudden_speed_change_ms: 10.0
+  zero_speed_when_armed: false
+
+# Model training
+training:
+  model_type: "rf"                  # "rf" or "cnn"
+  n_estimators: 100
+  test_size: 0.15
+  random_state: 42
+
+# Inference settings
+inference:
+  connection_url: "udp:127.0.0.1:14560"
+  anomaly_threshold: 0.3
+  alert_on_anomaly: true
+  terrain_models_dir: "ml/models/terrain"
+  preferred_model_type: "rf"
+
+# Metadata column (NOT an ML feature — added by terrain_classifier.py)
+# terrain_type: flat | mountain | sea
