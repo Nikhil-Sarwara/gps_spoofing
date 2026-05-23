@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>GPS Spoofing Detection — Nikhil Sarwara</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<style>
+:root{--bg1:#0f0a2a;--bg2:#0a192f;--a1:#7C3AED;--a2:#06B6D4;--a3:#A78BFA;--tx:#e2e8f0;--muted:#94a3b8;--card:#1a1035;--cardb:#1e1640;font-size:16px;}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:var(--bg1);color:var(--tx);overflow:hidden;width:100vw;height:100vh;cursor:none}
+h1,h2,h3{font-family:'Instrument Serif',serif;font-weight:400;line-height:1.1}
+h1{font-size:clamp(1.8rem,4vw,3rem)}
+h2{font-size:clamp(1.4rem,3vw,2.2rem)}
+h3{font-size:clamp(1.1rem,2vw,1.6rem)}
+p,li{font-size:clamp(0.85rem,1.2vw,1.1rem);line-height:1.5;color:var(--tx)}
+.slides{width:100%;height:100%;position:relative}
+.slide{position:absolute;top:0;left:0;width:100%;height:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:clamp(1.5rem,4vw,4rem);opacity:0;transform:scale(0.96);transition:opacity .7s ease,transform .7s ease;pointer-events:none;overflow:hidden}
+.slide.active{opacity:1;transform:scale(1);pointer-events:auto;z-index:1}
+.slide.prev{opacity:.2;transform:scale(0.92)}
+.container{width:100%;max-width:1100px;margin:0 auto;position:relative;z-index:2}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:clamp(1rem,2vw,2rem);width:100%}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:clamp(1rem,2vw,2rem);width:100%}
+.card{background:var(--card);border:1px solid rgba(124,58,237,.2);border-radius:1rem;padding:clamp(1rem,2vw,1.5rem);transition:transform .3s,box-shadow .3s}.card:hover{transform:translateY(-3px);box-shadow:0 8px 30px rgba(124,58,237,.15)}
+.stat{background:linear-gradient(135deg,var(--card),var(--cardb));border:1px solid rgba(6,182,212,.15);border-radius:1rem;padding:clamp(1rem,2vw,1.5rem);text-align:center}
+.stat h2{background:linear-gradient(135deg,var(--a2),var(--a3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-size:clamp(2rem,5vw,3.5rem)}
+.blob{position:absolute;border-radius:50%;filter:blur(80px);opacity:.15;z-index:0;pointer-events:none}
+.blob1{background:var(--a1);width:500px;height:500px;top:-10%;left:-15%;animation:float1 20s ease-in-out infinite}
+.blob2{background:var(--a2);width:350px;height:350px;top:45%;right:-10%;animation:float2 18s ease-in-out infinite}
+.blob3{background:var(--a3);width:400px;height:400px;bottom:-10%;left:35%;animation:float3 22s ease-in-out infinite}
+.blob4{background:rgba(124,58,237,.4);width:250px;height:250px;top:60%;left:10%;animation:float1 15s ease-in-out infinite}
+@keyframes float1{0%,100%{transform:translate(0,0)scale(1)}33%{transform:translate(40px,-30px)scale(1.1)}66%{transform:translate(-20px,20px)scale(.9)}}
+@keyframes float2{0%,100%{transform:translate(0,0)scale(1)}33%{transform:translate(-30px,25px)scale(1.15)}66%{transform:translate(20px,-15px)scale(.95)}}
+@keyframes float3{0%,100%{transform:translate(0,0)scale(1)}33%{transform:translate(25px,20px)scale(1.05)}66%{transform:translate(-35px,-25px)scale(.9)}}
+.reveal{animation:reveal .8s cubic-bezier(.16,1,.3,1) both}
+@keyframes reveal{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+.spotlight{position:fixed;pointer-events:none;z-index:9999;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(124,58,237,.08),transparent 70%);transform:translate(-50%,-50%);transition:left .1s ease-out,top .1s ease-out}
+canvas#particles{position:fixed;top:0;left:0;z-index:0;pointer-events:none}
+.nav{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);display:flex;gap:.5rem;z-index:100}
+.ndot{width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,.2);cursor:pointer;transition:all .3s}.ndot.active{background:var(--a2);transform:scale(1.4);box-shadow:0 0 10px var(--a2)}
+.counter{position:fixed;top:1rem;right:1.5rem;font-size:.8rem;color:var(--muted);z-index:100}
+.tag{display:inline-block;padding:.2rem .7rem;border-radius:2rem;font-size:.75rem;font-weight:600}
+.tag-violet{background:rgba(124,58,237,.15);color:var(--a3)}.tag-cyan{background:rgba(6,182,212,.15);color:var(--a2)}
+.code{font-family:monospace;font-size:.8rem;background:rgba(0,0,0,.3);padding:.2rem .5rem;border-radius:.3rem}
+ul{list-style:none;padding:0}ul li{padding:.3rem 0;position:relative;padding-left:1.5rem}ul li:before{content:'▸';position:absolute;left:0;color:var(--a2)}
+.katex{font-size:clamp(.9rem,1.3vw,1.1rem)!important}
+.particles-slide canvas{opacity:.6}
+</style>
+</head>
+<body>
+
+<div class="spotlight" id="spotlight"></div>
+<canvas id="particles"></canvas>
+<div class="counter" id="counter">1 / 16</div>
+<div class="nav" id="nav"></div>
+<div class="slides" id="slides"></div>
+
+<script>
+const slidesData = [
+{ /* 0 - Title */
+  bg: true, particles: true,
+  render(ctx){
+    const h=ctx.h,w=ctx.w;
+    ctx.fillStyle='#fff';ctx.font=`${clamp(2.5,5,4)}rem 'Instrument Serif',serif`;
+    ctx.textAlign='center';ctx.fillText('🚁',w/2,h*.2);
+    ctx.save();const g=ctx.createLinearGradient(w*.2,0,w*.8,0);
+    g.addColorStop(0,'#7C3AED');g.addColorStop(.5,'#06B6D4');g.addColorStop(1,'#A78BFA');
+    ctx.fillStyle=g;ctx.font=`${clamp(1.8,4,3)}rem 'Instrument Serif',serif`;
+    ctx.fillText('Detection and Simulation of',w/2,h*.35);
+    ctx.fillText('GPS Spoofing in Mobile Robots',w/2,h*.44);
+    ctx.fillText('Using Sensor Cross-Validation',w/2,h*.52);
+    ctx.restore();
+    ctx.fillStyle='#e2e8f0';ctx.font=`${clamp(.9,1.5,1.1)}rem 'Inter',sans-serif`;
+    ctx.fillText('Nikhil Sarwara  |  Supervisor: Dr. Ananda Maiti',w/2,h*.64);
+    ctx.fillText('SIT724 / SIT746  •  Deakin University  •  May 2026',w/2,h*.72);
+  }
+},
+{ /* 1 - Agenda */
+  html:`<div class="container"><h2 style="margin-bottom:clamp(1.5rem,3vw,2.5rem)">📋 Table of Contents</h2>
+  <div class="grid2">${[
+    ['01','Problem & Research Questions'],
+    ['02','System Architecture & Pipeline'],
+    ['03','GPS-IMU Consistency Method'],
+    ['04','Dataset & Feature Engineering'],
+    ['05','ML Models: RF vs CNN'],
+    ['06','Results & Model Comparison'],
+    ['07','Terrain Generalizability'],
+    ['08','Contributions & Future Work'],
+  ].map(([n,t],i)=>`<div class="card reveal" style="animation-delay:${i*.08}s"><span class="tag tag-cyan">${n}</span> <span style="margin-left:.5rem;font-weight:500">${t}</span></div>`).join('')}
+  </div></div>`
+},
+{ /* 2 - Problem */
+  html:`<div class="container"><h2 style="margin-bottom:clamp(1rem,2vw,1.5rem)">⚠️ The GPS Spoofing Threat</h2>
+  <div class="grid2" style="margin-bottom:clamp(1rem,2vw,2rem)">
+    <div class="card reveal"><p style="font-weight:600;color:var(--a2)">GPS Spoofing</p><p>Counterfeit GPS signals with manipulated coordinates deceive PX4 drones into accepting falsified position, velocity, and time estimates without triggering conventional failure modes.</p></div>
+    <div class="card reveal"><p style="font-weight:600;color:var(--a3)">Why It Matters</p><p>PX4 EKF2 relies on GPS as a high-weight observation. Spoofed signals report healthy fix quality — the attack is silent until position deviation becomes catastrophic.</p></div>
+  </div>
+  <div class="grid3">${[
+    ['$54.6B','Commercial drone market by 2030'],
+    ['< $300','Cost of GPS-spoofing capable SDR'],
+    ['UT Austin 2012','Full 3D control of UAV via spoofing'],
+  ].map(([v,l])=>`<div class="stat reveal"><h2>${v}</h2><p style="font-size:.85rem;color:var(--muted)">${l}</p></div>`).join('')}
+  </div></div>`
+},
+{ /* 3 - RQs */
+  html:`<div class="container"><h2 style="margin-bottom:clamp(1.5rem,3vw,2rem)">🔬 Research Questions</h2>
+  <div class="grid3">${[
+    ['RQ1','Physics-Based Detection','Can cross-sensor consistency checks between GPS and IMU detect spoofing without requiring machine learning?'],
+    ['RQ2','ML Model Comparison','How do Random Forest and 1D CNN classifiers compare for GPS spoofing detection accuracy on PX4 telemetry?'],
+    ['RQ3','Terrain Generalizability','How does terrain type (flat vs. mountain vs. sea) affect model detection performance?'],
+  ].map(([id,t,d],i)=>`<div class="card reveal" style="animation-delay:${i*.1}s"><span class="tag tag-violet">${id}</span><h3 style="margin:.5rem 0">${t}</h3><p style="color:var(--muted)">${d}</p></div>`).join('')}
+  </div></div>`
+},
+{ /* 4 - Literature Gap */
+  html:`<div class="container"><h2 style="margin-bottom:clamp(1rem,2vw,1.5rem)">📚 What's Missing in Current Research</h2>
+  <div class="grid2">${[
+    ['Hardware Dependency','Existing solutions require multi-antenna arrays, navigation-grade IMUs, or military encrypted signals — incompatible with cost-constrained commercial drones.'],
+    ['No PX4-Specific Detector','No prior work has rigorously evaluated a software-only detector on standard PX4 telemetry with real-time streaming inference.'],
+    ['Binary Detection Only','Current approaches produce simple yes/no outputs — no graduated trust metric exists for operational decision-making.'],
+    ['Simulation-to-Reality Gap','Most studies use post-hoc analysis on recorded data; real-time inference on embedded platforms remains unexplored.'],
+  ].map(([t,d],i)=>`<div class="card reveal" style="animation-delay:${i*.08}s"><p style="font-weight:600;color:var(--a2)">${t}</p><p style="color:var(--muted)">${d}</p></div>`).join('')}
+  </div></div>`
+},
+{ /* 5 - System Architecture */
+  html:`<div class="container"><h2 style="margin-bottom:clamp(1rem,2vw,1.5rem)">🏗️ System Architecture</h2>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:clamp(1rem,2vw,2rem);margin-bottom:clamp(1rem,2vw,1.5rem)">
+    <div>${[
+      ['PX4 SITL','Gazebo simulation, Iris x500'],
+      ['MAVLink','UDP telemetry at 10 Hz'],
+      ['GPS Monitor','Thread-safe CSV logging'],
+      ['Auto-Labeling','8 heuristic rules'],
+    ].map(([t,d])=>`<div class="card reveal" style="margin-bottom:.5rem;padding:.8rem"><span class="tag tag-cyan">${t}</span><span style="margin-left:.5rem;font-size:.85rem">${d}</span></div>`).join('')}
+    </div>
+    <div class="card reveal" style="display:flex;align-items:center;justify-content:center;min-height:200px;font-family:monospace;font-size:.75rem;line-height:1.8;background:rgba(0,0,0,.2)">PX4 SITL → UDP:14580<br>├─ GPS Spoofer (GPS_INPUT)<br>├─ GPS Monitor (CSV @10Hz)<br>├─ Live Inference (RF/CNN)<br>└─ Streamlit Dashboard</div>
+  </div>
+  <p style="text-align:center;color:var(--muted)">8-step modular pipeline: Simulation → Monitoring → Attacks → Detection → Data → UI → Research</p></div>`
+},
+{ /* 6 - Spoofing Attack */
+  html:`<div class="container"><h2 style="margin-bottom:clamp(1rem,2vw,1.5rem)">🎯 GPS Spoofing Attack Injection</h2>
+  <div class="grid2" style="margin-bottom:clamp(1rem,2vw,1.5rem)">
+    <div class="card reveal"><p style="font-weight:600;color:var(--a2)">Attack Mechanism</p><p style="margin-top:.5rem">MAVLink GPS_INPUT messages sent at 10 Hz via <code class="code">sysid=1, compid=220</code> to PX4 port 14580. EKF2 fuses spoofed GPS as a high-confidence observation.</p></div>
+    <div class="card reveal"><p style="font-weight:600;color:var(--a3)">Attack Modes</p><ul style="margin-top:.3rem">${['Drift: constant velocity offset','Ramp: linearly increasing drift','Jump+Drift: instant jump + drift','Static: freeze at fixed offset','Noise: Gaussian position noise'].map(t=>`<li>${t}</li>`).join('')}</ul></div>
+  </div>
+  <div class="stat reveal"><p style="font-weight:600;color:var(--a2)">GPS_1_PROTOCOL = 1</p><p style="color:var(--muted)">MAVLink GPS protocol enabled — EKF2 disabled for direct position injection</p></div></div>`
+},
+{ /* 7 - Feature Engineering */
+  html:`<div class="container"><h2 style="margin-bottom:clamp(1rem,2vw,1.5rem)">🔧 Feature Engineering</h2>
+  <div class="grid3" style="margin-bottom:clamp(1rem,2vw,1.5rem)">${[
+    ['🛰️ GPS Position','10 features','x_m, y_m, alt_m, rel_alt_m, vel_m_s, hdg_deg, fix_type, satellites, eph, epv'],
+    ['⚙️ IMU Sensors','12 features','roll, pitch, yaw, angular rates (3), vibration (3), clipping counters (3)'],
+    ['📊 Estimator + Health','12 features','EKF innovation ratios (3), innovation values (3), battery voltage/%, armed, failsafe, connection_ok, stale_repeat'],
+  ].map(([t,n,d],i)=>`<div class="card reveal" style="animation-delay:${i*.1}s"><p style="font-weight:600;color:var(--a2)">${t}</p><span class="tag tag-violet">${n}</span><p style="font-size:.8rem;margin-top:.5rem;color:var(--muted)">${d}</p></div>`).join('')}
+  </div>
+  <div class="card reveal" style="text-align:center"><p>30-sample sliding windows (3s @ 10Hz) with 50% overlap → 1,020-dimensional flattened vector for RF</p></div></div>`
+},
+{ /* 8 - Physics G-Method */
+  html:`<div class="container"><h2 style="margin-bottom:clamp(1rem,2vw,1.5rem)">⚡ GPS—IMU Consistency (Physics G-Method)</h2>
+  <div class="grid2" style="margin-bottom:clamp(1rem,2vw,1.5rem)">
+    <div class="card reveal"><p style="font-weight:600;color:var(--a2)">Core Principle</p><p style="margin-top:.5rem">Wind affects <b>both</b> GPS and IMU — natural disturbances create symmetric sensor response. GPS spoofing affects <b>only</b> GPS — creates measurable cross-sensor inconsistency.</p></div>
+    <div class="card reveal" style="display:flex;align-items:center;justify-content:center"><div id="eq-gmethod" style="font-size:1.1rem"></div></div>
+  </div>
+  <div class="grid3">${[
+    ['Normal (Wind)','GPS moves\nIMU moves','✅ Consistent → Normal'],
+    ['Spoofing','GPS moves\nIMU stationary','❌ Mismatch → ANOMALY'],
+    ['Threshold','|ω| < 0.05 rad/s\nGPS speed > 5 m/s','Heuristic H8 triggered'],
+  ].map(([t,s,r],i)=>`<div class="stat reveal" style="animation-delay:${i*.1}s"><p style="font-weight:600;color:var(--a2)">${t}</p><p style="font-size:.85rem;margin:.3rem 0">${s}</p><p style="font-size:.8rem;color:var(--a3)">${r}</p></div>`).join('')}
+  </div></div>`
+},
+{ /* 9 - ML Models */
+  html:`<div class="container"><h2 style="margin-bottom:clamp(1rem,2vw,1.5rem)">🤖 ML Models: RF vs CNN</h2>
+  <div class="grid2">${[
+    ['🌲 Random Forest','<code class="code">rf_model.pkl</code>','100 estimators, Gini impurity, class_weight=balanced, 1,020-dim flattened input. Trained on scikit-learn, <60s on M1 Pro.'],
+    ['🧠 1D CNN','<code class="code">cnn_model.pth</code>','Conv1D(34→32→64), AdaptiveAvgPool, Dense(64→32), Dropout(0.3), Sigmoid. 8K params, Adam optimizer, early stopping.'],
+  ].map(([t,f,d],i)=>`<div class="card reveal" style="animation-delay:${i*.1}s"><p style="font-weight:600;color:var(--a2)">${t}</p><p class="code" style="margin:.3rem 0">${f}</p><p style="color:var(--muted);font-size:.9rem">${d}</p></div>`).join('')}
+  </div>
+  <div class="card reveal" style="margin-top:clamp(1rem,2vw,1.5rem);text-align:center"><p>Dataset: <b>11,551 windows</b> (8,085 train) | 34 features | 30-sample sliding windows | Flight-level train/val/test split</p></div></div>`
+},
+{ /* 10 - Results */
+  html:`<div class="container"><h2 style="margin-bottom:clamp(1rem,2vw,1.5rem)">📊 Results: Model Performance</h2>
+  <div class="grid3" style="margin-bottom:clamp(1rem,2vw,1.5rem)">${[
+    ['RF Accuracy','98%','0.99 normal F1, 0.63 spoof F1'],
+    ['CNN Accuracy','98%','0.99 normal F1, 0.00 spoof F1'],
+    ['Area Model','99%','0.98 spoofed F1 on Baylands'],
+  ].map(([m,v,d],i)=>`<div class="stat reveal" style="animation-delay:${i*.1}s"><p style="font-weight:600;color:var(--a2)">${m}</p><h2>${v}</h2><p style="font-size:.8rem;color:var(--muted)">${d}</p></div>`).join('')}
+  </div>
+  <div class="grid2">${[
+    ['Random Forest — Best All-Round','✅ 98% accuracy  ✅ Low false positives  ✅ Feature importance  ✅ No GPU needed'],
+    ['1D CNN — Majority-Class Bias','⚠️ 98% accuracy  ❌ 0% spoof recall  ⚠️ 8K params → overfits  ⚠️ GPU recommended'],
+  ].map(([t,d],i)=>`<div class="card reveal" style="animation-delay:${i*.1}s"><p style="font-weight:600;color:var(--a2)">${t}</p><p style="font-size:.8rem;margin-top:.5rem;white-space:pre-line">${d}</p></div>`).join('')}
+  </div></div>`
+},
+{ /* 11 - CNN Failure */
+  html:`<div class="container"><h2 style="margin-bottom:clamp(1rem,2vw,1.5rem)">🔍 CNN Failure Analysis</h2>
+  <div class="grid2">
+    <div class="card reveal"><p style="font-weight:600;color:var(--a2)">The "CNN Paradox" Reversed</p><p style="margin-top:.5rem">With 93% normal training data, the CNN converges on "always predict normal" — achieving 98% accuracy but 0% spoofed-class recall. Earlier prototype (89% spoofed data) showed the opposite: "always predict spoofed."</p></div>
+    <div class="card reveal"><p style="font-weight:600;color:var(--a3)">Root Causes</p><ul style="margin-top:.3rem">${['150:1 param-to-sample ratio','6.7% spoofed in training data','Gradient optimization favors majority class','Abstract feature representation overfits'].map(t=>`<li>${t}</li>`).join('')}</ul></div>
+  </div>
+  <div class="card reveal" style="margin-top:clamp(1rem,2vw,1.5rem);text-align:center"><p style="font-weight:600;color:var(--a2)">Lesson</p><p>Confusion matrix structure must be examined — accuracy alone is insufficient for imbalanced GPS security datasets.</p></div></div>`
+},
+{ /* 12 - Terrain */
+  html:`<div class="container"><h2 style="margin-bottom:clamp(1rem,2vw,1.5rem)">🌍 Terrain-Aware Detection</h2>
+  <div class="grid2" style="margin-bottom:clamp(1rem,2vw,1.5rem)">
+    <div class="card reveal"><p style="font-weight:600;color:var(--a2)">Baylands Flat Terrain</p><ul style="margin-top:.3rem">${['Bounding box: 37.411°–37.412° lat','153 real normal windows from 2 flights','337 synthetic windows for training','Area-specific RF: 0.98 spoof F1','vs global RF: 0.63 spoof F1'].map(t=>`<li>${t}</li>`).join('')}</ul></div>
+    <div class="card reveal"><p style="font-weight:600;color:var(--a3)">Why Area-Specific?</p><ul style="margin-top:.3rem">${['Constrained scope → higher accuracy','Falls back to global model elsewhere','Debounce: 5 consecutive classifications','Auto-loads when GPS in bounding box','Open-Elevation API + heuristic fallback'].map(t=>`<li>${t}</li>`).join('')}</ul></div>
+  </div>
+  <div class="stat reveal"><p style="font-weight:600;color:var(--a2)">0.63 → 0.98</p><p style="color:var(--muted)">Spoofed-class F1 improvement from global to area-specific model</p></div></div>`
+},
+{ /* 13 - Contributions */
+  html:`<div class="container"><h2 style="margin-bottom:clamp(1rem,2vw,1.5rem)">✨ Contributions & Limitations</h2>
+  <div class="grid2">${[
+    ['Contributions','GPS-IMU consistency discriminator<br>8 heuristic auto-labelling rules<br>End-to-end real-time detection pipeline<br>Area-specific model: 0.99 accuracy<br>GPS Trust Index + graduated response<br>Reproducible Docker simulation environment<br>Open-source release for research community'],
+    ['Limitations','Simulation-only validation (no hardware)<br>Limited spoofing attack diversity<br>Breaking point not characterized<br>3s window latency for safety-critical ops<br>CNN fails on imbalanced data<br>No multi-drone evaluation<br>Terrain API dependency for classification'],
+  ].map(([t,d],i)=>`<div class="card reveal" style="animation-delay:${i*.1}s"><p style="font-weight:600;color:${i===0?'var(--a2)':'var(--a3)'}">${t}</p><p style="font-size:.8rem;margin-top:.5rem;white-space:pre-line;line-height:2">${d}</p></div>`).join('')}
+  </div></div>`
+},
+{ /* 14 - Future */
+  html:`<div class="container"><h2 style="margin-bottom:clamp(1rem,2vw,1.5rem)">🚀 Future Work & Conclusion</h2>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:clamp(1rem,2vw,2rem);margin-bottom:clamp(1rem,2vw,1.5rem)">
+    <div class="card reveal"><p style="font-weight:600;color:var(--a2)">Next Steps</p><ul style="margin-top:.3rem">${['Physical hardware validation (Pixhawk + SDR)','Breaking point: systematic param sweep','GTI integration into PX4 EKF2 firmware','Reduced-latency architectures (RNN/attention)','Multi-drone cooperative detection','Cross-platform: Ardupilot, BetaFlight'].map(t=>`<li>${t}</li>`).join('')}</ul></div>
+    <div class="card reveal" style="display:flex;flex-direction:column;justify-content:center"><p style="font-weight:600;color:var(--a3);margin-bottom:.5rem">Key Takeaway</p><p style="font-size:1rem;line-height:1.6">Software-only GPS spoofing detection is <span style="color:var(--a2)">feasible</span> on commercial PX4 drones using cross-sensor consistency checks and machine learning. The <span style="color:var(--a2)">GPS-IMU consistency discriminator</span> provides a physics-based, model-free detection signal that cannot be concealed by any spoofing waveform.</p></div>
+  </div></div>`
+},
+{ /* 15 - Thank You */
+  bg: true, particles: true,
+  render(ctx){
+    const h=ctx.h,w=ctx.w;
+    ctx.fillStyle='#fff';ctx.textAlign='center';
+    ctx.font=`${clamp(2.5,5,4)}rem 'Instrument Serif',serif`;
+    ctx.fillText('🚁',w/2,h*.22);
+    const g=ctx.createLinearGradient(w*.2,0,w*.8,0);
+    g.addColorStop(0,'#7C3AED');g.addColorStop(.5,'#06B6D4');g.addColorStop(1,'#A78BFA');
+    ctx.fillStyle=g;ctx.font=`${clamp(2,5,3.5)}rem 'Instrument Serif',serif`;
+    ctx.fillText('Thank You',w/2,h*.38);
+    ctx.fillStyle='#e2e8f0';ctx.font=`${clamp(1,2,1.3)}rem 'Inter',sans-serif`;
+    ctx.fillText('Questions?',w/2,h*.48);
+    ctx.fillStyle='#94a3b8';ctx.font=`${clamp(.8,1.2,1)}rem 'Inter',sans-serif`;
+    ctx.fillText('Nikhil Sarwara  •  Student ID: 224234862',w/2,h*.6);
+    ctx.fillText('SIT724 / SIT746  •  Deakin University',w/2,h*.67);
+  }
+},
+];
+
+function clamp(min,pref,max){return `clamp(${min}rem,${pref}vw,${max}rem)`}
+let current=0;const total=slidesData.length;
+const slidesEl=document.getElementById('slides');
+const navEl=document.getElementById('nav');
+const counterEl=document.getElementById('counter');
+const spotlight=document.getElementById('spotlight');
+const canvas=document.getElementById('particles');
+const ctx2d=canvas.getContext('2d');
+
+const blobs=`<div class="blob blob1"></div><div class="blob blob2"></div><div class="blob blob3"></div><div class="blob blob4"></div>`;
+
+function renderSlide(i){
+  slidesEl.innerHTML='';
+  for(let j=0;j<total;j++){
+    const d=slidesData[j];
+    const el=document.createElement('div');
+    el.className='slide'+(j===i?' active':(j===i-1?' prev':''));
+    el.innerHTML=blobs;
+    const c=document.createElement('div');c.className='container';
+    if(d.html){
+      c.innerHTML=d.html;
+      el.appendChild(c);
+    }else if(d.render){
+      const cv=document.createElement('canvas');
+      cv.style.cssText='position:absolute;inset:0;width:100%;height:100%;z-index:1';
+      el.appendChild(cv);
+      requestAnimationFrame(()=>{
+        cv.width=cv.offsetWidth;cv.height=cv.offsetHeight;
+        const ctx=cv.getContext('2d');
+        d.render({ctx,w:cv.width,h:cv.height});
+      });
+    }
+    slidesEl.appendChild(el);
+  }
+  if(slidesData[i].particles)canvas.classList.add('particles-slide');else canvas.classList.remove('particles-slide');
+  updateNav();counterEl.textContent=`${i+1} / ${total}`;
+  setTimeout(renderKatex,100);
+}
+
+function renderKatex(){
+  try{renderMathInElement(slidesEl,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});}catch(e){}
+}
+function updateNav(){navEl.innerHTML=Array.from({length:total},(_,i)=>`<div class="ndot${i===current?' active':''}" onclick="goTo(${i})"></div>`).join('');}
+function goTo(i){if(i>=0&&i<total){current=i;renderSlide(current);}}
+
+// Keyboard
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key==='ArrowDown')goTo(current+1);if(e.key==='ArrowLeft'||e.key==='ArrowUp')goTo(current-1);});
+
+// Touch
+let tx=0;document.addEventListener('touchstart',e=>{tx=e.touches[0].clientX});document.addEventListener('touchend',e=>{const d=tx-e.changedTouches[0].clientX;if(Math.abs(d)>50)goTo(current+(d>0?1:-1));});
+
+// Mouse spotlight
+document.addEventListener('mousemove',e=>{spotlight.style.left=e.clientX+'px';spotlight.style.top=e.clientY+'px';});
+
+// Particles
+let particles=[];
+function initParticles(){
+  canvas.width=window.innerWidth;canvas.height=window.innerHeight;
+  particles=[];
+  for(let i=0;i<60;i++){particles.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,r:Math.random()*2+1,vx:(Math.random()-.5)*.5,vy:(Math.random()-.5)*.5,o:Math.random()*.5+.2});}
+}
+function drawParticles(){
+  ctx2d.clearRect(0,0,canvas.width,canvas.height);
+  particles.forEach(p=>{
+    p.x+=p.vx;p.y+=p.vy;
+    if(p.x<0)p.x=canvas.width;if(p.x>canvas.width)p.x=0;if(p.y<0)p.y=canvas.height;if(p.y>canvas.height)p.y=0;
+    ctx2d.beginPath();ctx2d.arc(p.x,p.y,p.r,0,Math.PI*2);
+    ctx2d.fillStyle=`rgba(124,58,237,${p.o})`;ctx2d.fill();
+  });
+  const t=slidesData[current]&&slidesData[current].particles;
+  if(t)requestAnimationFrame(()=>{drawParticles();});
+}
+initParticles();drawParticles();
+
+// Init
+renderSlide(0);
+window.addEventListener('resize',()=>{initParticles();renderSlide(current);});
+goTo(0);
+
+// Eq after KaTeX renders
+setTimeout(()=>{
+  const eqEl=document.getElementById('eq-gmethod');
+  if(eqEl){eqEl.innerHTML='$$\\Delta\\Phi=\\left\\|\\int_{t_1}^{t_2}\\!\\mathbf{a}_{\\text{imu}}(t)dt-(\\mathbf{P}_{\\text{gps},t_2}-\\mathbf{P}_{\\text{gps},t_1})\\right\\|_2$$';renderKatex();}
+},500);
+</script>
+</body>
+</html>
