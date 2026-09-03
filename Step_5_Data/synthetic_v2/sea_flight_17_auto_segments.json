@@ -1,0 +1,32 @@
+[
+  {
+    "start_s": 0.1,
+    "end_s": 73.6,
+    "label": 0,
+    "reason": "normal"
+  },
+  {
+    "start_s": 73.6,
+    "end_s": 108.3,
+    "label": 1,
+    "reason": "gps_spoof_meaconing_delay"
+  },
+  {
+    "start_s": 108.3,
+    "end_s": 143.4,
+    "label": 0,
+    "reason": "normal"
+  },
+  {
+    "start_s": 143.4,
+    "end_s": 154.1,
+    "label": 1,
+    "reason": "gps_spoof_noise_injection"
+  },
+  {
+    "start_s": 154.1,
+    "end_s": 200.0,
+    "label": 0,
+    "reason": "normal"
+  }
+]

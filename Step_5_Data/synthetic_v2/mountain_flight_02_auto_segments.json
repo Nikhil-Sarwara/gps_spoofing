@@ -1,0 +1,44 @@
+[
+  {
+    "start_s": 0.1,
+    "end_s": 48.8,
+    "label": 0,
+    "reason": "normal"
+  },
+  {
+    "start_s": 48.8,
+    "end_s": 84.1,
+    "label": 1,
+    "reason": "gps_spoof_partial_spoof"
+  },
+  {
+    "start_s": 84.1,
+    "end_s": 102.9,
+    "label": 0,
+    "reason": "normal"
+  },
+  {
+    "start_s": 102.9,
+    "end_s": 114.5,
+    "label": 1,
+    "reason": "gps_spoof_ramp_capture"
+  },
+  {
+    "start_s": 114.5,
+    "end_s": 130.9,
+    "label": 0,
+    "reason": "normal"
+  },
+  {
+    "start_s": 130.9,
+    "end_s": 164.3,
+    "label": 1,
+    "reason": "gps_spoof_abrupt_offset"
+  },
+  {
+    "start_s": 164.3,
+    "end_s": 200.0,
+    "label": 0,
+    "reason": "normal"
+  }
+]

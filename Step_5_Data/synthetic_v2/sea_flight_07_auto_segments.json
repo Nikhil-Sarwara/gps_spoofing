@@ -1,0 +1,32 @@
+[
+  {
+    "start_s": 0.1,
+    "end_s": 35.8,
+    "label": 0,
+    "reason": "normal"
+  },
+  {
+    "start_s": 35.8,
+    "end_s": 75.2,
+    "label": 1,
+    "reason": "gps_spoof_partial_spoof"
+  },
+  {
+    "start_s": 75.2,
+    "end_s": 88.6,
+    "label": 0,
+    "reason": "normal"
+  },
+  {
+    "start_s": 88.6,
+    "end_s": 122.4,
+    "label": 1,
+    "reason": "gps_spoof_step_drift"
+  },
+  {
+    "start_s": 122.4,
+    "end_s": 200.0,
+    "label": 0,
+    "reason": "normal"
+  }
+]

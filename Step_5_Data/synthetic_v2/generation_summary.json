@@ -1,0 +1,47 @@
+[
+  {
+    "terrain": "flat",
+    "flights": 20,
+    "total_rows": 40000,
+    "total_windows": 2640,
+    "attack_profiles": {
+      "gps_spoof_ramp_capture": 7,
+      "gps_spoof_noise_injection": 5,
+      "gps_spoof_step_drift": 6,
+      "gps_spoof_gradual_drift": 6,
+      "gps_spoof_abrupt_offset": 10,
+      "gps_spoof_meaconing_delay": 7,
+      "gps_spoof_partial_spoof": 3
+    }
+  },
+  {
+    "terrain": "mountain",
+    "flights": 20,
+    "total_rows": 40000,
+    "total_windows": 2640,
+    "attack_profiles": {
+      "gps_spoof_noise_injection": 9,
+      "gps_spoof_gradual_drift": 7,
+      "gps_spoof_partial_spoof": 2,
+      "gps_spoof_ramp_capture": 9,
+      "gps_spoof_abrupt_offset": 12,
+      "gps_spoof_step_drift": 5,
+      "gps_spoof_meaconing_delay": 6
+    }
+  },
+  {
+    "terrain": "sea",
+    "flights": 20,
+    "total_rows": 40000,
+    "total_windows": 2640,
+    "attack_profiles": {
+      "gps_spoof_partial_spoof": 9,
+      "gps_spoof_step_drift": 9,
+      "gps_spoof_gradual_drift": 4,
+      "gps_spoof_noise_injection": 12,
+      "gps_spoof_ramp_capture": 5,
+      "gps_spoof_abrupt_offset": 5,
+      "gps_spoof_meaconing_delay": 7
+    }
+  }
+]
