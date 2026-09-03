@@ -1,0 +1,395 @@
+{
+  "approach": "synthetic_only",
+  "total_flights": 60,
+  "total_windows": 7920,
+  "train_windows": 5544,
+  "val_windows": 1188,
+  "test_windows": 1188,
+  "train_dist": {
+    "0": 4075,
+    "1": 1469
+  },
+  "val_dist": {
+    "0": 864,
+    "1": 324
+  },
+  "test_dist": {
+    "0": 826,
+    "1": 362
+  },
+  "test_accuracy": 0.9983164983164983,
+  "test_normal_f1": 0.9987878787878788,
+  "test_spoofed_f1": 0.9972451790633609,
+  "test_confusion_matrix": [
+    [
+      824,
+      2
+    ],
+    [
+      0,
+      362
+    ]
+  ],
+  "per_flight": [
+    {
+      "name": "flat_flight_01_cleaned.csv",
+      "windows": 132,
+      "normal": 106,
+      "spoof": 26
+    },
+    {
+      "name": "flat_flight_02_cleaned.csv",
+      "windows": 132,
+      "normal": 68,
+      "spoof": 64
+    },
+    {
+      "name": "flat_flight_03_cleaned.csv",
+      "windows": 132,
+      "normal": 79,
+      "spoof": 53
+    },
+    {
+      "name": "flat_flight_04_cleaned.csv",
+      "windows": 132,
+      "normal": 84,
+      "spoof": 48
+    },
+    {
+      "name": "flat_flight_05_cleaned.csv",
+      "windows": 132,
+      "normal": 117,
+      "spoof": 15
+    },
+    {
+      "name": "flat_flight_06_cleaned.csv",
+      "windows": 132,
+      "normal": 102,
+      "spoof": 30
+    },
+    {
+      "name": "flat_flight_07_cleaned.csv",
+      "windows": 132,
+      "normal": 71,
+      "spoof": 61
+    },
+    {
+      "name": "flat_flight_08_cleaned.csv",
+      "windows": 132,
+      "normal": 124,
+      "spoof": 8
+    },
+    {
+      "name": "flat_flight_09_cleaned.csv",
+      "windows": 132,
+      "normal": 99,
+      "spoof": 33
+    },
+    {
+      "name": "flat_flight_10_cleaned.csv",
+      "windows": 132,
+      "normal": 79,
+      "spoof": 53
+    },
+    {
+      "name": "flat_flight_11_cleaned.csv",
+      "windows": 132,
+      "normal": 109,
+      "spoof": 23
+    },
+    {
+      "name": "flat_flight_12_cleaned.csv",
+      "windows": 132,
+      "normal": 124,
+      "spoof": 8
+    },
+    {
+      "name": "flat_flight_13_cleaned.csv",
+      "windows": 132,
+      "normal": 89,
+      "spoof": 43
+    },
+    {
+      "name": "flat_flight_14_cleaned.csv",
+      "windows": 132,
+      "normal": 98,
+      "spoof": 34
+    },
+    {
+      "name": "flat_flight_15_cleaned.csv",
+      "windows": 132,
+      "normal": 118,
+      "spoof": 14
+    },
+    {
+      "name": "flat_flight_16_cleaned.csv",
+      "windows": 132,
+      "normal": 110,
+      "spoof": 22
+    },
+    {
+      "name": "flat_flight_17_cleaned.csv",
+      "windows": 132,
+      "normal": 91,
+      "spoof": 41
+    },
+    {
+      "name": "flat_flight_18_cleaned.csv",
+      "windows": 132,
+      "normal": 116,
+      "spoof": 16
+    },
+    {
+      "name": "flat_flight_19_cleaned.csv",
+      "windows": 132,
+      "normal": 102,
+      "spoof": 30
+    },
+    {
+      "name": "flat_flight_20_cleaned.csv",
+      "windows": 132,
+      "normal": 101,
+      "spoof": 31
+    },
+    {
+      "name": "mountain_flight_01_cleaned.csv",
+      "windows": 132,
+      "normal": 104,
+      "spoof": 28
+    },
+    {
+      "name": "mountain_flight_02_cleaned.csv",
+      "windows": 132,
+      "normal": 78,
+      "spoof": 54
+    },
+    {
+      "name": "mountain_flight_03_cleaned.csv",
+      "windows": 132,
+      "normal": 82,
+      "spoof": 50
+    },
+    {
+      "name": "mountain_flight_04_cleaned.csv",
+      "windows": 132,
+      "normal": 77,
+      "spoof": 55
+    },
+    {
+      "name": "mountain_flight_05_cleaned.csv",
+      "windows": 132,
+      "normal": 110,
+      "spoof": 22
+    },
+    {
+      "name": "mountain_flight_06_cleaned.csv",
+      "windows": 132,
+      "normal": 125,
+      "spoof": 7
+    },
+    {
+      "name": "mountain_flight_07_cleaned.csv",
+      "windows": 132,
+      "normal": 79,
+      "spoof": 53
+    },
+    {
+      "name": "mountain_flight_08_cleaned.csv",
+      "windows": 132,
+      "normal": 104,
+      "spoof": 28
+    },
+    {
+      "name": "mountain_flight_09_cleaned.csv",
+      "windows": 132,
+      "normal": 68,
+      "spoof": 64
+    },
+    {
+      "name": "mountain_flight_10_cleaned.csv",
+      "windows": 132,
+      "normal": 67,
+      "spoof": 65
+    },
+    {
+      "name": "mountain_flight_11_cleaned.csv",
+      "windows": 132,
+      "normal": 103,
+      "spoof": 29
+    },
+    {
+      "name": "mountain_flight_12_cleaned.csv",
+      "windows": 132,
+      "normal": 83,
+      "spoof": 49
+    },
+    {
+      "name": "mountain_flight_13_cleaned.csv",
+      "windows": 132,
+      "normal": 96,
+      "spoof": 36
+    },
+    {
+      "name": "mountain_flight_14_cleaned.csv",
+      "windows": 132,
+      "normal": 95,
+      "spoof": 37
+    },
+    {
+      "name": "mountain_flight_15_cleaned.csv",
+      "windows": 132,
+      "normal": 115,
+      "spoof": 17
+    },
+    {
+      "name": "mountain_flight_16_cleaned.csv",
+      "windows": 132,
+      "normal": 108,
+      "spoof": 24
+    },
+    {
+      "name": "mountain_flight_17_cleaned.csv",
+      "windows": 132,
+      "normal": 108,
+      "spoof": 24
+    },
+    {
+      "name": "mountain_flight_18_cleaned.csv",
+      "windows": 132,
+      "normal": 84,
+      "spoof": 48
+    },
+    {
+      "name": "mountain_flight_19_cleaned.csv",
+      "windows": 132,
+      "normal": 88,
+      "spoof": 44
+    },
+    {
+      "name": "mountain_flight_20_cleaned.csv",
+      "windows": 132,
+      "normal": 119,
+      "spoof": 13
+    },
+    {
+      "name": "sea_flight_01_cleaned.csv",
+      "windows": 132,
+      "normal": 99,
+      "spoof": 33
+    },
+    {
+      "name": "sea_flight_02_cleaned.csv",
+      "windows": 132,
+      "normal": 96,
+      "spoof": 36
+    },
+    {
+      "name": "sea_flight_03_cleaned.csv",
+      "windows": 132,
+      "normal": 90,
+      "spoof": 42
+    },
+    {
+      "name": "sea_flight_04_cleaned.csv",
+      "windows": 132,
+      "normal": 73,
+      "spoof": 59
+    },
+    {
+      "name": "sea_flight_05_cleaned.csv",
+      "windows": 132,
+      "normal": 124,
+      "spoof": 8
+    },
+    {
+      "name": "sea_flight_06_cleaned.csv",
+      "windows": 132,
+      "normal": 118,
+      "spoof": 14
+    },
+    {
+      "name": "sea_flight_07_cleaned.csv",
+      "windows": 132,
+      "normal": 82,
+      "spoof": 50
+    },
+    {
+      "name": "sea_flight_08_cleaned.csv",
+      "windows": 132,
+      "normal": 79,
+      "spoof": 53
+    },
+    {
+      "name": "sea_flight_09_cleaned.csv",
+      "windows": 132,
+      "normal": 107,
+      "spoof": 25
+    },
+    {
+      "name": "sea_flight_10_cleaned.csv",
+      "windows": 132,
+      "normal": 104,
+      "spoof": 28
+    },
+    {
+      "name": "sea_flight_11_cleaned.csv",
+      "windows": 132,
+      "normal": 87,
+      "spoof": 45
+    },
+    {
+      "name": "sea_flight_12_cleaned.csv",
+      "windows": 132,
+      "normal": 122,
+      "spoof": 10
+    },
+    {
+      "name": "sea_flight_13_cleaned.csv",
+      "windows": 132,
+      "normal": 79,
+      "spoof": 53
+    },
+    {
+      "name": "sea_flight_14_cleaned.csv",
+      "windows": 132,
+      "normal": 97,
+      "spoof": 35
+    },
+    {
+      "name": "sea_flight_15_cleaned.csv",
+      "windows": 132,
+      "normal": 79,
+      "spoof": 53
+    },
+    {
+      "name": "sea_flight_16_cleaned.csv",
+      "windows": 132,
+      "normal": 84,
+      "spoof": 48
+    },
+    {
+      "name": "sea_flight_17_cleaned.csv",
+      "windows": 132,
+      "normal": 101,
+      "spoof": 31
+    },
+    {
+      "name": "sea_flight_18_cleaned.csv",
+      "windows": 132,
+      "normal": 80,
+      "spoof": 52
+    },
+    {
+      "name": "sea_flight_19_cleaned.csv",
+      "windows": 132,
+      "normal": 80,
+      "spoof": 52
+    },
+    {
+      "name": "sea_flight_20_cleaned.csv",
+      "windows": 132,
+      "normal": 104,
+      "spoof": 28
+    }
+  ]
+}

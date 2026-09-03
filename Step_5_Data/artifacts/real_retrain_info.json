@@ -1,0 +1,23 @@
+{
+  "approach": "real_flights_only_chronological_split",
+  "total_windows": 1844,
+  "train_windows": 1106,
+  "val_windows": 368,
+  "test_windows": 370,
+  "train_dist": {
+    "0": 794,
+    "1": 312
+  },
+  "val_dist": {
+    "0": 282,
+    "1": 86
+  },
+  "test_dist": {
+    "0": 211,
+    "1": 159
+  },
+  "test_normal_f1": 0.7263339070567987,
+  "test_spoofed_f1": 0.0,
+  "test_accuracy": 0.5702702702702702,
+  "note": "Labels from heuristic rules (H1-H8). Circular training/testing acknowledged as limitation."
+}
