@@ -296,7 +296,8 @@ def main():
     print("\n  === Feature importance (top 10) ===")
     importances = rf.feature_importances_
     indices = np.argsort(importances)[::-1]
-    for i in range(min(10, len(FEATURE_COLS))):
+    n_feat = min(10, len(FEATURE_COLS), len(indices))
+    for i in range(n_feat):
         idx_f = indices[i]
         print(f"  {FEATURE_COLS[idx_f]}: {importances[idx_f]:.4f}")
 
