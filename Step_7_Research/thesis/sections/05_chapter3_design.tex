@@ -86,7 +86,7 @@ The data flow proceeds as follows:
     \item PX4 SITL generates simulated flight physics and transmits telemetry via MAVLink over UDP port 14560.
     \item The GPS Monitor connects as a MAVLink client, captures 8 message types at 10\,Hz, and writes structured CSV logs.
     \item The ML Pipeline reads raw CSV files and sequentially executes data cleaning, automated labelling, sliding window creation, and model training.
-    \item Trained models (RF and CNN) are serialised to disk for use by the inference engine.
+    \item Trained models are serialised to disk for use by the inference engine.
     \item The Live Inference Engine consumes streaming MAVLink telemetry, accumulates 30-sample windows, and outputs anomaly probabilities with terrain-aware model selection.
     \item The Streamlit Dashboard displays live anomaly probabilities and a GPS Trust Index gauge, with historical log replay capability.
 \end{enumerate}

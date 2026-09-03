@@ -160,12 +160,12 @@ Manesh et al.~\cite{Manesh2019} & GPS metrics only & MLP & No (offline) & No \\
 Guizzaro et al.~\cite{Guizzaro2022} & IMU + GPS & Neural Net & Yes & No \\
 Dang et al.~\cite{Dang2023} & GPS, cellular & GNN & Yes & No \\
 Chen et al.~\cite{Chen2023} & GPS + vision & Deep NN & Yes & No \\
-\textbf{This work} & \textbf{IMU + GPS + EKF} & \textbf{RF + CNN} & \textbf{Yes} & \textbf{Yes} \\
+\textbf{This work} & \textbf{IMU + GPS + EKF} & \textbf{Random Forest} & \textbf{Yes} & \textbf{Yes} \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-The present work is distinguished from prior approaches by three characteristics: (a) explicit targeting of the PX4 ecosystem with compatibility verification, (b) use of EKF innovation metrics as features alongside raw sensor data, providing both physical and filter-level anomaly signals, and (c) a cascaded architecture where physics-based heuristics and learned classifiers complement each other, enabling detection before training data is available while improving discrimination as labelled data accumulates.
+The present work is distinguished from prior approaches by three characteristics: (a) explicit targeting of the PX4 ecosystem with compatibility verification, (b) use of EKF innovation metrics as features alongside raw sensor data, providing both physical and filter-level anomaly signals, and (c) a cascaded architecture where physics-based heuristics and a learned Random Forest classifier complement each other, enabling detection before training data is available while improving discrimination as labelled data accumulates.
 
 \section{Research Gaps}
 

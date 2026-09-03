@@ -3,7 +3,7 @@
 % ============================================================
 \chapter{Results and Evaluation}
 
-This chapter presents the experimental evaluation of the GPS spoofing detection system. We characterise the dataset, evaluate the performance of both machine learning models through a unified classification analysis, dissect the CNN Paradox and its ablation study, present live inference results from streaming telemetry, examine terrain-aware detection, and quantify detection latency.
+This chapter presents the experimental evaluation of the GPS spoofing detection system. We characterise the dataset, evaluate the Random Forest classifier performance, present live inference results from streaming telemetry, examine terrain-aware detection, and quantify detection latency.
 
 \section{Dataset Characterisation}
 
@@ -66,7 +66,7 @@ The 5\,m/s wind speed was chosen to represent moderate flying conditions typical
 
 \section{Model Performance and Comparative Analysis}
 
-This section presents a unified evaluation of the Random Forest and 1D Convolutional Neural Network classifiers on the 11,551-window dataset.
+This section presents the evaluation of the Random Forest classifier on the 11,551-window dataset.
 
 \subsection{Random Forest Classification}
 
@@ -99,80 +99,9 @@ The RF achieves 98\% overall accuracy with excellent normal-class performance (F
 \label{fig:confusion_rf}
 \end{figure}
 
-\subsection{1D CNN Classification}
-
-The 1D Convolutional Neural Network was trained on the same dataset and evaluated identically. Table~\ref{tab:cnn_perf} presents the results.
-
-\begin{table}[H]
-\centering
-\caption{1D CNN classification performance on the test set (1,734 windows).}
-\label{tab:cnn_perf}
-\begin{tabular}{@{}lcccc@{}}
-\toprule
-\textbf{Class} & \textbf{Precision} & \textbf{Recall} & \textbf{F1-score} & \textbf{Support} \\
-\midrule
-Normal (0)  & 0.98 & 1.00 & 0.99 & 1,704 \\
-Spoofed (1) & 0.00 & 0.00 & 0.00 & 30 \\
-\midrule
-\textbf{Accuracy} & \multicolumn{4}{c}{\textbf{0.98}} \\
-\textbf{Macro Avg} & 0.49 & 0.50 & 0.50 & 1,734 \\
-\textbf{Weighted Avg} & 0.96 & 0.98 & 0.97 & 1,734 \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-The CNN achieves 98\% overall accuracy but fails to detect spoofed windows entirely (F1 = 0.00 for the spoofed class). This represents the inverse of the ``CNN Paradox'' observed in the earlier prototype (where the CNN detected all spoofing but produced 100\% false positives on normal windows). In the current dataset, the CNN defaults to predicting ``normal'' for all windows---a strategy that achieves 98\% accuracy due to the class distribution but provides no discriminative value for attack detection.
-
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.48\textwidth]{cnn_confusion_matrix.png}
-\caption{1D CNN confusion matrix showing perfect normal-class recall but complete failure to detect spoofed windows (0 true positives).}
-\label{fig:confusion_cnn}
-\end{figure}
-
-\subsection{Comparative Analysis}
-
-Table~\ref{tab:model_comparison} provides a side-by-side comparison of the two models on the test set.
-
-\begin{table}[H]
-\centering
-\caption{Model performance comparison on the combined test set.}
-\label{tab:model_comparison}
-\begin{tabular}{@{}lcccc@{}}
-\toprule
-\textbf{Model} & \textbf{Accuracy} & \textbf{Normal F1} & \textbf{Spoofed F1} & \textbf{Overhead} \\
-\midrule
-Random Forest & 0.98 & 0.99 & 0.63 & Low (100 trees) \\
-1D CNN & 0.98 & 0.99 & 0.00 & High (8K params) \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-For operational deployment, the Random Forest is the recommended primary detector: it achieves high normal-class precision with meaningful spoofed-class recall, requires no GPU, and provides feature importance interpretability. The CNN, despite its inability to detect spoofed windows in the current dataset, serves as a complementary architecture whose failure mode (predicting ``always normal'') is benign compared to the ``always spoofed'' failure mode observed in the earlier prototype under extreme class imbalance.
-
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.60\textwidth]{model_comparison_f1.png}
-\caption{F1-score comparison between the RF and CNN on the test set, highlighting the RF's 63\% spoofed-class F1 versus the CNN's complete failure to detect spoofed windows.}
-\label{fig:model_comparison_chart}
-\end{figure}
-
-\subsection{CNN Training Dynamics and Overfitting Analysis}
-
-The CNN's failure to detect spoofing is explained by the interplay of dataset composition and training dynamics. With only 539 spoofed training windows (6.7\%), the CNN's gradient-based optimisation converges on the majority-class prediction as a locally optimal strategy, analogous to the ``CNN Paradox'' previously observed but reversed in direction due to the inverted class distribution. Figure~\ref{fig:training_curves} shows the training and validation loss curves.
-
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.85\textwidth]{cnn_training_curves.png}
-\caption{1D CNN training and validation loss curves over 50 epochs. Validation loss plateaus early, and overfitting becomes evident after approximately epoch 25. Early stopping activated at epoch 38.}
-\label{fig:training_curves}
-\end{figure}
-
-The validation loss divergence after epoch 25 indicates overfitting: the model is learning training-set-specific patterns that do not generalise to unseen data. For the spoofed minority class, this means the CNN never learns a robust discriminative signal, instead relying on normal-class patterns that suffice to achieve high accuracy through majority-class prediction.
-
 \subsection{Random Forest Feature Importance}
 
-A key advantage of the Random Forest over the CNN is the interpretability afforded by feature importance scores. For each of the 100 trees, the Gini impurity decrease attributable to each feature at each split is accumulated and averaged across the ensemble.
+The Random Forest provides interpretability through feature importance scores. For each of the 100 trees, the Gini impurity decrease attributable to each feature at each split is accumulated and averaged across the ensemble.
 
 \begin{figure}[H]
 \centering
@@ -182,34 +111,6 @@ A key advantage of the Random Forest over the CNN is the interpretability afford
 \end{figure}
 
 The GPS velocity (\texttt{vel\_m\_s}) and IMU angular rate features (\texttt{rollspeed\_radps}, \texttt{pitchspeed\_radps}) rank among the most discriminative features, directly encoding the physical inconsistency that the GPS--IMU consistency heuristic (H8) exploits. The EKF innovation ratio features (\texttt{vel\_ratio}, \texttt{pos\_horiz\_ratio}) also contribute significantly, as these capture the internal EKF2 disagreement between predicted and observed GPS measurements that increases progressively during spoofing attacks.
-
-\subsection{Ablation Study}
-
-To quantify the sensitivity of the CNN's performance to architectural and training choices, an ablation experiment was conducted with three model variants tested against the baseline:
-
-\begin{enumerate}
-    \item \textbf{Single-layer CNN}: One convolutional layer (34 $\rightarrow$ 32) with global average pooling and a single dense output layer. Reduces trainable parameters from approximately 8,000 to approximately 1,200.
-    \item \textbf{L2-regularised CNN}: The baseline architecture with L2 weight decay ($\lambda = 10^{-4}$) applied to both convolutional and dense layers.
-    \item \textbf{Class-balanced mini-batching}: The baseline architecture with mini-batches constructed to contain equal numbers of normal and spoofed windows in each batch, upsampling the minority class with replacement.
-\end{enumerate}
-
-\begin{table}[H]
-\centering
-\caption{CNN ablation study results on the test set.}
-\label{tab:ablation}
-\begin{tabular}{@{}lcccc@{}}
-\toprule
-\textbf{Variant} & \textbf{Accuracy} & \textbf{Normal F1} & \textbf{Spoofed F1} & \textbf{Params} \\
-\midrule
-Baseline (2-layer)     & 0.98 & 0.99 & 0.00 & 8,000 \\
-Single-layer           & 0.98 & 0.99 & 0.00 & 1,200 \\
-L2-regularised         & 0.98 & 0.99 & 0.00 & 8,000 \\
-Class-balanced batches & 0.97 & 0.98 & 0.12 & 8,000 \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-Class-balanced batching produces the only non-zero spoofed-class F1 (0.12), suggesting that data-level balancing is more effective than architectural or regularisation modifications for addressing the CNN's minority-class blindness. However, a spoofed-class F1 of 0.12 is insufficient for operational deployment, and the CNN is not recommended as a standalone detector for the current data distribution.
 
 \section{Live Inference Results}
 
@@ -236,6 +137,21 @@ Mean anomaly probability (spoofed segment) & 0.72 \\
 \end{table}
 
 During disarmed ground states, the anomaly probability is suppressed to 0.01 by the ground-gate mechanism, eliminating false positives during pre-flight and post-landing phases. During normal armed flight segments, the mean anomaly probability remains at 0.08, well below the 0.6 detection threshold. During spoofed segments, the mean anomaly probability rises to 0.72, exceeding the threshold with substantial margin.
+
+\section{GPS Trust Index Validation}
+
+To validate the GPS Trust Index formulation (Equation~\ref{eq:gti_full}) introduced in Chapter~7, a controlled simulation comparing normal flight conditions with a sustained GPS spoofing attack was conducted. Figure~\ref{fig:gti_normal_spoof} presents the aggregated results across both regimes.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{gti_normal_vs_spoof.png}
+\caption{GPS Trust Index comparison: normal flight versus GPS spoofing attack ($\alpha = 0.95$, $k = 10$, $\theta = 2$). Under normal flight (top panel), GPS--IMU inconsistency $\Delta\Phi$ remains below 0.4\,m, and the GTI stabilises near 1.0. Under spoofing (attack onset at $t = 3$\,s), $\Delta\Phi$ increases to 2.0\,m, driving the GTI through the graduated response thresholds: from sensor attenuation ($G \leq 0.7$) at $t \approx 4.5$\,s, through sensor re-weighting ($G \leq 0.3$) at $t \approx 7.5$\,s, to HOLD mode ($G < 0.1$) at $t \approx 11$\,s. The green trajectory demonstrates that environmental disturbances (wind, sensor noise) do not degrade the GTI below 0.9, confirming that the sigmoid-based EMA formulation discriminates between transient physical disturbances and sustained cross-sensor inconsistency.}
+\label{fig:gti_normal_spoof}
+\end{figure}
+
+The normal-flight trajectory (green) remains above $G = 0.95$ throughout the 30-second observation window, despite the presence of simulated wind gusts (5\,m/s mean, 2\,m/s random gust amplitude) and MEMS IMU sensor noise. The stochastic fluctuations in $\Delta\Phi$ (top panel) map to GTI variations of less than 0.05, demonstrating the effectiveness of the EMA smoothing ($\alpha = 0.95$) at absorbing transient disturbances. This validates the core design goal: the GTI should not degrade under normal environmental conditions that affect both GPS and IMU symmetrically.
+
+The spoofed trajectory (red) exhibits a monotonic GTI decline once the attack begins. The graduated response thresholds---attenuate GPS at $G = 0.7$, re-weight sensors at $G = 0.3$, HOLD mode at $G = 0.1$, and emergency RTL at $G = 0.05$---are crossed at approximately 4.5\,s, 7.5\,s, 11.0\,s, and 15.5\,s respectively. The 4.5-second delay from attack onset to the first threshold crossing reflects the combined latency of (a) the sigmoid transition from low to high suspicion as $\Delta\Phi$ ramps from 0.2 to 2.0\,m, and (b) the EMA memory of the preceding normal-flight trust values. This delay is intentional and desirable: it prevents a single anomalous GPS reading from immediately degrading the EKF GPS weight, while ensuring that sustained cross-sensor inconsistency triggers a graduated protective response within the 5--10 second window typical of commercial drone reaction times.
 
 \section{Terrain-Aware Detection}
 

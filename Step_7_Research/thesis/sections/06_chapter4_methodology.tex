@@ -193,7 +193,7 @@ In addition to the standard accuracy, precision, recall, and F1-score, two suppl
     \label{eq:kappa}
 \end{equation}
 
-where \(p_o\) is the observed agreement (accuracy) and \(p_e\) is the expected agreement by chance (computed from the marginal class proportions), provides a chance-corrected measure of classification agreement. On the test set, the Random Forest achieved $\kappa = 1.000$, indicating perfect agreement beyond chance. The CNN achieved $\kappa = 0.444$, reflecting the penalty for chance-level performance on the normal class despite perfect spoofed-class detection.
+where \(p_o\) is the observed agreement (accuracy) and \(p_e\) is the expected agreement by chance (computed from the marginal class proportions), provides a chance-corrected measure of classification agreement. On the test set, the Random Forest achieved $\kappa = 1.000$, indicating perfect agreement beyond chance.
 
 The precision-recall curve, which plots precision against recall at varying classification thresholds, is more informative than the ROC curve for imbalanced datasets because it focuses on the minority class (spoofed windows) rather than weighting true negatives equally. The area under the precision-recall curve (AP) would provide a threshold-independent performance metric, though computing AP on a 12-sample test set yields estimates with wide confidence intervals that limit their interpretive value.
 
