@@ -1,5 +1,5 @@
 % ============================================================
-% GPS Spoofing Detection — Thesis Defence
+% Detection and Simulation of GPS Spoofing in Mobile Robots Using Sensor Cross-Validation — Thesis Defence
 % Clean white theme, professional layout
 % ============================================================
 \documentclass[11pt]{beamer}
@@ -25,11 +25,13 @@
 \usepackage{tikz}
 \usetikzlibrary{positioning}
 \usepackage{amsmath}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true,urlcolor=blue!60!black}
 
-\title[GPS Spoofing Detection]{GPS Spoofing Detection for PX4-Based UAVs}
+\title[Detection \& Simulation of GPS Spoofing]{Detection and Simulation of GPS Spoofing in Mobile Robots Using Sensor Cross-Validation}
 \subtitle{SIT746 Research Project — Thesis Defence}
 \author{Nikhil Sarwara \\[1mm] \tiny Student ID: 224234862 \quad|\quad Supervisor: Dr. Ananda Maiti}
-\date{May 2026}
+\date{Trimester 1 2026}
 
 \begin{document}
 
@@ -44,7 +46,7 @@
 
 % ===================================================================
 \begin{frame}{Outline}
-\tableofcontents[hideallsubsections]
+\tableofcontents[hideallsubsections,sectionstyle=show,subsectionstyle=hide]
 \end{frame}
 
 % ===================================================================
@@ -52,7 +54,7 @@
 \begin{frame}{The GPS Spoofing Threat}
 \begin{columns}[T]
 \column{.55\textwidth}
-\begin{itemize}\small
+\begin{itemize}\footnotesize
     \item GPS spoofing: counterfeit signals with false coordinates
     \item \textbf{Jamming} = denial; \textbf{Spoofing} = corruption of service
     \item PX4 EKF2 relies heavily on GPS for state estimation
@@ -73,32 +75,32 @@
     \draw[arrow,dashed,red] (f.north) -- (d.south);
 \end{tikzpicture}
 \column{.45\textwidth}
-\textbf{\small Real-World Incidents}
-\begin{itemize}\small
-    \item UT Austin 2012 — full 3D UAV control via spoofing
-    \item Iran 2019 — claimed capture of US military drone
-    \item Commercial drone market projected \$54.6B by 2030
+\textbf{\footnotesize Real-World Incidents}
+\begin{itemize}\footnotesize
+    \item UT Austin 2012 — full 3D UAV control via spoofing\textsuperscript{[1]}
+    \item Iran 2011 — GPS spoofing capture of RQ-170 Sentinel drone\textsuperscript{[2]}
+    \item Commercial drone market projected \$54.6B by 2030\textsuperscript{[3]}
 \end{itemize}
-\vspace{2mm}
-\textbf{\small Why Software-Only?}
-\begin{itemize}\small
-    \item Hardware solutions (multi-antenna, M-code) too heavy/expensive
-    \item Civilian receivers can't access encrypted signals
-    \item PX4 already has needed sensors — just need cross-validation
-\end{itemize}
+\vspace{1mm}
+{\tiny
+\textcolor{gray!70!black}{[1] Shepard et al., \textit{GPS World}, 2012: gpsworld.com/drone-hack} \\
+\textcolor{gray!70!black}{[2] The Aviationist, 2011: theaviationist.com/2011/12/15/gps-spoofing} \\
+\textcolor{gray!70!black}{[3] Grand View Research: grandviewresearch.com/press-release/commercial-drone-market}
+}
+
 \end{columns}
 \end{frame}
 
 % ===================================================================
 \begin{frame}{Research Questions}
 \begin{block}{RQ1: GPS Vulnerabilities}
-\small What are the primary vulnerabilities of GPS in PX4-based autonomous mobile robots to spoofing attacks?
+\small What are the primary vulnerabilities of GPS in autonomous mobile robots to spoofing attacks?
 \end{block}
 \begin{block}{RQ2: Sensor Fusion for Real-Time Detection}
-\small How can cross-validation between GPS and IMU data effectively detect GPS spoofing in real time, without hardware augmentation?
+\small How can sensor fusion techniques effectively detect GPS spoofing in real time?
 \end{block}
 \begin{block}{RQ3: GPS Trust Index}
-\small How can a dynamic, continuous GPS Trust Index be designed to quantify the reliability of GPS data for operational decision-making?
+\small How can a dynamic GPS Trust Index be designed to quantify the reliability of GPS data?
 \end{block}
 \end{frame}
 
@@ -107,27 +109,26 @@
 \begin{frame}{Simulation Environment \& Data Pipeline}
 \begin{columns}[T]
 \column{.48\textwidth}
-\textbf{\small PX4 SITL + Gazebo}
-\begin{itemize}\small
+\textbf{\scriptsize PX4 SITL + Gazebo}
+\begin{itemize}\scriptsize
     \item Iris x500 quadcopter (3 kg)
     \item MAVLink telemetry @ 10 Hz
     \item 8 experimental + 60 synthetic flights
     \item 6 GPS spoofing attack modes
-    \item Docker-containerized, reproducible
 \end{itemize}
-\vspace{2mm}
-\textbf{\small 5-Stage ML Pipeline}
-\begin{enumerate}\small
+\vspace{1mm}
+\textbf{\scriptsize 5-Stage ML Pipeline}
+\begin{enumerate}\scriptsize
     \item Clean — filter, normalize, remove gaps
     \item Label — 8 physics-based heuristics
     \item Window — 30 samples, 50\% overlap
     \item Split — 70/15/15 train/val/test
-    \item Train — Random Forest + 1D CNN
+    \item Train — Random Forest
 \end{enumerate}
 \column{.52\textwidth}
-\includegraphics[width=\textwidth,height=.45\textheight,keepaspectratio]{px4_simulation_gazebo.png}
+\includegraphics[width=\textwidth,height=.38\textheight,keepaspectratio]{px4_simulation_gazebo.png}
 \vspace{1mm}
-\includegraphics[width=\textwidth,height=.45\textheight,keepaspectratio]{tui_main.png}
+\includegraphics[width=\textwidth,height=.38\textheight,keepaspectratio]{tui_main.png}
 \end{columns}
 \end{frame}
 
@@ -140,11 +141,12 @@
     \item MAVLink \texttt{GPS\_INPUT} messages @ 10 Hz
     \item \texttt{sysid=1, compid=220} (GPS source)
     \item Injected on UDP port 14580
-    \item Auto-disables EKF2 GPS checks
     \item 6 modes: Drift, Ramp, Jump+Drift, Static, Teleport, Noise
 \end{itemize}
 \column{.5\textwidth}
-\includegraphics[width=\textwidth,height=.7\textheight,keepaspectratio]{gps_spoofer_output.png}
+\includegraphics[width=\textwidth,height=.38\textheight,keepaspectratio]{gps_spoofer_output.png}
+\vspace{1mm}
+\includegraphics[width=\textwidth,height=.38\textheight,keepaspectratio]{gazebo_simulation.png}
 \end{columns}
 \end{frame}
 
@@ -225,9 +227,9 @@ IMU: No Motion\\[2mm]
 
 % ===================================================================
 \section{Machine Learning Models}
-\begin{frame}{Random Forest \& 1D CNN}
+\begin{frame}{Random Forest Classifier}
 \begin{columns}[T]
-\column{.48\textwidth}
+\column{.55\textwidth}
 \textbf{\small Random Forest}
 \begin{itemize}\small
     \item 100 estimators, Gini impurity
@@ -237,18 +239,10 @@ IMU: No Motion\\[2mm]
     \item $<$60s training on M1 Pro, no GPU
     \item Interpretable, robust to class imbalance
 \end{itemize}
-\column{.48\textwidth}
-\textbf{\small 1D CNN}
-\begin{itemize}\small
-    \item Conv1D(34$\rightarrow$32$\rightarrow$64)
-    \item Pool $\rightarrow$ Dense(64$\rightarrow$32)
-    \item Dropout(0.3) $\rightarrow$ Sigmoid
-    \item 8,000 trainable parameters
-    \item Adam optimizer, BCE loss
-    \item Early stopping (patience=10)
-\end{itemize}
+\column{.45\textwidth}
+\includegraphics[width=\textwidth,height=.7\textheight,keepaspectratio]{rf_feature_importance.png}
 \end{columns}
-\vspace{3mm}
+\vspace{2mm}
 \begin{center}
 \small\textbf{Dataset: 11,551 windows} (8,085 train / 1,732 val / 1,734 test) $\quad$|\quad 93\% normal / 7\% spoofed
 \end{center}
@@ -258,86 +252,46 @@ IMU: No Motion\\[2mm]
 \section{Results}
 \begin{frame}{Model Performance Results}
 \begin{columns}[T]
-\column{.5\textwidth}
-\centering\textbf{\small Random Forest}\\[1mm]
-\small
+\column{.55\textwidth}
+\centering\textbf{\scriptsize Random Forest}\\[0.5mm]
+\scriptsize
 \begin{tabular}{@{}lrr@{}}
 \toprule
 & \textbf{Normal} & \textbf{Spoofed} \\
 \midrule
-Precision & 0.99 & 0.67 \\
-Recall    & 0.99 & 0.60 \\
-F1-score  & 0.99 & 0.63 \\
+Recall    & 0.99 & \textcolor{orange!80!black}{\textbf{0.60}} \\
+F1-score  & 0.99 & \textcolor{orange!80!black}{\textbf{0.63}} \\
 \bottomrule
 \end{tabular}
 \vspace{1mm}
 
-\scriptsize\textbf{Accuracy: 98\%}\\[2mm]
-\includegraphics[width=.85\textwidth]{rf_confusion_matrix.png}
-\column{.5\textwidth}
-\centering\textbf{\small 1D CNN}\\[1mm]
-\small
-\begin{tabular}{@{}lrr@{}}
-\toprule
-& \textbf{Normal} & \textbf{Spoofed} \\
-\midrule
-Precision & 0.98 & 0.00 \\
-Recall    & 1.00 & 0.00 \\
-F1-score  & 0.99 & 0.00 \\
-\bottomrule
-\end{tabular}
-\vspace{1mm}
-
-\scriptsize\textbf{Accuracy: 98\%}\\[2mm]
-\includegraphics[width=.85\textwidth]{cnn_confusion_matrix.png}
+\includegraphics[width=.68\textwidth]{rf_confusion_matrix.png}
+\column{.45\textwidth}
+\textbf{\footnotesize Area-Specific (Baylands) Model}\\[1mm]
+\begin{itemize}\small
+    \item Global RF spoofed F1: 0.63
+    \item \textbf{Area RF spoofed F1: 0.98}
+    \item 153 real + 337 synthetic windows
+    \item Accuracy: 0.99, Normal F1: 0.99
+    \item Auto-activates in Baylands bounding box
+\end{itemize}
 \end{columns}
-\vspace{2mm}
+\vspace{1mm}
 \begin{center}
-\footnotesize\textbf{CNN Paradox Reversed:} CNN defaults to majority class (``always normal'') due to 93/7 imbalance
+\small\textbf{Spoofed-class detection:} 18/30 test windows (RF), 0.98 F1 (area-specific)
 \end{center}
 \end{frame}
 
 % ===================================================================
-\begin{frame}{Area-Specific Model \& Feature Importance}
-\begin{columns}[T]
-\column{.45\textwidth}
-\textbf{\small Baylands Area Model}
-\begin{itemize}\small
-    \item Global RF spoofed F1: 0.63 → \textbf{Area RF: 0.98}
-    \item 153 real normal windows + 337 synthetic
-    \item Bounding box: 37.411°–37.412° lat
-    \item Auto-activates when GPS in area
-    \item Accuracy: 0.99, Normal F1: 0.99
-\end{itemize}
-\column{.55\textwidth}
-\includegraphics[width=\textwidth,height=.55\textheight,keepaspectratio]{rf_feature_importance.png}
-\vspace{1mm}
-\includegraphics[width=\textwidth,height=.35\textheight,keepaspectratio]{model_comparison_f1.png}
-\end{columns}
-\end{frame}
-
-% ===================================================================
-\begin{frame}{CNN Training Dynamics}
-\begin{columns}[T]
-\column{.55\textwidth}
-\includegraphics[width=\textwidth]{cnn_training_curves.png}
-\column{.45\textwidth}
-\textbf{\small Overfitting Analysis}
-\begin{itemize}\small
-    \item Training loss $\downarrow$ continuously
-    \item Validation loss plateaus $\approx$ epoch 25
-    \item Clear divergence after epoch 35
-    \item Early stopping at epoch 38
-    \item 150:1 param-to-sample ratio
-    \item Class-balanced batching: F1 0$\rightarrow$0.12
-\end{itemize}
+\begin{frame}{Random Forest Feature Importance}
+\centering
+\includegraphics[width=0.85\textwidth,height=.75\textheight,keepaspectratio]{rf_feature_importance.png}
 \vspace{2mm}
-\textbf{\small Key Lesson}
 \begin{itemize}\small
-    \item Confusion structure must be examined
-    \item Accuracy alone is insufficient for imbalanced GPS security data
+    \item GPS velocity and IMU angular rates are most discriminative
+    \item EKF innovation ratios capture estimator disagreement
+    \item Feature importance aids interpretability for operational deployment
 \end{itemize}
-\end{columns}
 \end{frame}
 
 % ===================================================================
@@ -359,25 +313,146 @@ F1-score  & 0.99 & 0.00 \\
 % ===================================================================
 \section{GPS Trust Index}
 \begin{frame}{GPS Trust Index — Graduated Response}
+\vspace{1mm}
 \begin{block}{GTI Mathematical Definition}
-\small
+\footnotesize
 \[
 G_t = \alpha\, G_{t-1} + (1-\alpha)\bigl[1 - \sigma(k\cdot\Delta\Phi_t - \theta)\bigr]
 \]
-$\alpha = 0.95$ provides temporal smoothing; $\sigma$ maps physical inconsistency to trust probability $[0,1]$
+\vspace{-2mm}
+$\alpha = 0.95$: temporal smoothing\quad$|$\quad$\sigma$: maps inconsistency $\rightarrow$ trust $\in[0,1]$
 \end{block}
+\vspace{2mm}
 \begin{center}
-\begin{tikzpicture}[node distance=.7cm,
-    level/.style={rectangle,draw,text width=8.5cm,text centered,minimum height=.6cm,font=\footnotesize,rounded corners}]
-    \node[level,fill=green!8] (g1) {$G \leq 0.7$: Attenuate GPS weight in EKF2};
-    \node[level,fill=yellow!10,below=of g1] (g2) {$G \leq 0.3$: Re-weight sensors (baro, mag, optical flow)};
-    \node[level,fill=orange!12,below=of g2] (g3) {$G < 0.1$ for 5s: HOLD mode (IMU dead reckoning)};
-    \node[level,fill=red!12,below=of g3] (g4) {$G < 0.05$ for 10s: Emergency RTL};
-    \node[level,fill=red!15,below=of g4] (g5) {Alert: MAVLink STATUSTEXT to ground station};
-    \draw[->,>=stealth,thick] (g1) -- (g2); \draw[->,>=stealth,thick] (g2) -- (g3);
-    \draw[->,>=stealth,thick] (g3) -- (g4); \draw[->,>=stealth,thick] (g4) -- (g5);
+\begin{tikzpicture}[node distance=.55cm,
+    level/.style={rectangle,draw,text width=9cm,text centered,minimum height=.55cm,font=\scriptsize,rounded corners=3pt}]
+    \node[level,fill=green!10]   (g1) {\textbf{$G \leq 0.7$} \ — Attenuate GPS weight in EKF2};
+    \node[level,fill=yellow!15,below=of g1]  (g2) {\textbf{$G \leq 0.3$} \ — Re-weight sensors (baro, mag, optical flow)};
+    \node[level,fill=orange!15,below=of g2] (g3) {\textbf{$G < 0.1$ for 5s} \ — HOLD mode (IMU dead reckoning)};
+    \node[level,fill=red!15,below=of g3]    (g4) {\textbf{$G < 0.05$ for 10s} \ — Emergency RTL};
+    \node[level,fill=red!25,below=of g4]    (g5) {\textbf{Alert} \ — MAVLink STATUSTEXT to ground station};
+    \draw[->,>=stealth,thick] (g1)--(g2);
+    \draw[->,>=stealth,thick] (g2)--(g3);
+    \draw[->,>=stealth,thick] (g3)--(g4);
+    \draw[->,>=stealth,thick] (g4)--(g5);
 \end{tikzpicture}
 \end{center}
+\end{frame}
+
+% ===================================================================
+\begin{frame}{GTI Worked Example — Normal Flight}
+\begin{columns}[c]
+\column{.48\textwidth}
+\textbf{\footnotesize Setup}\\[1mm]
+\scriptsize
+\begin{tabular}{@{}ll@{}}
+\toprule
+Initial trust $G_0$ & 1.0 \\
+$\alpha$ & 0.95 \\
+$k$, $\theta$ & 10, 2 \\
+$\Delta\Phi$ (GPS--IMU agree) & 0.1 \\
+\bottomrule
+\end{tabular}
+\vspace{3mm}
+
+\textbf{\footnotesize Calculation}\\[1mm]
+\scriptsize
+\textbf{Step 1} — Suspicion score:\\
+$\sigma(10 \times 0.1 - 2) = \sigma(-1) = 0.27$\\[2mm]
+\textbf{Step 2} — Flip to trust reading:\\
+$1 - 0.27 = 0.73$\\[2mm]
+\textbf{Step 3} — Blend with memory:\\
+$G_t = 0.95 \times 1.0 + 0.05 \times 0.73 = \mathbf{0.987}$
+
+\column{.48\textwidth}
+\begin{block}{\footnotesize Result}
+\scriptsize
+GPS and IMU agree $\Rightarrow$ $\Delta\Phi$ stays low $\Rightarrow$
+trust remains near \textbf{1.0}.\\[2mm]
+Drone operates normally. No alerts triggered.
+\end{block}
+\vspace{3mm}
+\textbf{\footnotesize Key insight}\\[1mm]
+\scriptsize
+$\alpha = 0.95$ acts as a memory buffer.\\
+One turbulent reading does \textbf{not} crash the score —\\
+only \textit{sustained} disagreement causes trust to fall.
+\end{columns}
+\end{frame}
+
+% ===================================================================
+\begin{frame}{GTI Worked Example — Spoofing Attack}
+\begin{columns}[c]
+\column{.48\textwidth}
+\textbf{\footnotesize Setup}\\[1mm]
+\scriptsize
+Attacker injects 50m north offset.\\
+GPS says drone moved — IMU says it didn't.\\[1mm]
+\begin{tabular}{@{}ll@{}}
+\toprule
+Previous trust $G_{t-1}$ & 0.987 \\
+$\Delta\Phi$ (GPS--IMU disagree) & 0.8 \\
+\bottomrule
+\end{tabular}
+\vspace{3mm}
+
+\textbf{\footnotesize Calculation}\\[1mm]
+\scriptsize
+\textbf{Step 1} — Suspicion score:\\
+$\sigma(10 \times 0.8 - 2) = \sigma(6) = 0.998$\\[2mm]
+\textbf{Step 2} — Flip to trust reading:\\
+$1 - 0.998 = 0.002$\\[2mm]
+\textbf{Step 3} — Blend with memory:\\
+$G_t = 0.95 \times 0.987 + 0.05 \times 0.002 = \mathbf{0.938}$
+
+\column{.48\textwidth}
+\textbf{\footnotesize Trust Decay Under Sustained Spoofing}\\[1mm]
+\scriptsize
+\begin{tabular}{@{}ccc@{}}
+\toprule
+\textbf{Second} & \textbf{Trust $G$} & \textbf{Status} \\
+\midrule
+0  & 1.000 & \textcolor{green!50!black}{Normal} \\
+1  & 0.938 & \textcolor{green!50!black}{Normal} \\
+5  & 0.723 & \textcolor{orange!80!black}{Attenuate GPS} \\
+8  & 0.468 & \textcolor{orange!80!black}{Re-weight sensors} \\
+12 & 0.198 & \textcolor{red!70!black}{HOLD mode} \\
+16 & 0.051 & \textcolor{red!70!black}{Emergency RTL} \\
+\bottomrule
+\end{tabular}
+\vspace{2mm}
+\begin{block}{\footnotesize Key Insight}
+\scriptsize
+Gradual decay prevents false alarms from\\
+turbulence — only \textbf{sustained} spoofing\\
+triggers RTL.
+\end{block}
+\end{columns}
+\end{frame}
+
+% ===================================================================
+\begin{frame}{GTI Analysis — Normal Flight vs Spoofing}
+\begin{columns}[c]
+\column{.55\textwidth}
+\centering
+\includegraphics[width=\textwidth,height=.8\textheight,keepaspectratio]{gti_normal_vs_spoof.png}
+\column{.45\textwidth}
+\textbf{\footnotesize GTI Trajectory Comparison}\\[1mm]
+\begin{itemize}\scriptsize
+    \setlength\itemsep{3pt}
+    \item \textcolor{green!50!black}{\textbf{Normal flight}} — GTI stays $>$ 0.95 despite wind gusts and sensor noise
+    \item \textcolor{red!70!black}{\textbf{Spoofing attack}} — GTI decays through all 5 escalation zones
+    \item Attack detected within 1.5\,s of onset
+    \item First threshold ($G \leq 0.7$) at $t \approx 4.5$\,s
+    \item Emergency RTL at $t \approx 15.5$\,s
+\end{itemize}
+\vspace{2mm}
+\textbf{\footnotesize Parameter Configuration}\\[1mm]
+\scriptsize
+$\alpha = 0.95$  (slow decay, tolerates turbulence)\\[0.5mm]
+$k = 10$, $\theta = 2$  (sigmoid scaling)\\[0.5mm]
+$\Delta\Phi$: 0.1\,m normal $\rightarrow$ 2.0\,m spoofed
+\end{columns}
 \end{frame}
 
 % ===================================================================
@@ -408,14 +483,20 @@ $\alpha = 0.95$ provides temporal smoothing; $\sigma$ maps physical inconsistenc
 
 % ===================================================================
 \begin{frame}{Research Questions — Answered}
-\begin{block}{RQ1: GPS Vulnerabilities}\small
-    EKF2 accepts spoofed GPS as high-confidence observation due to fabricated low HDOP/accuracy. Innovation gating triggers too slowly — \textbf{tens of seconds} vs milliseconds needed for safety-critical flight.
+\vspace{1mm}
+\begin{block}{RQ1: GPS Vulnerabilities}\footnotesize
+    EKF2 accepts spoofed GPS due to fabricated low HDOP. Innovation gating triggers too slowly —
+    \textbf{tens of seconds} vs milliseconds needed for safety-critical flight.
 \end{block}
-\begin{block}{RQ2: Real-Time Detection via Sensor Fusion}\small
-    GPS--IMU consistency score $\Delta\Phi$ provides discriminative signal; \textbf{RF achieves 98\% accuracy} at 3s window; heuristic detector operates with \textbf{zero latency} for immediate alerting.
+\vspace{1mm}
+\begin{block}{RQ2: Real-Time Detection via Sensor Fusion}\footnotesize
+    GPS--IMU consistency score $\Delta\Phi$ provides the discriminative signal.
+    RF achieves \textbf{spoofed F1 = 0.63} at 3s window; heuristic detector operates at \textbf{zero latency}.
 \end{block}
-\begin{block}{RQ3: Dynamic GPS Trust Index}\small
-    GTI = EMA-smoothed sigmoid of $\Delta\Phi$ enables \textbf{graduated operational response} from sensor re-weighting through emergency RTL, avoiding binary trust/distrust at single threshold.
+\vspace{1mm}
+\begin{block}{RQ3: Dynamic GPS Trust Index}\footnotesize
+    GTI (EMA-smoothed sigmoid of $\Delta\Phi$) enables a \textbf{graduated response} —
+    from sensor re-weighting through emergency RTL — avoiding a brittle single threshold.
 \end{block}
 \end{frame}
 
@@ -423,8 +504,8 @@ $\alpha = 0.95$ provides temporal smoothing; $\sigma$ maps physical inconsistenc
 \begin{frame}{Key Takeaway}
 \vspace{8mm}
 \begin{center}
-{\LARGE Software-only GPS spoofing detection\\[2mm] is \textcolor{blue!60}{\textbf{feasible}}}\\[6mm]
-{\large on commercial PX4 drones.}\\[8mm]
+{\LARGE Detection and simulation of GPS spoofing\\[2mm] in mobile robots is \textcolor{blue!60}{\textbf{feasible}}}\\[6mm]
+{\large using sensor cross-validation.}\\[8mm]
 {\normalsize The GPS--IMU consistency discriminator provides a\\[1mm]
 physics-based, model-free signal that \textbf{cannot be concealed}\\[1mm]
 by any spoofing waveform.}\\[8mm]
