@@ -219,7 +219,7 @@ def main():
 
     # --- Load real flights (testing) ---
     print("\n[2/4] Loading real flights (test only)...")
-    X_real, y_real, real_files = load_real_flights_for_test()
+    X_real, y_real, real_files, per_file_windows = load_real_flights_for_test()
     print(f"\n  Real total: {len(X_real)} windows")
     if len(X_real) > 0:
         print(f"  Label dist: {dict(zip(*np.unique(y_real, return_counts=True)))}")
