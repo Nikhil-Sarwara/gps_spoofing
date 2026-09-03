@@ -204,8 +204,13 @@ def main():
     print("\n[4/4] Feature importance (top 10):")
     importances = rf.feature_importances_
     indices = np.argsort(importances)[::-1]
-    for i in range(min(10, len(indices))):
-        print(f"  {FEATURE_COLS[indices[i]]}: {importances[indices[i]]:.4f}")
+    n_features = min(10, len(indices), len(FEATURE_COLS))
+    for i in range(n_features):
+        idx = indices[i]
+        if idx < len(FEATURE_COLS):
+            print(f"  {FEATURE_COLS[idx]}: {importances[idx]:.4f}")
+        else:
+            print(f"  feature_{idx}: {importances[idx]:.4f}")
 
     spoof_f1 = f1_score(y_test, test_pred, pos_label=1, zero_division=0)
     normal_f1 = f1_score(y_test, test_pred, pos_label=0, zero_division=0)
