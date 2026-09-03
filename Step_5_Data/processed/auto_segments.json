@@ -1,14 +1,248 @@
 [
   {
-    "start_s": 0.0,
-    "end_s": 10.0,
+    "start_s": 0.103,
+    "end_s": 33.239,
     "label": 0,
     "reason": "normal"
   },
   {
-    "start_s": 10.0,
-    "end_s": 59.900000000000006,
+    "start_s": 33.239,
+    "end_s": 46.091,
     "label": 1,
-    "reason": "accel_anomaly;gps_imu_mismatch;"
+    "reason": "gps_imu_mismatch;"
+  },
+  {
+    "start_s": 46.091,
+    "end_s": 46.914,
+    "label": 0,
+    "reason": "normal"
+  },
+  {
+    "start_s": 46.914,
+    "end_s": 48.352,
+    "label": 1,
+    "reason": "gps_imu_mismatch;"
+  },
+  {
+    "start_s": 48.352,
+    "end_s": 56.493,
+    "label": 0,
+    "reason": "normal"
+  },
+  {
+    "start_s": 56.493,
+    "end_s": 57.111,
+    "label": 1,
+    "reason": "gps_imu_mismatch;"
+  },
+  {
+    "start_s": 57.111,
+    "end_s": 57.212,
+    "label": 0,
+    "reason": "normal"
+  },
+  {
+    "start_s": 57.212,
+    "end_s": 63.298,
+    "label": 1,
+    "reason": "high_vibration;"
+  },
+  {
+    "start_s": 63.298,
+    "end_s": 65.25,
+    "label": 0,
+    "reason": "normal"
+  },
+  {
+    "start_s": 65.25,
+    "end_s": 66.379,
+    "label": 1,
+    "reason": "gps_imu_mismatch;"
+  },
+  {
+    "start_s": 66.379,
+    "end_s": 67.099,
+    "label": 0,
+    "reason": "normal"
+  },
+  {
+    "start_s": 67.099,
+    "end_s": 67.611,
+    "label": 1,
+    "reason": "gps_imu_mismatch;"
+  },
+  {
+    "start_s": 67.611,
+    "end_s": 67.714,
+    "label": 0,
+    "reason": "normal"
+  },
+  {
+    "start_s": 67.714,
+    "end_s": 68.529,
+    "label": 1,
+    "reason": "gps_imu_mismatch;"
+  },
+  {
+    "start_s": 68.529,
+    "end_s": 77.578,
+    "label": 0,
+    "reason": "normal"
+  },
+  {
+    "start_s": 77.578,
+    "end_s": 77.887,
+    "label": 1,
+    "reason": "gps_imu_mismatch;"
+  },
+  {
+    "start_s": 77.887,
+    "end_s": 78.299,
+    "label": 0,
+    "reason": "normal"
+  },
+  {
+    "start_s": 78.299,
+    "end_s": 89.492,
+    "label": 1,
+    "reason": "gps_imu_mismatch;"
+  },
+  {
+    "start_s": 89.492,
+    "end_s": 90.209,
+    "label": 0,
+    "reason": "normal"
+  },
+  {
+    "start_s": 90.209,
+    "end_s": 91.644,
+    "label": 1,
+    "reason": "gps_imu_mismatch;"
+  },
+  {
+    "start_s": 91.644,
+    "end_s": 96.783,
+    "label": 0,
+    "reason": "normal"
+  },
+  {
+    "start_s": 96.783,
+    "end_s": 97.09,
+    "label": 1,
+    "reason": "gps_imu_mismatch;"
+  },
+  {
+    "start_s": 97.09,
+    "end_s": 97.608,
+    "label": 0,
+    "reason": "normal"
+  },
+  {
+    "start_s": 97.608,
+    "end_s": 102.743,
+    "label": 1,
+    "reason": "gps_imu_mismatch;"
+  },
+  {
+    "start_s": 102.743,
+    "end_s": 103.458,
+    "label": 0,
+    "reason": "normal"
+  },
+  {
+    "start_s": 103.458,
+    "end_s": 104.997,
+    "label": 1,
+    "reason": "gps_imu_mismatch;"
+  },
+  {
+    "start_s": 104.997,
+    "end_s": 110.666,
+    "label": 0,
+    "reason": "normal"
+  },
+  {
+    "start_s": 110.666,
+    "end_s": 110.971,
+    "label": 1,
+    "reason": "gps_imu_mismatch;"
+  },
+  {
+    "start_s": 110.971,
+    "end_s": 111.477,
+    "label": 0,
+    "reason": "normal"
+  },
+  {
+    "start_s": 111.477,
+    "end_s": 121.107,
+    "label": 1,
+    "reason": "gps_imu_mismatch;"
+  },
+  {
+    "start_s": 121.107,
+    "end_s": 121.828,
+    "label": 0,
+    "reason": "normal"
+  },
+  {
+    "start_s": 121.828,
+    "end_s": 123.367,
+    "label": 1,
+    "reason": "gps_imu_mismatch;"
+  },
+  {
+    "start_s": 123.367,
+    "end_s": 128.926,
+    "label": 0,
+    "reason": "normal"
+  },
+  {
+    "start_s": 128.926,
+    "end_s": 129.236,
+    "label": 1,
+    "reason": "gps_imu_mismatch;"
+  },
+  {
+    "start_s": 129.236,
+    "end_s": 129.756,
+    "label": 0,
+    "reason": "normal"
+  },
+  {
+    "start_s": 129.756,
+    "end_s": 132.535,
+    "label": 1,
+    "reason": "gps_imu_mismatch;"
+  },
+  {
+    "start_s": 132.535,
+    "end_s": 133.252,
+    "label": 0,
+    "reason": "normal"
+  },
+  {
+    "start_s": 133.252,
+    "end_s": 133.767,
+    "label": 1,
+    "reason": "gps_imu_mismatch;"
+  },
+  {
+    "start_s": 133.767,
+    "end_s": 133.872,
+    "label": 0,
+    "reason": "normal"
+  },
+  {
+    "start_s": 133.872,
+    "end_s": 134.9,
+    "label": 1,
+    "reason": "gps_imu_mismatch;"
+  },
+  {
+    "start_s": 134.9,
+    "end_s": 138.804,
+    "label": 0,
+    "reason": "normal"
   }
 ]
