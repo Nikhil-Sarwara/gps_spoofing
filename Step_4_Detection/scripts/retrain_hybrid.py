@@ -296,10 +296,13 @@ def main():
     print("\n  === Feature importance (top 10) ===")
     importances = rf.feature_importances_
     indices = np.argsort(importances)[::-1]
-    n_feat = min(10, len(FEATURE_COLS), len(indices))
+    # Flatten: each window is 30 samples x 34 features = 1020 flat features
+    # Map flat index back to feature name via modulo
+    n_feat = min(10, len(indices))
     for i in range(n_feat):
         idx_f = indices[i]
-        print(f"  {FEATURE_COLS[idx_f]}: {importances[idx_f]:.4f}")
+        feat_name = FEATURE_COLS[idx_f % len(FEATURE_COLS)]
+        print(f"  {feat_name}: {importances[idx_f]:.4f}")
 
     spoof_f1 = f1_score(y_test, test_pred, pos_label=1, zero_division=0)
     normal_f1 = f1_score(y_test, test_pred, pos_label=0, zero_division=0)
