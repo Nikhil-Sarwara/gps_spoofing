@@ -28,7 +28,7 @@ WINDOW_LEN = 30
 STRIDE = 15
 MIN_WINDOW_LABEL_RATIO = 0.5
 ROOT = Path(__file__).resolve().parent.parent.parent
-SYNTHETIC_DIR = ROOT / "Step_5_Data" / "synthetic"
+SYNTHETIC_DIR = ROOT / "Step_5_Data" / "synthetic_v2"
 ARTIFACTS_DIR = ROOT / "Step_5_Data" / "artifacts"
 MODELS_DIR = ROOT / "Step_5_Data" / "models"
 
